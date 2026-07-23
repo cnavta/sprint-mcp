@@ -34,9 +34,9 @@ grep -Fq 'The LLM MUST NOT infer approval' "${agents_file}"
 grep -Fq '## 2.5.1 Intentional Commit Protocol' "${agents_file}"
 grep -Fq '## 2.5.2 Human Follow-Up Loop' "${agents_file}"
 grep -Fq '## 2.3.1 Backlog Accountability Contract' "${agents_file}"
-grep -Fq '`backlog.yaml` is the accountability contract for sprint commitments and current work state' "${agents_file}"
+grep -Fq '`backlog.yaml` is the authoritative commitment and current-state contract' "${agents_file}"
 grep -Fq 'Status changes are part of execution, not end-of-sprint bookkeeping.' "${agents_file}"
-grep -Fq 'Change `in-progress` to `done` only after every acceptance criterion is verified.' "${agents_file}"
+grep -Fq '| Complete | `in-progress → done` | Verify all acceptance criteria and add stable evidence. |' "${agents_file}"
 grep -Fq 'Stop → Clarify → Append → Continue' "${agents_file}"
 grep -Fq 'Place it at the end of `items` unless the human specifies another position' "${agents_file}"
 grep -Fq 'Every sprint-relevant Human–LLM turn MUST be recorded in `request-log.md`' "${agents_file}"
@@ -52,8 +52,8 @@ grep -Fq '# 🧪 2.6 Validation and Definition of Done' "${agents_file}"
 grep -Fq '**Required:** must run and pass; never mask failure' "${agents_file}"
 grep -Fq 'Documentation, research, and planning work instead validates applicable schemas' "${agents_file}"
 grep -Fq '# 🧱 3. Project Structure' "${agents_file}"
-grep -Fq '# 🧠 6. Sprint Lifecycle Summary' "${agents_file}"
 grep -Fq '## 2.9.1 Learning Artifacts for Future Extraction' "${agents_file}"
+test "$(grep -c 'Frame Together → LLM Plans' "${agents_file}")" -eq 1
 
 echo "Checking phase-loaded artifact references..."
 for reference in "${manifest_reference}" "${backlog_reference}" "${plan_reference}" "${validation_reference}" "${publication_reference}" "${verification_reference}" "${retro_reference}" "${learnings_reference}"; do
@@ -82,6 +82,10 @@ if grep -Eq '^# .*Project-Wide Definition of Done|^# .*Testing Standards|^# .*De
 fi
 if grep -Fq '# 👥 6. Collaboration Roles' "${agents_file}"; then
   echo "Found authority duplicated as collaboration roles." >&2
+  exit 1
+fi
+if grep -Eq 'Sprint Lifecycle Summary|# End of AGENTS.md' "${agents_file}"; then
+  echo "Found duplicate lifecycle or non-executable closing prose." >&2
   exit 1
 fi
 

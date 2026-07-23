@@ -89,11 +89,6 @@ When a sprint starts, the LLM MUST:
 
 Branch creation is an initialization requirement, not deferred publication work. If the working tree is dirty, preserve unrelated human changes, disclose the state, and stage only files within the approved sprint scope. If the branch cannot be created, keep the sprint in `planning`, log the blocker, and pause implementation.
 
-Example:
-```
-git checkout -b feature/sprint-7-a13b2f-user-profile-service
-```
-
 ---
 
 # 🧩 2.3 Sprint Directory Structure
@@ -112,7 +107,7 @@ planning/
     key-learnings.md
 ```
 
-This directory is the single authoritative source of truth for every sprint. Within it, `backlog.yaml` is the accountability contract for sprint commitments and current work state; `request-log.md` is the record of Human–LLM interactions, interpretations, decisions, and outcomes.
+This directory is the sprint's authoritative record.
 
 ---
 
@@ -124,9 +119,7 @@ Allowed lifecycle states are `planning`, `in-progress`, `validating`, `verifying
 
 ## 2.3.1 Backlog Accountability Contract
 
-Every sprint MUST maintain `backlog.yaml` as the authoritative contract for what the partnership has committed to deliver and the current state of each item. Update it as state changes occur, not only during verification or completion.
-
-`request-log.md` serves a different purpose: it records Human–LLM turns and why decisions were made. Backlog history contains concise state transitions and stable evidence references; it MUST NOT duplicate conversational narratives.
+`backlog.yaml` is the authoritative commitment and current-state contract; `request-log.md` records Human–LLM interactions and rationale. Update backlog state during execution. History contains concise transitions and evidence links, never duplicate conversation narratives.
 
 ### Required backlog shape
 
@@ -138,15 +131,17 @@ Fields may be extended for project needs, but their meanings MUST NOT be redefin
 
 ### Status transition rules
 
-- **Create:** Add a new item as `todo`, normally at the end of `items`, with acceptance criteria and `approval: pending` when approval is still required.
-- **Start:** Before implementation begins, change `todo` to `in-progress`. The item must have `approval: approved` or `not-required`, all required dependencies must be `done`, and the WIP limit must permit it.
-- **Block:** As soon as progress cannot continue, change the item to `blocked` and populate `blocked_reason` with the concrete unmet condition.
-- **Unblock:** When the condition clears, change `blocked` to `todo` or `in-progress`, clear `blocked_reason`, and state why work can resume.
-- **Complete:** Change `in-progress` to `done` only after every acceptance criterion is verified. Add stable evidence references such as commits, validation output, paths, or verification records.
-- **Defer or cancel:** Use `deferred` or `cancelled` only with explicit human direction. Record the reason and related Human–LLM turn.
-- **Materially revise:** When title, scope, priority, owner, dependencies, or acceptance criteria change, update the item timestamp and append a history record even if status does not change.
+| Event | Transition | Requirement |
+|---|---|---|
+| Create | `null → todo` | Acceptance defined; approval pending when required; append by default. |
+| Start | `todo → in-progress` | Approved/not-required; dependencies done; WIP available. |
+| Block | active → `blocked` | Set concrete `blocked_reason` immediately. |
+| Unblock | `blocked → todo/in-progress` | Clear reason and record why work can resume. |
+| Complete | `in-progress → done` | Verify all acceptance criteria and add stable evidence. |
+| Defer/cancel | active → terminal | Explicit human direction and linked turn required. |
+| Revise | status may remain | Record material scope, priority, owner, dependency, or acceptance changes. |
 
-Every transition or material revision MUST update both `item.updated_at` and `meta.updated_at`, append a concise `history` entry, and link the responsible `request-log.md` turn through `turn_id`. The backlog is the source of truth for current status; the request log is the source of truth for the interaction and rationale.
+Every row updates item and backlog timestamps and appends history with `turn_id`.
 
 ---
 
@@ -429,25 +424,3 @@ Logging:
 - Normalize external events to internal schema
 
 ---
-
-# 🧠 6. Sprint Lifecycle Summary
-
-```
-Frame Together → LLM Plan → Human Approve → LLM Implement + Commit
-    ↳ Human-Defined PR Path: Human | LLM | Automation, at the approved time
-    → Validate + Verify → Retro + Learn → Push Handoff
-    → Human Complete → Human-Defined Release (optional)
-```
-
-The system is designed for:
-
-- High traceability
-- Rigor
-- Iterative improvement
-- Explicit human authority
-- Effective Human–LLM handoffs
-- Extraction-ready organizational learning
-
----
-
-# End of AGENTS.md

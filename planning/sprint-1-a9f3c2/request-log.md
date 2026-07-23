@@ -276,6 +276,12 @@ Approve REQ-019 through REQ-024, execute them in declared order under `wip_limit
 - Measurement after REQ-021: 453 lines, 3,484 words, and 24,834 bytes.
 - `apply_patch` — moved REQ-021 to `done` and REQ-022 to `in-progress`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): centralize partnership authority"`.
+- REQ-022 removed the duplicate lifecycle summary, non-executable closing prose, duplicate branch example, and repeated backlog/request-log definitions.
+- Backlog transitions were compressed into a table preserving approval, dependency, WIP, blocker, human-direction, and evidence requirements.
+- `validate_deliverable.sh` passed after lifecycle compression.
+- Measurement after REQ-022: 426 lines, 3,238 words, and 23,097 bytes.
+- `apply_patch` — moved REQ-022 to `done` and REQ-023 to `in-progress`.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): compress lifecycle rules"`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23
