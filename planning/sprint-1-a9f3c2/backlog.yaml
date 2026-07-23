@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:28:14Z
+  updated_at: 2026-07-23T02:31:12Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -311,7 +311,7 @@ items:
   - id: REQ-021
     title: Centralize authority, handoff, PR, and release rules
     priority: P1
-    status: in-progress
+    status: done
     approval: approved
     owner: partnership
     dependencies: []
@@ -321,8 +321,8 @@ items:
       - Later phases reference the canonical authority rules instead of restating them.
       - Push handoff, optional PR policy, and human-defined release behavior remain explicit.
       - No LLM gains implicit release or PR authority.
-    evidence: []
-    updated_at: 2026-07-23T02:28:14Z
+    evidence: [path:AGENTS.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:31:12Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -339,11 +339,16 @@ items:
         to: in-progress
         reason: Prior declared work completed and the WIP limit permits authority-policy consolidation.
         turn_id: REQ-025
+      - at: 2026-07-23T02:31:12Z
+        from: in-progress
+        to: done
+        reason: Authority, handoff, PR, and release rules were centralized and validated.
+        turn_id: REQ-025
 
   - id: REQ-022
     title: Remove duplication and compress lifecycle rules
     priority: P2
-    status: todo
+    status: in-progress
     approval: approved
     owner: partnership
     dependencies: [REQ-019, REQ-021]
@@ -354,7 +359,7 @@ items:
       - Backlog transitions use a compact representation without losing preconditions or evidence duties.
       - Backlog and request-log responsibilities are defined once and referenced elsewhere.
     evidence: []
-    updated_at: 2026-07-23T02:23:33Z
+    updated_at: 2026-07-23T02:31:12Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -365,6 +370,11 @@ items:
         from: todo
         to: todo
         reason: Human approved implementation; item remains queued behind its dependencies.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:31:12Z
+        from: todo
+        to: in-progress
+        reason: REQ-019 and REQ-021 completed; the WIP limit permits lifecycle compression.
         turn_id: REQ-025
 
   - id: REQ-023

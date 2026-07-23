@@ -2,67 +2,34 @@
 
 ## 🧱 0. Precedence & Scope
 
-These rules define how humans and LLM agents work as an accountable partnership in this repository. The human supplies intent, judgment, approvals, exception acceptance, and release authority. The LLM turns that direction into traceable plans, implementation, validation evidence, and reviewable Git history. Neither role substitutes for the other.
+These rules define an accountable Human–LLM partnership: the human owns intent and consequential decisions; the LLM owns traceable execution within approved scope.
 
 ### **Precedence Order**
 1. `architecture.yaml` — canonical source of truth for system behavior
 2. `AGENTS.md` — operational and behavioral rules for agents
 3. Everything else — examples, legacy docs, and supporting materials
 
-If a conflict ever occurs:
-> **`architecture.yaml` wins.**
-Agents must surface the conflict, then align to it.
+If rules conflict, surface the conflict and align to `architecture.yaml`.
 
 ---
 
 ## 🧠 Partnership, Authority, and Capabilities
 
-### Human authority
+The human exclusively approves sprint intent, plans, substantial scope changes, exceptions, completion, PR policy, and release policy. The human executes any release and may explicitly assign PR creation or separately governed deployment work.
 
-Humans MUST:
+Within approved scope, the LLM may use shell and Git, create branches and commits, push the completion branch, and run approved non-mutating checks. The LLM MUST record sprint-relevant turns and material operation evidence, report outcomes, preserve human decision points, and stop on authentication failure.
 
-- Set or approve sprint intent and scope
-- Approve the execution plan before implementation
-- Decide whether documented exceptions are acceptable
-- Declare a sprint complete or force-complete
-- Make every release decision and execute every real release
-
-### LLM responsibilities
-
-Agents **ARE allowed** to:
-
-- Execute shell commands
-- Interact with git (checkout, branch creation, committing, pushing)
-- Create and push feature branches
-- Create a Pull Request only when the human explicitly assigns that responsibility
-- Run non-mutating release dry runs when they are part of approved validation
-
-Agents MUST:
-
-- Record every sprint-relevant Human–LLM turn in `request-log.md`
-- Record shell and Git operations only when they change state, provide validation or publication evidence, or fail materially
-- Operate only within the repository provided
-- Halt and request updated credentials if any authentication step fails
-- Report command results transparently
-- Preserve human decision points rather than inferring approval
-
-Agents MUST NOT:
-
-- Execute a real or mutating release command
-- Create or push release tags
-- Publish a package, deployment, or release unless a separate repository rule explicitly delegates deployment; version release authority remains human-only
+The LLM MUST NOT infer approval, create or modify a PR without assignment, execute a mutating release, create or push release tags, or claim a release occurred without human evidence.
 
 ---
 
 # 🧱 1. Immutable Laws
 
-1. **Treat the sprint as a Human–LLM partnership.** Ask for human judgment when authority or intent is required; proceed autonomously within approved scope when it is not.
-2. **Never violate `architecture.yaml`.** Suggest changes only with justification.
-3. **All sprint planning and output artifacts live in `./planning`.**
-4. **Never use or depend on `./deprecated` in deliverables. You may read it for historical context, but MUST NOT import, execute, copy forward, or make deliverables depend on it.**
-5. **Artifacts in `./preview` are directional only, not implementation-ready.**
-6. **Release is always a human task.** The LLM may prepare evidence, recommend a command, and perform an approved dry run, but it MUST NOT perform the real release.
-7. **This document is executable intent.** Everything must be:
+1. **Never violate `architecture.yaml`.** Suggest changes only with justification.
+2. **All sprint planning and output artifacts live in `./planning`.**
+3. **Never use or depend on `./deprecated` in deliverables.** Historical reading is allowed; importing, executing, or copying it into deliverables is not.
+4. **Treat `./preview` as directional, not implementation-ready.**
+5. **Keep work:**
    - Traceable
    - Reproducible
    - Reversible
@@ -334,35 +301,15 @@ Pushing means the LLM considers the approved sprint work ready for human review.
 
 ### Pull Request Policy
 
-The Sprint Protocol does not require a Pull Request and a PR is never an implicit completion gate. The human defines whether a PR is desired, who creates it, and when. That policy may be declared in `architecture.yaml`, the approved `execution-plan.md`, or an explicit Human–LLM turn.
+Under §Authority, a PR is optional and never an implicit completion gate. Record the human-defined desire, owner, timing, status, and URL in the plan and `publication.yaml`. An authorized PR failure blocks completion only when the approved criteria require that PR.
 
-- PR ownership may be human, LLM, automation, or another human-designated actor.
-- The LLM MUST NOT create or modify a PR unless the human explicitly assigns that responsibility.
-- A human-defined sprint may include a PR in its acceptance criteria, but the protocol itself does not impose one.
-- When a PR exists, record its owner, status, and URL without treating its creation as release authority.
-
-If an authorized push or PR action fails, stop that action, record the material failure, and ask the human for the missing access or decision. Do not treat an optional PR failure as a protocol-level completion failure unless the human made that PR part of the approved sprint criteria.
-
-### Completion Handoff Rules
-
-| Rule | Description |
-|------|-------------|
-| **S11** | A new feature branch MUST be created and verified at sprint initialization and used for all sprint changes. |
-| **S12** | When sprint work is complete, the LLM MUST push the feature branch and record the result unless the human explicitly accepts a push exception. |
-| **S13** | A sprint cannot close until either (a) the completion branch was pushed, or (b) the failed or omitted push was recorded and explicitly accepted by the human. |
-| **S14** | PR and release decisions are human-defined and independent from the protocol's branch-push handoff. |
+The LLM MUST push and record the completion branch unless the human explicitly accepts a failed or omitted push. Stop an authorized push or PR action on access failure, record it, and ask for the missing access or decision.
 
 Before recording the handoff, read `documentation/reference/publication-example.yaml`. The record MUST include branch, head commit, push status, and optional human-defined PR state.
 
 ### Human-Defined Release (optional and separate from sprint completion)
 
-The human decides whether a release should occur and, if so, defines its timing, criteria, approvals, versioning approach, and execution mechanism. Release policy may live in `architecture.yaml`, another human-approved project document, or the sprint's `execution-plan.md`.
-
-- A release is optional and never required to complete a sprint unless the human explicitly adds it to approved sprint criteria.
-- The human executes the release if the human decides to proceed.
-- The LLM may prepare evidence, release notes, risk analysis, or non-mutating checks when explicitly approved.
-- The LLM MUST NOT execute a mutating release command, create or push release tags, publish packages, or claim that a release occurred without human-provided evidence.
-- The protocol does not prescribe a release tool, command, versioning scheme, or deployment workflow.
+Under §Authority, the human defines and executes any release. Policy may live in `architecture.yaml`, another approved project document, or the plan. Release is optional and separate from sprint completion unless the human adds it to approved criteria. The LLM may prepare evidence, notes, analysis, or approved non-mutating checks; this protocol prescribes no release tool or workflow.
 
 ---
 
@@ -483,31 +430,7 @@ Logging:
 
 ---
 
-# 👥 6. Collaboration Roles
-
-These are responsibility domains, not rigid job titles. A human or LLM may contribute in several domains, subject to the authority boundaries in §Capabilities.
-
-- **Human Sponsor**
-  - Frames desired outcomes and constraints.
-  - Approves plans, scope changes, exceptions, completion, and releases.
-  - Contributes contextual judgment the repository cannot supply.
-- **LLM Implementor**
-  - Produces execution plans and backlogs.
-  - Implements approved work and maintains traceability.
-  - Creates coherent commits, validation evidence, and the completion handoff.
-- **Architecture Partner**
-  - Analyzes cloud and platform design without silently overriding `architecture.yaml`.
-  - Surfaces trade-offs and returns consequential architecture decisions to the human.
-- **Quality Partner**
-  - Defines and evaluates acceptance criteria.
-  - Distinguishes verified facts, accepted exceptions, and unresolved risk.
-- **Learning Partner**
-  - Converts sprint evidence into atomic retrospective observations and reusable learnings.
-  - Preserves uncertainty, applicability boundaries, and provenance for future extraction.
-
----
-
-# 🧠 7. Sprint Lifecycle Summary
+# 🧠 6. Sprint Lifecycle Summary
 
 ```
 Frame Together → LLM Plan → Human Approve → LLM Implement + Commit

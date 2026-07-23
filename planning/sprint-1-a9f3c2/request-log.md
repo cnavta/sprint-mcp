@@ -268,6 +268,14 @@ Approve REQ-019 through REQ-024, execute them in declared order under `wip_limit
 - Measurement after REQ-020: 530 lines, 4,084 words, and 28,796 bytes.
 - `apply_patch` — moved REQ-020 to `done` and REQ-021 to `in-progress`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): consolidate validation policy"`.
+- REQ-021 centralized human and LLM decision rights, shortened PR/release handoff rules, and removed the duplicative collaboration-role taxonomy.
+- Initial REQ-021 validation reached policy assertions after successful build/Jest but found an assertion tied to the removed top-level request-log bullet.
+- Traced validation identified the stale assertion; `apply_patch` redirected it to the canonical Execution Phase rule.
+- A second stale assertion expected the pre-consolidation PR sentence; it was updated to the canonical §Authority reference.
+- `validate_deliverable.sh` then passed REQ-021.
+- Measurement after REQ-021: 453 lines, 3,484 words, and 24,834 bytes.
+- `apply_patch` — moved REQ-021 to `done` and REQ-022 to `in-progress`.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): centralize partnership authority"`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23

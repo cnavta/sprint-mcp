@@ -29,6 +29,8 @@ npm test -- --runInBand --passWithNoTests
 echo "Checking Human-LLM partnership policy..."
 grep -Fq '# AGENTS.md — Human–LLM Sprint Protocol v3.0' "${agents_file}"
 grep -Fq '## 🧠 Partnership, Authority, and Capabilities' "${agents_file}"
+grep -Fq 'The human exclusively approves sprint intent, plans, substantial scope changes, exceptions, completion, PR policy, and release policy.' "${agents_file}"
+grep -Fq 'The LLM MUST NOT infer approval' "${agents_file}"
 grep -Fq '## 2.5.1 Intentional Commit Protocol' "${agents_file}"
 grep -Fq '## 2.5.2 Human Follow-Up Loop' "${agents_file}"
 grep -Fq '## 2.3.1 Backlog Accountability Contract' "${agents_file}"
@@ -37,20 +39,20 @@ grep -Fq 'Status changes are part of execution, not end-of-sprint bookkeeping.' 
 grep -Fq 'Change `in-progress` to `done` only after every acceptance criterion is verified.' "${agents_file}"
 grep -Fq 'Stop → Clarify → Append → Continue' "${agents_file}"
 grep -Fq 'Place it at the end of `items` unless the human specifies another position' "${agents_file}"
-grep -Fq 'Record every sprint-relevant Human–LLM turn in `request-log.md`' "${agents_file}"
+grep -Fq 'Every sprint-relevant Human–LLM turn MUST be recorded in `request-log.md`' "${agents_file}"
 grep -Fq 'Routine read-only discovery, navigation, and repeated diagnostic checks may be summarized or omitted.' "${agents_file}"
 if grep -Fq 'Log every meaningful shell and git operation into `request-log.md`' "${agents_file}"; then
   echo "Found superseded operation-centered logging requirement." >&2
   exit 1
 fi
 grep -Fq '# 🔀 2.8 Completion Handoff — *Push Required, PR Optional*' "${agents_file}"
-grep -Fq 'The Sprint Protocol does not require a Pull Request' "${agents_file}"
+grep -Fq 'Under §Authority, a PR is optional and never an implicit completion gate.' "${agents_file}"
 grep -Fq '### Human-Defined Release (optional and separate from sprint completion)' "${agents_file}"
 grep -Fq '# 🧪 2.6 Validation and Definition of Done' "${agents_file}"
 grep -Fq '**Required:** must run and pass; never mask failure' "${agents_file}"
 grep -Fq 'Documentation, research, and planning work instead validates applicable schemas' "${agents_file}"
 grep -Fq '# 🧱 3. Project Structure' "${agents_file}"
-grep -Fq '# 🧠 7. Sprint Lifecycle Summary' "${agents_file}"
+grep -Fq '# 🧠 6. Sprint Lifecycle Summary' "${agents_file}"
 grep -Fq '## 2.9.1 Learning Artifacts for Future Extraction' "${agents_file}"
 
 echo "Checking phase-loaded artifact references..."
@@ -76,6 +78,10 @@ if grep -Fq 'Deviations from the implementation plan' "${agents_file}"; then
 fi
 if grep -Eq '^# .*Project-Wide Definition of Done|^# .*Testing Standards|^# .*Deliverable Types' "${agents_file}"; then
   echo "Found validation policy duplicated outside section 2.6." >&2
+  exit 1
+fi
+if grep -Fq '# 👥 6. Collaboration Roles' "${agents_file}"; then
+  echo "Found authority duplicated as collaboration roles." >&2
   exit 1
 fi
 
