@@ -125,6 +125,37 @@ Append this follow-up after REQ-013. Treat the human's phrase `make it so` as ex
 - `apply_patch` — added REQ-015 outcomes to verification, retrospective, and durable learning records.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): center logs on Human-LLM turns"` with REQ-015 and successful validation evidence.
 
+## REQ-016 — 2026-07-23
+
+### Human intent
+
+Implement removal of protocol-level PR gates, replace project-specific release instructions with human-defined optional release policy, add missing lifecycle states, fix execution-plan terminology, and repair section numbering. Provide recommendations rather than silently changing validation, artifact placement, substantial-scope thresholds, or documentation deliverables.
+
+### LLM interpretation and response
+
+Treat this turn as approval of pending REQ-013 and append REQ-016 for the additional explicit fixes. Keep the completion branch push as the default handoff, make PR ownership and timing human-defined, and keep release optional and human-executed without prescribing a tool.
+
+### Decisions and resulting state changes
+
+- REQ-013 and REQ-016 are complete.
+- PR creation is optional and never an implicit protocol completion gate.
+- Human-defined sprint criteria may still require a PR and assign its owner.
+- Release policy may be defined in `architecture.yaml`, another approved project document, or the execution plan; the human decides whether to execute it.
+- Manifest lifecycle state is separated from optional PR state and completion mode.
+- Validation, artifact-placement, scope-threshold, and documentation-model changes remain recommendations.
+
+### Operation evidence
+
+- `apply_patch` — revised capabilities, lifecycle summaries, manifest schema, required execution-plan contents, completion handoff, PR policy, release policy, sprint completion, force completion, terminology, and section numbering.
+- Targeted residual-language review — found no remaining BitBrat command, mandatory-PR phrase, or implementation-plan verification term in `AGENTS.md`.
+- `apply_patch` — updated the sprint plan, backlog, and validation assertions for REQ-013 and REQ-016.
+- Full validation run — passed build, explicit no-tests Jest mode, existing policy/schema checks, optional-PR checks, generic-release checks, manifest-state checks, terminology checks, and numbering checks.
+- Follow-up lifecycle review identified that placing the PR decision after completion could imply fixed timing.
+- Follow-up `apply_patch` — represented the human-defined PR path as a lifecycle side path so its approved timing and actor remain flexible.
+- `apply_patch` — added REQ-013 and REQ-016 outcomes to verification, retrospective, and durable learning records.
+- `apply_patch` — migrated the active sprint's `publication.yaml` to the optional-PR schema and removed PR creation from its required human action.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
+
 ## REQ-009 — 2026-07-23
 
 ### Prompt summary

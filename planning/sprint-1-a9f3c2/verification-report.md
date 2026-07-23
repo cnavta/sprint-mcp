@@ -17,6 +17,10 @@ Ready for publication attempt. Human completion remains pending.
 - [x] Standardized the planning artifact name as `execution-plan.md`.
 - [x] Added the `Stop → Clarify → Append → Continue` loop for human follow-up tasks, including deterministic backlog placement and resumption rules.
 - [x] Replaced exhaustive operation logging with turn-centered Human–LLM traceability and material operation evidence.
+- [x] Removed protocol-level PR gates and made PR owner and timing human-defined.
+- [x] Replaced project-specific release commands with optional, human-defined and human-executed release policy.
+- [x] Added blocked, ready-for-handoff, cancelled, normal-completion, and forced-completion representation.
+- [x] Corrected execution-plan terminology and sequential section numbering.
 - [x] Added and executed `validate_deliverable.sh` successfully.
 
 ## Partial

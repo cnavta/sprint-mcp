@@ -16,6 +16,8 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Define pushing as the final default LLM completion handoff after validation and verification and before the human's official sprint-completion decision.
 - Make PR ownership and timing explicit sprint decisions rather than mandatory LLM behavior; retain PR tooling as an optional capability.
 - Make real releases exclusively human-decided and human-executed without prescribing a project-specific release tool or workflow.
+- Extend the sprint manifest to represent blocked, cancelled, ready-for-handoff, normal-completion, and forced-completion states.
+- Replace the remaining `implementation plan` terminology with `execution plan` and repair section numbering.
 - Give `retro.md` and `key-learnings.md` stable, extraction-friendly structures using discrete evidence, outcomes, reusable lessons, applicability, confidence, and tags.
 - Add a compact follow-up loop for human-requested tasks after an LLM delivery turn: stop, clarify, append to the backlog by default, then continue in backlog order.
 - Make Human–LLM turns the primary traceability unit; retain only state-changing, evidentiary, or materially failed command records as supporting evidence.
@@ -47,6 +49,8 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - No instruction authorizes an LLM to execute a mutating release command, create a release tag, or publish a release.
 - The protocol contains no BitBrat- or project-specific release instructions.
 - The human decides whether, when, and how to release; the LLM may assist only within an explicitly approved, non-mutating scope.
+- The manifest represents blockers and distinguishes normal completion from force completion without treating PR state as a lifecycle status.
+- Verification consistently refers to `execution-plan.md`, and top-level section numbers are sequential.
 - `retro.md` and `key-learnings.md` have stable headings and atomic records suitable for future semantic extraction without requiring an extraction implementation now.
 - When the human adds follow-up work after an LLM delivery turn, the LLM stops progression, asks only necessary questions, adds the task at the end of `backlog.yaml` unless another position is specified, applies any required approval gate, and resumes with the next ready backlog item.
 - Every sprint-relevant Human–LLM turn captures intent, interpretation, decisions, and resulting state changes without requiring a transcript of routine read-only commands.

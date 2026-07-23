@@ -1,5 +1,5 @@
 sprint: sprint-1-a9f3c2
-status: amendment-pending-approval
+status: blocked
 items:
   - id: REQ-001
     title: Reframe the protocol as a Human-LLM partnership
@@ -49,7 +49,7 @@ items:
       - After clarification and any required approval, work resumes at the next ready backlog item in declared order.
   - id: REQ-013
     title: Make PR and release policy flexible and project-neutral
-    status: pending-approval
+    status: complete
     acceptance:
       - All brat and BitBrat references are removed from the protocol.
       - PR creation is optional and its owner and timing are declared in the approved sprint plan.
@@ -66,3 +66,12 @@ items:
       - Routine read-only discovery and repeated diagnostics may be summarized or omitted.
       - Logs prefer concise outcomes and references over raw terminal output.
       - Secrets and credentials are never recorded.
+  - id: REQ-016
+    title: Repair lifecycle states, terminology, and section numbering
+    status: complete
+    acceptance:
+      - Manifest states include blocked, ready-for-handoff, complete, and cancelled.
+      - Normal and forced completion are distinguished explicitly.
+      - PR state is not a mandatory sprint lifecycle state.
+      - Verification refers to the execution plan consistently.
+      - Top-level section numbering is sequential.

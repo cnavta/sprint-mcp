@@ -34,7 +34,7 @@ Agents **ARE allowed** to:
 - Execute shell commands
 - Interact with git (checkout, branch creation, committing, pushing)
 - Create and push feature branches
-- Create GitHub Pull Requests (via GitHub CLI or API)
+- Create a Pull Request only when the human explicitly assigns that responsibility
 - Run non-mutating release dry runs when they are part of approved validation
 
 Agents MUST:
@@ -76,8 +76,10 @@ This protocol governs every sprint carried out through a Human–LLM partnership
 ```
 Frame Together → LLM Plans → Human Approves → LLM Implements + Commits
     ↳ Human Follow-Up: Stop → Clarify → Append → Continue
+    ↳ Human-Defined PR Path: Human | LLM | Automation, at the approved time
     → LLM Validates + Verifies → LLM Produces Retro + Learnings
-    → LLM Pushes + Opens PR → Human Reviews + Completes → Human Releases (optional)
+    → LLM Pushes Completion Handoff → Human Reviews + Completes
+    → Human-Defined Release (optional)
 ```
 
 The human owns intent and consequential decisions. The LLM owns faithful execution and evidence within the approved scope. The shared artifacts make the partnership reproducible, reviewable, reversible, and capable of improving over time.
@@ -157,10 +159,12 @@ title: "Concise sprint title"
 goal: "Clear sprint objective"
 owner: "@github-handle or name"
 createdAt: "YYYY-MM-DDTHH:mm:ssZ"
-status: "planning | in-progress | validating | verifying | published | complete"
+status: "planning | in-progress | validating | verifying | blocked | ready-for-handoff | complete | cancelled"
+completionMode: null # null | normal | forced
+blockers: []
 links:
-  pr: "https://github.com/<org>/<repo>/pull/<number>" # optional until created
   branch: "feature/<sprint-id>-<short-description>"
+  pr: null # optional; populated only when a PR exists
 notes: |
   Key assumptions, constraints, and context.
 ```
@@ -202,6 +206,17 @@ Before ANY implementation begins, the LLM prepares the plan and the human exerci
 ## Deployment Approach
 - Cloud Build, Cloud Run, or other targets
 - Referencing architecture.yaml where applicable
+
+## Completion Handoff and PR Policy
+- Required branch-push behavior
+- Whether a PR is desired
+- Who owns PR creation and when it may occur
+- LLM PR creation requires explicit human assignment
+
+## Release Decision
+- Whether release guidance is defined for this sprint
+- Reference to human-defined release policy, which may live in architecture.yaml
+- Release is optional and executed only by the human
 
 ## Dependencies
 - External systems, credentials, services
@@ -349,7 +364,7 @@ echo "✅ Validation complete."
 - Completed items
 - Partial implementations
 - Deferred items
-- Deviations from the implementation plan
+- Deviations from the execution plan
 
 Example:
 
@@ -373,83 +388,63 @@ Example:
 
 ---
 
-# 🔀 2.8 Completion Handoff — *Push + Real GitHub PR Required*
+# 🔀 2.8 Completion Handoff — *Push Required, PR Optional*
 
-Publication is the LLM's completion handoff to the human. It occurs only after approved implementation, validation, verification, and the sprint learning artifacts are complete.
+The completion handoff transfers validated sprint work from the LLM to the human. It occurs after approved implementation, validation, verification, and the sprint learning artifacts are complete.
 
 ### The LLM MUST:
 
 1. Confirm the branch contains only approved sprint changes.
 2. Update the sprint artifacts with final evidence.
 3. Create a final intent-focused commit if completion artifacts changed after the last coherent commit.
-4. Push the feature branch to GitHub. This is the default first push of the sprint unless the human requested an earlier push.
-5. Create a real Pull Request using GitHub CLI or API.
-6. Give the human the PR URL, validation result, known exceptions, and a concise completion recommendation.
+4. Push the feature branch. This is the default first push unless the human approved another cadence.
+5. Give the human the branch, head commit, validation result, known exceptions, and a concise completion recommendation.
 
-Pushing means the LLM considers the approved sprint work complete and ready for human review. It does not itself mark the sprint `complete`; only the human can do that.
+Pushing means the LLM considers the approved sprint work ready for human review. It does not mark the sprint `complete`; only the human can do that.
 
-GitHub CLI example:
-```
-gh pr create \
-  --title "Sprint <id> Deliverables – <summary>" \
-  --body "Prepared through the Human–LLM Sprint Protocol."
-```
+### Pull Request Policy
 
-GitHub API example (requires token):
-```
-curl -X POST \
-  -H "Authorization: Bearer <GITHUB_TOKEN>" \
-  -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/<owner>/<repo>/pulls \
-  -d '{
-    "title": "Sprint <id> Deliverables – <summary>",
-    "head": "feature/<sprint-id>-<short-description>",
-    "base": "main",
-    "body": "Prepared through the Human–LLM Sprint Protocol."
-  }'
-```
+The Sprint Protocol does not require a Pull Request and a PR is never an implicit completion gate. The human defines whether a PR is desired, who creates it, and when. That policy may be declared in `architecture.yaml`, the approved `execution-plan.md`, or an explicit Human–LLM turn.
 
-If your chosen method fails (CLI or API):
+- PR ownership may be human, LLM, automation, or another human-designated actor.
+- The LLM MUST NOT create or modify a PR unless the human explicitly assigns that responsibility.
+- A human-defined sprint may include a PR in its acceptance criteria, but the protocol itself does not impose one.
+- When a PR exists, record its owner, status, and URL without treating its creation as release authority.
 
-- Stop immediately
-- Log the failure
-- Ask for updated credentials or API token
+If an authorized push or PR action fails, stop that action, record the material failure, and ask the human for the missing access or decision. Do not treat an optional PR failure as a protocol-level completion failure unless the human made that PR part of the approved sprint criteria.
 
-### Publication Rules
+### Completion Handoff Rules
 
 | Rule | Description |
 |------|-------------|
 | **S11** | A new feature branch MUST be created and verified at sprint initialization and used for all sprint changes. |
-| **S12** | When sprint work is complete, the LLM MUST push the feature branch, attempt to create a GitHub Pull Request, and log each result. |
-| **S13** | A sprint cannot close until either (a) the branch was pushed, a PR was created, and its URL was recorded in `publication.yaml`, **or** (b) failed push/PR attempts were logged and the human explicitly accepted the exception. |
-| **S14** | Push and PR creation are completion handoff actions, not release actions. They grant no authority to version, tag, publish, or deploy a release. |
+| **S12** | When sprint work is complete, the LLM MUST push the feature branch and record the result unless the human explicitly accepts a push exception. |
+| **S13** | A sprint cannot close until either (a) the completion branch was pushed, or (b) the failed or omitted push was recorded and explicitly accepted by the human. |
+| **S14** | PR and release decisions are human-defined and independent from the protocol's branch-push handoff. |
 
 `publication.yaml` should contain:
 
 ```yaml
-pr_url: https://github.com/...
 branch: feature/sprint-X-Y-...
-status: created
+headCommit: <commit-sha>
+pushStatus: "pending | succeeded | failed | waived"
+pr:
+  desired: false
+  owner: null # human | llm | automation | other
+  timing: null
+  status: "not-planned | planned | created | failed | waived"
+  url: null
 ```
 
-### Human-Only Release (separate from sprint publication)
+### Human-Defined Release (optional and separate from sprint completion)
 
-The platform version's **single source of truth is `architecture.yaml` `project.version`** (§0; also the
-runtime value every Bit reports via `bit.info` / `brat fleet info`). `package.json` and `package-lock.json`
-mirror it. Releases are ALWAYS initiated and executed by a human. The integrated release tool is an aid
-for that human: it keeps the version files in lockstep, rolls `CHANGELOG.md` `## [Unreleased]` into a dated
-block, and can optionally tag:
+The human decides whether a release should occur and, if so, defines its timing, criteria, approvals, versioning approach, and execution mechanism. Release policy may live in `architecture.yaml`, another human-approved project document, or the sprint's `execution-plan.md`.
 
-```bash
-brat release <patch|minor|major|x.y.z> [--dry-run] [--tag] [--yes]
-# npm aliases: npm run release -- <bump>   /   npm run release:dry -- <bump>
-```
-
-- The human chooses whether to release, chooses the explicit bump or version, and runs the real command.
-- The LLM may recommend the exact command, explain its expected effects, prepare release notes, and run an approved `--dry-run` as validation.
-- The LLM MUST NOT run `brat release` or `npm run release` without `--dry-run`, pass `--tag` to a mutating command, create or push a release tag, publish a package, or describe a release as completed without human evidence.
-- A standard `validate_deliverable.sh` may run `npm run release:dry -- patch` and assert version-file agreement. This is CI-safe, idempotent validation; it is not a release and does not choose the human's bump.
-- Release may occur after sprint completion or not at all. Release status MUST NOT gate sprint completion.
+- A release is optional and never required to complete a sprint unless the human explicitly adds it to approved sprint criteria.
+- The human executes the release if the human decides to proceed.
+- The LLM may prepare evidence, release notes, risk analysis, or non-mutating checks when explicitly approved.
+- The LLM MUST NOT execute a mutating release command, create or push release tags, publish packages, or claim that a release occurred without human-provided evidence.
+- The protocol does not prescribe a release tool, command, versioning scheme, or deployment workflow.
 
 ---
 
@@ -459,18 +454,24 @@ Before asking the human to complete the sprint, the LLM MUST present a completio
 
 - Validation and verification results
 - Completed, partial, deferred, and deviated scope
-- The pushed branch and PR URL, or the exact publication failure
+- The pushed branch and head commit, or the exact handoff failure
+- PR status only when the human-defined PR policy makes it relevant
 - `retro.md` and `key-learnings.md`
 - A recommendation to complete or force-complete, with exceptions called out explicitly
 
 A sprint officially completes only when:
 
 - `validate_deliverable.sh` is logically passable, or current failures are documented and explicitly accepted by the human
-- The branch was pushed and the PR URL recorded in `publication.yaml`, or failed publication attempts were logged and explicitly accepted by the human
+- The branch was pushed and recorded in `publication.yaml`, or the failed or omitted push was logged and explicitly accepted by the human
 - `verification-report.md`, `retro.md`, and `key-learnings.md` exist
 - The human says `Sprint complete` or `Force complete sprint`
 
 After the human's declaration, the LLM records it, changes the manifest status to `complete`, and reports the final state. It does not perform a release.
+
+- Use `completionMode: normal` when the human says `Sprint complete`.
+- Use `completionMode: forced` when the human says `Force complete sprint`.
+- Use `status: blocked` with explicit blockers when progress cannot continue.
+- Use `status: cancelled` only when the human explicitly cancels the sprint.
 
 ## 2.9.1 Learning Artifacts for Future Extraction
 
@@ -547,13 +548,13 @@ If the human says `Force complete sprint`, the LLM may close the sprint even if:
 
 - `validate_deliverable.sh` would currently fail, or
 - Tests are incomplete or failing, or
-- The PR could not be created
+- The completion branch could not be pushed
 
 …as long as:
 
 1. All known failures and gaps are documented under **Partial** or **Deferred** in `verification-report.md`.
 2. The issues are recorded as atomic observations in `retro.md` and, when reusable, as learning records in `key-learnings.md`.
-3. Any failed push or PR attempt is recorded in `publication.yaml` and `request-log.md`.
+3. Any failed or omitted push is recorded in `publication.yaml` and `request-log.md`.
 
 Force completion never authorizes a release.
 
@@ -626,7 +627,7 @@ Note: Planning/Discovery sprints may produce documentation-only deliverables; va
 
 ---
 
-# 🧱 7. Project Structure
+# 🧱 6. Project Structure
 
 ```
 deprecated/      # Historical reference only
@@ -644,7 +645,7 @@ src/
 
 ---
 
-# 🎯 8. Code Style Rules
+# 🎯 7. Code Style Rules
 
 - Application/services code is in TypeScript by default. If a service explicitly specifies a different stack, follow that stack. Scripts and infrastructure files remain in their native formats.
 - kebab-case filenames
@@ -662,7 +663,7 @@ Logging:
 
 ---
 
-# 🧯 9. Error Handling & Events
+# 🧯 8. Error Handling & Events
 
 - Strong try/catch discipline
 - Graceful shutdown of services
@@ -672,7 +673,7 @@ Logging:
 
 ---
 
-# 👥 10. Collaboration Roles
+# 👥 9. Collaboration Roles
 
 These are responsibility domains, not rigid job titles. A human or LLM may contribute in several domains, subject to the authority boundaries in §Capabilities.
 
@@ -696,12 +697,13 @@ These are responsibility domains, not rigid job titles. A human or LLM may contr
 
 ---
 
-# 🧠 11. Sprint Lifecycle Summary
+# 🧠 10. Sprint Lifecycle Summary
 
 ```
 Frame Together → LLM Plan → Human Approve → LLM Implement + Commit
-    → Validate + Verify → Retro + Learn → Push + PR
-    → Human Complete → Human Release (optional)
+    ↳ Human-Defined PR Path: Human | LLM | Automation, at the approved time
+    → Validate + Verify → Retro + Learn → Push Handoff
+    → Human Complete → Human-Defined Release (optional)
 ```
 
 The system is designed for:

@@ -46,6 +46,14 @@ The sprint produced a Human–LLM Sprint Protocol revision covering partnership 
 - Interpretation: Collaboration turns are more useful semantic units than exhaustive terminal transcripts.
 - Impact: Request logs remain traceable with less noise for human review and future extraction.
 
+### OBS-006 – Capability does not imply mandatory workflow
+
+- Type: worked
+- Evidence: REQ-013; `AGENTS.md` §2.8
+- Observation: The protocol retains optional LLM PR capability while removing PR creation from universal completion gates.
+- Interpretation: Human-defined ownership and timing preserve flexibility without removing useful automation.
+- Impact: Projects can choose human, LLM, or automated PR creation independently from sprint completion and release.
+
 ## Partnership Review
 
 ### PART-001 – Approval gate preserved human control

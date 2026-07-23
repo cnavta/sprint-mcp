@@ -61,3 +61,15 @@
 - Confidence: high
 - Tags: [human-llm-turns, request-log, semantic-traceability]
 - Supersedes: none
+
+### LEARN-006 – Separate capability from required lifecycle gates
+
+- Statement: Treat PR tooling as an optional capability whose owner and timing are human-defined rather than as a universal sprint-completion requirement.
+- Kind: collaboration
+- Derived from: OBS-006; REQ-013
+- Applies when: Different projects or sprints use different review and integration workflows.
+- Does not apply when: The human explicitly makes a PR part of the approved sprint acceptance criteria.
+- Recommended action: Declare PR policy in architecture, the execution plan, or an explicit Human–LLM decision and keep release authority separate.
+- Confidence: high
+- Tags: [pull-request, human-authority, workflow-flexibility]
+- Supersedes: LEARN-001
