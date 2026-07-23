@@ -234,6 +234,34 @@ Create ordered, independently approvable backlog items for template extraction, 
 - `apply_patch` — appended REQ-019 through REQ-024 with priorities, dependencies, approval state, acceptance criteria, timestamps, and history.
 - `validate_deliverable.sh` — passed build, explicit no-tests Jest mode, protocol policy checks, learning schemas, and active backlog contract checks.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): plan protocol compression backlog"` with REQ-019 through REQ-024.
+
+## REQ-025 — 2026-07-23
+
+### Human intent
+
+Approve implementation of the complete protocol-compression backlog.
+
+### LLM interpretation and response
+
+Approve REQ-019 through REQ-024, execute them in declared order under `wip_limit: 1`, update backlog state at every transition, validate each coherent work unit, and commit intent-focused changes without pushing.
+
+### Decisions and resulting state changes
+
+- REQ-019 through REQ-024 changed from `approval: pending` to `approval: approved`.
+- REQ-019 moved from `todo` to `in-progress`.
+- REQ-020 through REQ-024 remain `todo` until dependencies and declared order permit execution.
+
+### Operation evidence
+
+- Inventoried `documentation/reference/`; only `backlog-example.yaml` existed.
+- Reconfirmed the baseline: 783 lines, 4,825 words, and 33,257 bytes.
+- `apply_patch` — recorded approval and backlog transitions before implementation.
+- REQ-019 created canonical manifest, backlog, execution-plan, validation, publication, verification, retrospective, and learning references under `documentation/reference/`.
+- REQ-019 replaced large inline examples with phase-specific loading instructions and updated validation to check reference existence and schema content.
+- `validate_deliverable.sh` passed after extraction.
+- Measurement after REQ-019: 596 lines, 4,309 words, and 30,116 bytes.
+- `apply_patch` — moved REQ-019 to `done` and REQ-020 to `in-progress` under the WIP limit.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): externalize protocol templates"`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23

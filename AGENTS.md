@@ -151,23 +151,9 @@ This directory is the single authoritative source of truth for every sprint. Wit
 
 ## Sprint Manifest Schema
 
-Each sprint directory MUST contain a `sprint-manifest.yaml` with the following fields:
+Before creating or updating a manifest, read `documentation/reference/sprint-manifest-example.yaml`. Required fields are `id`, `title`, `goal`, `owner`, `createdAt`, `status`, `completionMode`, `blockers`, `links.branch`, optional `links.pr`, and `notes`.
 
-```yaml
-id: sprint-<number>-<short-hash>
-title: "Concise sprint title"
-goal: "Clear sprint objective"
-owner: "@github-handle or name"
-createdAt: "YYYY-MM-DDTHH:mm:ssZ"
-status: "planning | in-progress | validating | verifying | blocked | ready-for-handoff | complete | cancelled"
-completionMode: null # null | normal | forced
-blockers: []
-links:
-  branch: "feature/<sprint-id>-<short-description>"
-  pr: null # optional; populated only when a PR exists
-notes: |
-  Key assumptions, constraints, and context.
-```
+Allowed lifecycle states are `planning`, `in-progress`, `validating`, `verifying`, `blocked`, `ready-for-handoff`, `complete`, and `cancelled`. Completion mode is `null`, `normal`, or `forced`.
 
 ## 2.3.1 Backlog Accountability Contract
 
@@ -177,39 +163,9 @@ Every sprint MUST maintain `backlog.yaml` as the authoritative contract for what
 
 ### Required backlog shape
 
-```yaml
-meta:
-  backlog_id: <sprint-id>-backlog
-  updated_at: <ISO-8601 timestamp>
-  status_values: [todo, in-progress, blocked, done, deferred, cancelled]
-  approval_values: [not-required, pending, approved]
+Before creating or updating a backlog, read `documentation/reference/backlog-example.yaml`. Required top-level groups are `meta`, `sprint`, and `items`. Each item requires identity, priority, status, approval, owner, dependencies, blocker state, acceptance criteria, evidence, timestamp, and transition history linked to a request-log turn.
 
-sprint:
-  id: <sprint-id>
-  goal: <approved sprint goal>
-  status: <current sprint-manifest status>
-  wip_limit: 1 # optional; omit when the human has not defined a limit
-
-items:
-  - id: BL-001
-    title: <atomic outcome>
-    priority: P1 # P0 | P1 | P2 | P3
-    status: todo
-    approval: approved
-    owner: partnership # human | llm | partnership | external
-    dependencies: []
-    blocked_reason: null
-    acceptance:
-      - <observable criterion>
-    evidence: []
-    updated_at: <ISO-8601 timestamp>
-    history:
-      - at: <ISO-8601 timestamp>
-        from: null
-        to: todo
-        reason: <why the item entered this state>
-        turn_id: <request-log turn ID>
-```
+Allowed item statuses are `todo`, `in-progress`, `blocked`, `done`, `deferred`, and `cancelled`; approval values are `not-required`, `pending`, and `approved`.
 
 Fields may be extended for project needs, but their meanings MUST NOT be redefined. `priority`, `owner`, and `wip_limit` guide execution; they do not override human approval, dependencies, or acceptance criteria.
 
@@ -236,51 +192,7 @@ Before ANY implementation begins, the LLM prepares the plan and the human exerci
 - The human reviews and explicitly approves them
 - The LLM records the approval in `request-log.md`
 
-### Required contents:
-
-```markdown
-# Execution Plan – sprint-X-Y
-
-## Objective
-- Clear human-approved sprint goal.
-
-## Scope
-- What is in scope
-- What is out of scope
-
-## Deliverables
-- Code changes
-- Tests
-- Deployment & CI artifacts
-- Documentation
-
-## Acceptance Criteria
-- Verifiable, observable behavioral outcomes
-
-## Testing Strategy
-- Unit test and integration test approach
-
-## Deployment Approach
-- Cloud Build, Cloud Run, or other targets
-- Referencing architecture.yaml where applicable
-
-## Completion Handoff and PR Policy
-- Required branch-push behavior
-- Whether a PR is desired
-- Who owns PR creation and when it may occur
-- LLM PR creation requires explicit human assignment
-
-## Release Decision
-- Whether release guidance is defined for this sprint
-- Reference to human-defined release policy, which may live in architecture.yaml
-- Release is optional and executed only by the human
-
-## Dependencies
-- External systems, credentials, services
-
-## Definition of Done
-- MUST reference project-wide DoD unless explicitly overridden
-```
+Before planning, read `documentation/reference/execution-plan-template.md`. The plan MUST cover objective, scope, deliverables, observable acceptance criteria, testing and validation, deployment, completion handoff and PR policy, release decision, dependencies, and Definition of Done.
 
 ## 2.4.1 Amending an Active Sprint (Handling Rule S4)
 
@@ -382,35 +294,7 @@ This script MUST:
 
 Use stack-appropriate commands for your service. The example below is for Node/TypeScript projects; for other stacks, use equivalent commands (e.g., Python: pip/poetry, pytest; Go: go build, go test).
 
-### Required script shape (Node/TypeScript example):
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "🔧 Installing dependencies..."
-npm ci
-
-echo "🧱 Building project..."
-npm run build   # MUST succeed
-
-echo "🧪 Running tests..."
-npm test        # MUST pass
-
-echo "🏃 Starting local environment..."
-npm run local || true
-
-echo "📝 Healthcheck..."
-# Script/test/endpoint-based check recommended
-
-echo "🧹 Stopping local environment..."
-npm run local:down || true
-
-echo "🚀 Cloud dry-run deployment..."
-npm run deploy:cloud -- --dry-run || true
-
-echo "✅ Validation complete."
-```
+Before writing the script, read `documentation/reference/validate-deliverable-example.sh`. Replace every placeholder with a real approved command or an explicit not-applicable disposition; never hide failure of a required check.
 
 ### Critical rule:
 > A sprint should not be considered ready to close unless `validate_deliverable.sh` is **logically passable** (all referenced commands exist and are intended to succeed) and aligned with the project-wide DoD. If the script cannot currently succeed because of environment issues, the LLM must log the failure and include it in `verification-report.md`; closure then requires explicit human acceptance.
@@ -429,25 +313,7 @@ echo "✅ Validation complete."
 
 Before verification completes, the LLM MUST confirm that every `done` item has acceptance evidence, every `blocked` item has a current blocker, and every `deferred` or `cancelled` item links to explicit human direction. Differences between the backlog and implementation are verification failures until corrected or accepted by the human.
 
-Example:
-
-```markdown
-# Deliverable Verification – sprint-X-Y
-
-## Completed
-- [x] Twitch event handler implemented
-- [x] Tests created
-- [x] Cloud Build config added
-
-## Partial
-- [ ] Observability integration (stubbed)
-
-## Deferred
-- [ ] Multi-region deployment
-
-## Alignment Notes
-- Added health endpoint not originally specified
-```
+Before verification, read `documentation/reference/verification-report-template.md`.
 
 ---
 
@@ -485,19 +351,7 @@ If an authorized push or PR action fails, stop that action, record the material 
 | **S13** | A sprint cannot close until either (a) the completion branch was pushed, or (b) the failed or omitted push was recorded and explicitly accepted by the human. |
 | **S14** | PR and release decisions are human-defined and independent from the protocol's branch-push handoff. |
 
-`publication.yaml` should contain:
-
-```yaml
-branch: feature/sprint-X-Y-...
-headCommit: <commit-sha>
-pushStatus: "pending | succeeded | failed | waived"
-pr:
-  desired: false
-  owner: null # human | llm | automation | other
-  timing: null
-  status: "not-planned | planned | created | failed | waived"
-  url: null
-```
+Before recording the handoff, read `documentation/reference/publication-example.yaml`. The record MUST include branch, head commit, push status, and optional human-defined PR state.
 
 ### Human-Defined Release (optional and separate from sprint completion)
 
@@ -554,52 +408,11 @@ The retrospective artifacts are both human-readable records and future inputs to
 
 ### Required `retro.md` structure
 
-```markdown
-# Retrospective – <sprint-id>
-
-## Outcome Summary
-<goal, delivered outcome, completion state, and accepted exceptions>
-
-## Observations
-### OBS-001 – <short factual title>
-- Type: worked | friction | surprise | failure
-- Evidence: <REQ-ID, commit, validation result, or path>
-- Observation: <fact>
-- Interpretation: <meaning, explicitly labeled as interpretation>
-- Impact: <effect on delivery or quality>
-
-## Partnership Review
-### PART-001 – <decision or interaction title>
-- Human contribution: <intent, judgment, approval, or correction>
-- LLM contribution: <plan, execution, evidence, or recommendation>
-- Handoff quality: effective | mixed | ineffective
-- Improvement: <specific change for a future sprint>
-
-## Follow-up Candidates
-### FOLLOW-001 – <action title>
-- Rationale: <why it matters>
-- Suggested owner: human | LLM | partnership
-- Priority: low | medium | high
-- Related evidence: <stable references>
-```
+Before writing the retrospective, read `documentation/reference/retro-template.md`. Preserve its outcome, atomic observation, partnership review, and follow-up record structure.
 
 ### Required `key-learnings.md` structure
 
-```markdown
-# Key Learnings – <sprint-id>
-
-## Learning Records
-### LEARN-001 – <short reusable title>
-- Statement: <one context-independent lesson>
-- Kind: process | technical | architecture | collaboration | tooling
-- Derived from: <OBS/PART/FOLLOW IDs and supporting evidence>
-- Applies when: <boundary conditions>
-- Does not apply when: <counter-boundaries or unknown>
-- Recommended action: <specific future behavior>
-- Confidence: low | medium | high
-- Tags: [tag-one, tag-two]
-- Supersedes: <learning IDs or none>
-```
+Before writing learning records, read `documentation/reference/key-learnings-template.md`. Preserve atomic statement, kind, provenance, applicability, recommendation, confidence, tags, and supersession fields.
 
 Do not copy the entire retrospective into `key-learnings.md`. Promote only lessons likely to change a future decision or action. If no durable lesson exists, say so explicitly rather than inventing one.
 

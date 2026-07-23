@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:20:15Z
+  updated_at: 2026-07-23T02:26:24Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -241,8 +241,8 @@ items:
   - id: REQ-019
     title: Externalize artifact templates and examples
     priority: P1
-    status: todo
-    approval: pending
+    status: done
+    approval: approved
     owner: partnership
     dependencies: []
     blocked_reason: null
@@ -251,20 +251,30 @@ items:
       - AGENTS.md retains normative requirements and links to each canonical reference.
       - The protocol instructs the LLM to load a reference only when entering its phase.
       - No required field, status, or acceptance rule is lost during extraction.
-    evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    evidence: [path:documentation/reference, path:AGENTS.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:26:24Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: in-progress
+        reason: Human approved the compression backlog; template extraction started under the WIP limit.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:26:24Z
+        from: in-progress
+        to: done
+        reason: Canonical references were extracted, linked by phase, and validated.
+        turn_id: REQ-025
 
   - id: REQ-020
     title: Consolidate validation and Definition of Done policy
     priority: P1
-    status: todo
-    approval: pending
+    status: in-progress
+    approval: approved
     owner: partnership
     dependencies: [REQ-019]
     blocked_reason: null
@@ -275,19 +285,29 @@ items:
       - Documentation-only and other non-runtime deliverables retain appropriate validation.
       - Existing human exception authority remains intact.
     evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    updated_at: 2026-07-23T02:26:24Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: todo
+        reason: Human approved implementation; item remains queued behind its dependency.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:26:24Z
+        from: todo
+        to: in-progress
+        reason: REQ-019 completed and the WIP limit permits validation-policy consolidation.
+        turn_id: REQ-025
 
   - id: REQ-021
     title: Centralize authority, handoff, PR, and release rules
     priority: P1
     status: todo
-    approval: pending
+    approval: approved
     owner: partnership
     dependencies: []
     blocked_reason: null
@@ -297,19 +317,24 @@ items:
       - Push handoff, optional PR policy, and human-defined release behavior remain explicit.
       - No LLM gains implicit release or PR authority.
     evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    updated_at: 2026-07-23T02:23:33Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: todo
+        reason: Human approved implementation; item remains queued in declared order.
+        turn_id: REQ-025
 
   - id: REQ-022
     title: Remove duplication and compress lifecycle rules
     priority: P2
     status: todo
-    approval: pending
+    approval: approved
     owner: partnership
     dependencies: [REQ-019, REQ-021]
     blocked_reason: null
@@ -319,19 +344,24 @@ items:
       - Backlog transitions use a compact representation without losing preconditions or evidence duties.
       - Backlog and request-log responsibilities are defined once and referenced elsewhere.
     evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    updated_at: 2026-07-23T02:23:33Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: todo
+        reason: Human approved implementation; item remains queued behind its dependencies.
+        turn_id: REQ-025
 
   - id: REQ-023
     title: Separate development guidance from sprint protocol
     priority: P2
     status: todo
-    approval: pending
+    approval: approved
     owner: partnership
     dependencies: []
     blocked_reason: null
@@ -341,19 +371,24 @@ items:
       - The protocol provides one clear link to the development guidance.
       - No repository-specific development constraint is silently discarded.
     evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    updated_at: 2026-07-23T02:23:33Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: todo
+        reason: Human approved implementation; item remains queued in declared order.
+        turn_id: REQ-025
 
   - id: REQ-024
     title: Verify semantic equivalence and token reduction
     priority: P0
     status: todo
-    approval: pending
+    approval: approved
     owner: partnership
     dependencies: [REQ-019, REQ-020, REQ-021, REQ-022, REQ-023]
     blocked_reason: null
@@ -364,10 +399,15 @@ items:
       - Validation proves preservation of authority, approvals, backlog transitions, Git safety, optional PR policy, human release authority, completion, and learning records.
       - A verification report identifies any intentional semantic changes rather than presenting them as compression.
     evidence: []
-    updated_at: 2026-07-23T02:20:15Z
+    updated_at: 2026-07-23T02:23:33Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
         to: todo
         reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
         turn_id: REQ-019
+      - at: 2026-07-23T02:23:33Z
+        from: todo
+        to: todo
+        reason: Human approved implementation; final verification remains queued behind all compression items.
+        turn_id: REQ-025
