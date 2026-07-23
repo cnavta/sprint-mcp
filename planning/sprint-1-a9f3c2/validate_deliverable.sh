@@ -46,8 +46,11 @@ fi
 grep -Fq '# 🔀 2.8 Completion Handoff — *Push Required, PR Optional*' "${agents_file}"
 grep -Fq 'The Sprint Protocol does not require a Pull Request' "${agents_file}"
 grep -Fq '### Human-Defined Release (optional and separate from sprint completion)' "${agents_file}"
-grep -Fq '# 🧱 6. Project Structure' "${agents_file}"
-grep -Fq '# 🧠 10. Sprint Lifecycle Summary' "${agents_file}"
+grep -Fq '# 🧪 2.6 Validation and Definition of Done' "${agents_file}"
+grep -Fq '**Required:** must run and pass; never mask failure' "${agents_file}"
+grep -Fq 'Documentation, research, and planning work instead validates applicable schemas' "${agents_file}"
+grep -Fq '# 🧱 3. Project Structure' "${agents_file}"
+grep -Fq '# 🧠 7. Sprint Lifecycle Summary' "${agents_file}"
 grep -Fq '## 2.9.1 Learning Artifacts for Future Extraction' "${agents_file}"
 
 echo "Checking phase-loaded artifact references..."
@@ -69,6 +72,10 @@ if grep -Eqi 'brat|BitBrat|Real GitHub PR Required|LLM Pushes \+ Opens PR|Push \
 fi
 if grep -Fq 'Deviations from the implementation plan' "${agents_file}"; then
   echo "Found superseded implementation-plan terminology." >&2
+  exit 1
+fi
+if grep -Eq '^# .*Project-Wide Definition of Done|^# .*Testing Standards|^# .*Deliverable Types' "${agents_file}"; then
+  echo "Found validation policy duplicated outside section 2.6." >&2
   exit 1
 fi
 

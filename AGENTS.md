@@ -278,26 +278,27 @@ Appending a follow-up does not imply that it runs next. Existing ready items ret
 
 ---
 
-# 🧪 2.6 Validation Phase — *Mandatory Real Build + Test*
+# 🧪 2.6 Validation and Definition of Done
 
-Every sprint MUST include a **real, executable** `validate_deliverable.sh` script.
+Every sprint MUST include a real, executable `validate_deliverable.sh`. Before writing it, read `documentation/reference/validate-deliverable-example.sh` and classify each planned check as:
 
-This script MUST:
+- **Required:** must run and pass; never mask failure with unconditional success handling.
+- **Applicable:** becomes required when its referenced deliverable or environment is present.
+- **Not applicable:** omit the command and record the approved rationale in the plan.
 
-1. Install dependencies
-2. Build the project
-3. Run the test suite
-4. Start local runtime (if applicable)
-5. Perform health checks (manual or scripted)
-6. Shut down local runtime
-7. Run Cloud Build/Cloud Run dry-run deployment (if defined)
+All sprints validate artifact structure, backlog acceptance evidence, traceability, and applicable quality rules. Code or runtime work normally validates dependency installation, build, tests, integration/runtime health, and deployment dry runs. Documentation, research, and planning work instead validates applicable schemas, links, structure, and content assertions; it need not invent a build or runtime.
 
-Use stack-appropriate commands for your service. The example below is for Node/TypeScript projects; for other stacks, use equivalent commands (e.g., Python: pip/poetry, pytest; Go: go build, go test).
+A deliverable is done only when:
 
-Before writing the script, read `documentation/reference/validate-deliverable-example.sh`. Replace every placeholder with a real approved command or an explicit not-applicable disposition; never hide failure of a required check.
+- It satisfies every applicable architecture and approved-plan constraint.
+- Its backlog acceptance criteria have stable evidence.
+- Required checks pass using the project-appropriate toolchain.
+- New behavior has appropriate tests; external services are mocked where practical.
+- Production paths contain no placeholder logic or unresolved TODOs.
+- Applicable deployment and documentation artifacts are integrated and validated.
+- Changes trace to the sprint, request-log turns, backlog items, and intent-focused commits.
 
-### Critical rule:
-> A sprint should not be considered ready to close unless `validate_deliverable.sh` is **logically passable** (all referenced commands exist and are intended to succeed) and aligned with the project-wide DoD. If the script cannot currently succeed because of environment issues, the LLM must log the failure and include it in `verification-report.md`; closure then requires explicit human acceptance.
+Any unavailable or failing required check is recorded in `verification-report.md` and the retrospective. Closure then requires explicit human acceptance; force completion follows §2.10. Every sprint must produce at least one accountable artifact, including code, tests, infrastructure, documentation, research, or design.
 
 ---
 
@@ -436,74 +437,7 @@ Force completion never authorizes a release.
 
 ---
 
-# 🧮 3. Project-Wide Definition of Done (DoD)
-
-A deliverable is “Done” only if:
-
-### ✅ Code Quality
-- Adheres to project and architecture.yaml constraints
-- No TODOs or placeholder logic in production paths
-- Stubs are allowed only in non-production paths or behind feature flags
-
-### ✅ Testing
-- Tests for all new behavior (use Jest for Node/TypeScript services; use stack-appropriate frameworks for other stacks)
-- Mocks for external dependencies
-- `npm test` must pass
-- Test deferral requires explicit human approval
-
-### ✅ Deployment Artifacts
-If applicable:
-- Dockerfile
-- Cloud Build YAML
-- Cloud Run configs
-- IaC
-  These must integrate with `validate_deliverable.sh`
-
-### ✅ Documentation
-- Rationale, trade-offs, and notes
-- LLM hints (`llm_prompt`) where beneficial
-
-### ✅ Traceability
-All code changes trace back to:
-- A sprint
-- A request ID in `request-log.md`
-- One or more intent-focused commits
-
-The human may explicitly accept missing or failing tests for this sprint; in that case, the gaps MUST be listed under **Deferred** in `verification-report.md` and recorded as evidence-backed observations in `retro.md`.
-
----
-
-# 🧪 4. Testing Standards
-
-- Tests required
-- For Node/TypeScript services, use Jest; for other stacks, use language-appropriate frameworks (e.g., pytest, go test)
-- Tests live beside code or in `__tests__/`
-- High coverage encouraged
-- External services mocked
-- Tests must run as part of validation
-
----
-
-# 📦 5. Deliverable Types
-
-Every sprint must produce at least one:
-
-- Code artifact
-- Tests
-- Deployment scripts
-- Architecture documentation
-
-And all outputs must:
-
-- Build
-- Test
-- Integrate with the validation pipeline
-
-Note: Planning/Discovery sprints may produce documentation-only deliverables; validation should then lint, link-check, and verify structure instead of building code.
-
----
-
-# 🧱 6. Project Structure
+# 🧱 3. Project Structure
 
 ```
 deprecated/      # Historical reference only
@@ -521,7 +455,7 @@ src/
 
 ---
 
-# 🎯 7. Code Style Rules
+# 🎯 4. Code Style Rules
 
 - Application/services code is in TypeScript by default. If a service explicitly specifies a different stack, follow that stack. Scripts and infrastructure files remain in their native formats.
 - kebab-case filenames
@@ -539,7 +473,7 @@ Logging:
 
 ---
 
-# 🧯 8. Error Handling & Events
+# 🧯 5. Error Handling & Events
 
 - Strong try/catch discipline
 - Graceful shutdown of services
@@ -549,7 +483,7 @@ Logging:
 
 ---
 
-# 👥 9. Collaboration Roles
+# 👥 6. Collaboration Roles
 
 These are responsibility domains, not rigid job titles. A human or LLM may contribute in several domains, subject to the authority boundaries in §Capabilities.
 
@@ -573,7 +507,7 @@ These are responsibility domains, not rigid job titles. A human or LLM may contr
 
 ---
 
-# 🧠 10. Sprint Lifecycle Summary
+# 🧠 7. Sprint Lifecycle Summary
 
 ```
 Frame Together → LLM Plan → Human Approve → LLM Implement + Commit

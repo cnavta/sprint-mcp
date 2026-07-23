@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:26:24Z
+  updated_at: 2026-07-23T02:28:14Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -273,7 +273,7 @@ items:
   - id: REQ-020
     title: Consolidate validation and Definition of Done policy
     priority: P1
-    status: in-progress
+    status: done
     approval: approved
     owner: partnership
     dependencies: [REQ-019]
@@ -284,8 +284,8 @@ items:
       - Required checks cannot be hidden by unconditional success handling.
       - Documentation-only and other non-runtime deliverables retain appropriate validation.
       - Existing human exception authority remains intact.
-    evidence: []
-    updated_at: 2026-07-23T02:26:24Z
+    evidence: [path:AGENTS.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:28:14Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -302,11 +302,16 @@ items:
         to: in-progress
         reason: REQ-019 completed and the WIP limit permits validation-policy consolidation.
         turn_id: REQ-025
+      - at: 2026-07-23T02:28:14Z
+        from: in-progress
+        to: done
+        reason: Validation and Definition of Done policy was consolidated and validated.
+        turn_id: REQ-025
 
   - id: REQ-021
     title: Centralize authority, handoff, PR, and release rules
     priority: P1
-    status: todo
+    status: in-progress
     approval: approved
     owner: partnership
     dependencies: []
@@ -317,7 +322,7 @@ items:
       - Push handoff, optional PR policy, and human-defined release behavior remain explicit.
       - No LLM gains implicit release or PR authority.
     evidence: []
-    updated_at: 2026-07-23T02:23:33Z
+    updated_at: 2026-07-23T02:28:14Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -328,6 +333,11 @@ items:
         from: todo
         to: todo
         reason: Human approved implementation; item remains queued in declared order.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:28:14Z
+        from: todo
+        to: in-progress
+        reason: Prior declared work completed and the WIP limit permits authority-policy consolidation.
         turn_id: REQ-025
 
   - id: REQ-022

@@ -262,6 +262,12 @@ Approve REQ-019 through REQ-024, execute them in declared order under `wip_limit
 - Measurement after REQ-019: 596 lines, 4,309 words, and 30,116 bytes.
 - `apply_patch` — moved REQ-019 to `done` and REQ-020 to `in-progress` under the WIP limit.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): externalize protocol templates"`.
+- REQ-020 consolidated Validation Phase, Definition of Done, Testing Standards, and Deliverable Types into §2.6.
+- The consolidated policy distinguishes required, applicable, and not-applicable checks; required failures cannot be masked.
+- `validate_deliverable.sh` passed after consolidation.
+- Measurement after REQ-020: 530 lines, 4,084 words, and 28,796 bytes.
+- `apply_patch` — moved REQ-020 to `done` and REQ-021 to `in-progress`.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): consolidate validation policy"`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23
