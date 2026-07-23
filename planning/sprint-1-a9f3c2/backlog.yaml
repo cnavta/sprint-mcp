@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:06:21Z
+  updated_at: 2026-07-23T02:20:15Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -237,3 +237,137 @@ items:
         to: done
         reason: All acceptance criteria were verified by the sprint validation script.
         turn_id: REQ-018
+
+  - id: REQ-019
+    title: Externalize artifact templates and examples
+    priority: P1
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Full manifest, backlog, execution-plan, validation, publication, retrospective, and learning examples live under documentation/reference.
+      - AGENTS.md retains normative requirements and links to each canonical reference.
+      - The protocol instructs the LLM to load a reference only when entering its phase.
+      - No required field, status, or acceptance rule is lost during extraction.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019
+
+  - id: REQ-020
+    title: Consolidate validation and Definition of Done policy
+    priority: P1
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: [REQ-019]
+    blocked_reason: null
+    acceptance:
+      - Validation Phase, Definition of Done, Testing Standards, and Deliverable Types become one coherent policy section.
+      - Required, applicable, and not-applicable checks are distinguished explicitly.
+      - Required checks cannot be hidden by unconditional success handling.
+      - Documentation-only and other non-runtime deliverables retain appropriate validation.
+      - Existing human exception authority remains intact.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019
+
+  - id: REQ-021
+    title: Centralize authority, handoff, PR, and release rules
+    priority: P1
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Human and LLM authority is stated once in a canonical section.
+      - Later phases reference the canonical authority rules instead of restating them.
+      - Push handoff, optional PR policy, and human-defined release behavior remain explicit.
+      - No LLM gains implicit release or PR authority.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019
+
+  - id: REQ-022
+    title: Remove duplication and compress lifecycle rules
+    priority: P2
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: [REQ-019, REQ-021]
+    blocked_reason: null
+    acceptance:
+      - The duplicate lifecycle summary and non-executable closing prose are removed.
+      - Verification examples duplicated by normative requirements are removed or externalized.
+      - Backlog transitions use a compact representation without losing preconditions or evidence duties.
+      - Backlog and request-log responsibilities are defined once and referenced elsewhere.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019
+
+  - id: REQ-023
+    title: Separate development guidance from sprint protocol
+    priority: P2
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Project structure, code style, application logging, and error-handling guidance move to a stable development reference where appropriate.
+      - AGENTS.md retains only rules needed to execute the Human-LLM Sprint Protocol.
+      - The protocol provides one clear link to the development guidance.
+      - No repository-specific development constraint is silently discarded.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019
+
+  - id: REQ-024
+    title: Verify semantic equivalence and token reduction
+    priority: P0
+    status: todo
+    approval: pending
+    owner: partnership
+    dependencies: [REQ-019, REQ-020, REQ-021, REQ-022, REQ-023]
+    blocked_reason: null
+    acceptance:
+      - AGENTS.md is no more than 500 lines and approximately 3,000-3,400 words, or any variance is justified by preserved safeguards.
+      - Final line, word, byte, and approximate-token measurements are recorded against the baseline.
+      - Every canonical reference exists and every protocol cross-reference resolves.
+      - Validation proves preservation of authority, approvals, backlog transitions, Git safety, optional PR policy, human release authority, completion, and learning records.
+      - A verification report identifies any intentional semantic changes rather than presenting them as compression.
+    evidence: []
+    updated_at: 2026-07-23T02:20:15Z
+    history:
+      - at: 2026-07-23T02:20:15Z
+        from: null
+        to: todo
+        reason: Planned from the approved token-reduction analysis; implementation approval remains pending.
+        turn_id: REQ-019

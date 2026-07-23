@@ -207,6 +207,33 @@ Implement the compact backlog schema and transition rules, migrate the active sp
 - One combined artifact-update patch was rejected because it contained an empty malformed hunk; no files changed in that attempt.
 - Corrected `apply_patch` — moved REQ-017 from `in-progress` to `done`, added validation evidence and transition history, and updated verification and learning artifacts.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): define backlog accountability contract"` with REQ-017 and REQ-018 evidence.
+
+## REQ-019 — 2026-07-23
+
+### Human intent
+
+Plan a backlog that implements the identified easy and moderately easy `AGENTS.md` token-reduction opportunities.
+
+### LLM interpretation and response
+
+Create ordered, independently approvable backlog items for template extraction, validation/DoD consolidation, authority and handoff centralization, duplication removal, development-guidance separation, and final semantic/token verification. Planning does not authorize implementation.
+
+### Decisions and resulting state changes
+
+- Added REQ-019 through REQ-024 at the end of the backlog.
+- All six items are `todo` with `approval: pending`.
+- Recorded the baseline as 783 lines, 4,825 words, and 33,257 bytes.
+- Set a target of no more than 500 lines and approximately 3,000–3,400 words, subject to preserving safeguards.
+- Set `wip_limit: 1`; declared dependencies provide the intended execution order.
+- Kept the sprint `blocked` because the existing completion-push blocker remains unchanged.
+
+### Operation evidence
+
+- Measured `AGENTS.md` and inspected its heading and repetition structure during the preceding analysis turn.
+- `apply_patch` — added the compression scope, targets, preservation constraints, and verification strategy to `execution-plan.md`.
+- `apply_patch` — appended REQ-019 through REQ-024 with priorities, dependencies, approval state, acceptance criteria, timestamps, and history.
+- `validate_deliverable.sh` — passed build, explicit no-tests Jest mode, protocol policy checks, learning schemas, and active backlog contract checks.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): plan protocol compression backlog"` with REQ-019 through REQ-024.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23

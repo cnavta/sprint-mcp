@@ -22,6 +22,7 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Add a compact follow-up loop for human-requested tasks after an LLM delivery turn: stop, clarify, append to the backlog by default, then continue in backlog order.
 - Make Human–LLM turns the primary traceability unit; retain only state-changing, evidentiary, or materially failed command records as supporting evidence.
 - Define `backlog.yaml` as the sprint accountability contract using a compact trackable schema derived from `documentation/reference/backlog-example.yaml`, while keeping Human–LLM interaction narratives in `request-log.md`.
+- Reduce `AGENTS.md` token size through reference extraction and rule consolidation without weakening authority, approval, safety, accountability, or completion gates.
 - Resolve internal terminology and artifact-name inconsistencies encountered in the edited sections.
 
 ### Out of scope
@@ -62,6 +63,14 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Backlog transition history links to Human–LLM turn IDs without duplicating the interaction narrative.
 - The revision does not conflict with `architecture.yaml`.
 
+## Proposed Compression Work
+
+- Baseline: 783 lines, 4,825 words, and 33,257 bytes.
+- Target: no more than 500 lines and approximately 3,000–3,400 words, subject to preserving executable meaning.
+- Preserve inline: precedence, human authority, approval gates, sprint start, follow-up loop, backlog transition duties, Git safety, optional-PR boundaries, human release authority, and force-completion requirements.
+- Prefer progressive disclosure: keep normative requirements in `AGENTS.md`; place full templates and examples in stable files under `documentation/reference/` and require phase-specific loading.
+- Execute the proposed backlog in declared order with one item in progress at a time.
+
 ## Testing Strategy
 
 - Review the final diff for contradictory lifecycle, Git, release, and ownership language.
@@ -70,6 +79,9 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Assert that the compact follow-up loop and default append-order rule are present.
 - Assert that turn-centered logging replaces the requirement to log every meaningful shell and Git operation.
 - Assert the backlog accountability schema, status vocabulary, transition rules, and backlog/request-log separation.
+- Measure final line, word, byte, and approximate-token reduction against the recorded baseline.
+- Verify that every externalized reference exists and that all normative cross-references resolve.
+- Run semantic regression checks for authority, approvals, backlog state, Git safety, PR/release policy, completion, and extraction-ready learning records.
 - Run the repository's existing test and build commands to detect unintended regressions.
 - Provide an executable documentation-oriented `validate_deliverable.sh` that performs the applicable checks.
 
