@@ -1,5 +1,5 @@
 sprint: sprint-1-a9f3c2
-status: in-progress
+status: blocked
 items:
   - id: REQ-001
     title: Reframe the protocol as a Human-LLM partnership
@@ -32,7 +32,17 @@ items:
       - No semantic extraction implementation is introduced.
   - id: REQ-005
     title: Validate and publish the governance revision
-    status: in-progress
+    status: blocked
+    blockedBy: A verified and explicitly authorized Git remote is required for push and PR creation.
     acceptance:
       - Documentation checks, build, and tests pass or exceptions are accepted.
       - The branch is pushed and a PR is created, or a failed attempt is logged and accepted.
+  - id: REQ-011
+    title: Add the human follow-up backlog loop
+    status: complete
+    acceptance:
+      - A compact Stop, Clarify, Append, Continue protocol is defined.
+      - The LLM pauses advancement and asks only questions needed to make the follow-up actionable.
+      - Follow-up work is appended to the end of backlog.yaml unless the human specifies another position.
+      - Existing scope-change approval gates remain in force.
+      - After clarification and any required approval, work resumes at the next ready backlog item in declared order.

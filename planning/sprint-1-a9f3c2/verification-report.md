@@ -15,6 +15,7 @@ Ready for publication attempt. Human completion remains pending.
 - [x] Made all real releases human-only and retained non-mutating release dry runs as validation aids.
 - [x] Added stable, atomic, evidence-backed schemas for retrospective observations and reusable learning records.
 - [x] Standardized the planning artifact name as `execution-plan.md`.
+- [x] Added the `Stop → Clarify → Append → Continue` loop for human follow-up tasks, including deterministic backlog placement and resumption rules.
 - [x] Added and executed `validate_deliverable.sh` successfully.
 
 ## Partial
@@ -25,6 +26,7 @@ None.
 
 - [ ] Publication requires a Git remote. `git remote -v` currently returns no remotes.
 - [ ] A normal PR comparison requires a baseline branch commit. Local `main` is unborn, and the sprint commit is a root commit.
+- [ ] External push requires explicit human authorization of a verified remote destination; the first push request was rejected before execution.
 
 ## Validation Evidence
 

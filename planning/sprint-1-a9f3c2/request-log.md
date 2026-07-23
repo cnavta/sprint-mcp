@@ -78,6 +78,81 @@ Record the successful coherent implementation commit, verify acceptance criteria
 - `planning/sprint-1-a9f3c2/key-learnings.md`
 - `planning/sprint-1-a9f3c2/request-log.md`
 
+## REQ-010 — 2026-07-23
+
+### Prompt summary
+
+Perform the required completion push after verification and learning artifacts were committed.
+
+### Interpretation
+
+Push the completed feature branch to the configured `origin`, then create a pull request if the push succeeds.
+
+### Commands and results
+
+- `git commit` with structured intent, request, and validation fields — created completion-artifact commit `5ede9d1`.
+- Requested `git push -u origin feature/sprint-1-a9f3c2-human-llm-protocol` — not executed. The environment rejected external egress because the destination was not verified or specifically authorized by the human.
+- Pull-request creation — not attempted because the prerequisite push did not occur.
+- `apply_patch` — created `publication.yaml`, recorded the human action required, marked REQ-005 blocked, and preserved the manifest in `verifying` status.
+- Planned blocker-record commit: `git commit -m "sprint(sprint-1-a9f3c2): record publication blocker"` with REQ-005 and the rejected push request as evidence.
+
+### Current gate
+
+The human must provide and explicitly authorize the intended Git remote before push and PR creation can proceed.
+
+## REQ-011 — 2026-07-23
+
+### Prompt summary
+
+Add a compact protocol for human follow-up tasks submitted after the LLM's first delivery turn: stop, ask questions, append the task to the backlog by default, and continue to the next backlog item.
+
+### Interpretation
+
+Amend the active sprint with an execution-loop rule named `Stop → Clarify → Append → Continue`. Preserve the existing substantial-scope approval gate, make end-of-backlog placement the default, and resume according to the ordered ready backlog after clarification and approval.
+
+### Commands and results
+
+- Targeted `sed` reads — inspected the lifecycle, active-sprint amendment rules, execution section, execution plan, and backlog.
+- `git status --short --branch` — confirmed the active feature branch and preserved the already staged publication-blocker records plus unrelated untracked files.
+- `apply_patch` — amended `execution-plan.md`, appended REQ-011 to `backlog.yaml`, and set the backlog status to `amendment-pending-approval`.
+
+### Files modified
+
+- `planning/sprint-1-a9f3c2/execution-plan.md`
+- `planning/sprint-1-a9f3c2/backlog.yaml`
+- `planning/sprint-1-a9f3c2/request-log.md`
+
+### Current gate
+
+Because this adds protocol behavior, explicit human approval of the amended plan is required before `AGENTS.md` is changed.
+
+## REQ-012 — 2026-07-23
+
+### Prompt summary
+
+The human approved the follow-up-loop amendment.
+
+### Interpretation
+
+Implement REQ-011 in the lifecycle and execution rules, then validate the compact protocol and default ordering behavior.
+
+### Commands and results
+
+- One combined `apply_patch` attempt failed because an update marker was malformed; no files were changed by that attempt.
+- Corrected `apply_patch` — added the follow-up loop to the lifecycle overview and created §2.5.2 `Human Follow-Up Loop` with Stop, Clarify, Append, and Continue rules.
+- Corrected `apply_patch` — updated validation assertions for the new section, compact protocol, and end-of-backlog default.
+- Corrected `apply_patch` — moved the amended backlog and REQ-011 to `in-progress`.
+- Full validation run — passed dependency installation, TypeScript build, explicit no-tests Jest mode, all existing policy/schema checks, and the new follow-up-loop assertions.
+- `apply_patch` — marked REQ-011 complete and added the verified behavior to the verification, retrospective, and learning artifacts.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): add human follow-up loop"` referencing REQ-011 and the successful validation run.
+
+### Files modified
+
+- `AGENTS.md`
+- `planning/sprint-1-a9f3c2/backlog.yaml`
+- `planning/sprint-1-a9f3c2/validate_deliverable.sh`
+- `planning/sprint-1-a9f3c2/request-log.md`
+
 ## REQ-008 — 2026-07-23
 
 ### Prompt summary

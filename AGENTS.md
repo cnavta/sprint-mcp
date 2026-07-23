@@ -74,6 +74,7 @@ This protocol governs every sprint carried out through a Human–LLM partnership
 
 ```
 Frame Together → LLM Plans → Human Approves → LLM Implements + Commits
+    ↳ Human Follow-Up: Stop → Clarify → Append → Continue
     → LLM Validates + Verifies → LLM Produces Retro + Learnings
     → LLM Pushes + Opens PR → Human Reviews + Completes → Human Releases (optional)
 ```
@@ -262,6 +263,21 @@ Validation: <checks run and concise result>
 Additional context or trade-offs may follow. Keep each commit semantically focused. Avoid vague subjects such as `updates`, `fix stuff`, or `LLM changes`.
 
 The LLM MUST NOT push intermediate sprint commits by default. It pushes the branch when the approved work is complete, validated, verified, and prepared for human review under §2.8. A human may explicitly request an earlier backup or collaboration push.
+
+## 2.5.2 Human Follow-Up Loop
+
+After any LLM delivery turn, including the first turn that delivers backlog items, the human may add follow-up work. Use this compact protocol:
+
+```text
+Stop → Clarify → Append → Continue
+```
+
+1. **Stop:** Pause progression toward the next backlog item or sprint completion. Do not start the follow-up or silently change priorities.
+2. **Clarify:** Ask only questions required to make the follow-up actionable or resolve a material ambiguity. If no question is necessary, proceed directly to Append.
+3. **Append:** Log the request and add an atomic backlog item with an ID, acceptance criteria, status, and dependencies when applicable. Place it at the end of `backlog.yaml` unless the human specifies another position, priority, or dependency. Preserve the order of multiple follow-ups as received. Do not reorder existing items without human direction.
+4. **Continue:** Apply the active-sprint amendment and approval rules in §2.4.1. After required answers and approvals are recorded, select the next ready backlog item in declared order, state which item is resuming, and continue execution.
+
+Appending a follow-up does not imply that it runs next. Existing ready items retain their order unless the human explicitly reprioritizes them. A follow-up that substantially changes scope remains behind the human approval gate even when its desired behavior is otherwise clear.
 
 ---
 

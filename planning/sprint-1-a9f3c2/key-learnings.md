@@ -37,3 +37,15 @@
 - Confidence: high
 - Tags: [documentation-validation, semantic-checks, extraction-readiness]
 - Supersedes: none
+
+### LEARN-004 – Separate follow-up capture from reprioritization
+
+- Statement: Append human follow-up tasks to the backlog by default, and change execution order only when the human explicitly supplies a different position, priority, or dependency.
+- Kind: collaboration
+- Derived from: OBS-004; REQ-011
+- Applies when: New tasks arrive during an active delivery sequence and must be preserved without losing the current execution context.
+- Does not apply when: The human explicitly identifies the follow-up as an urgent replacement or supplies another ordering rule.
+- Recommended action: Use `Stop → Clarify → Append → Continue` and resume at the next ready item in declared order.
+- Confidence: high
+- Tags: [backlog-order, follow-up-loop, human-authority]
+- Supersedes: none

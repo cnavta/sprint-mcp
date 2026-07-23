@@ -30,6 +30,14 @@ The sprint produced a Human–LLM Sprint Protocol revision covering partnership 
 - Interpretation: Documentation sprints benefit from targeted semantic assertions in addition to project build commands.
 - Impact: The governance requirements are mechanically checked without claiming nonexistent test coverage.
 
+### OBS-004 – Default append order preserves delivery focus
+
+- Type: worked
+- Evidence: REQ-011; `AGENTS.md` §2.5.2
+- Observation: The follow-up loop appends new work by default while allowing explicit human reprioritization.
+- Interpretation: Separating task capture from task priority lets the partnership accept new information without silently disrupting approved work.
+- Impact: Follow-up behavior is deterministic while human ordering authority is preserved.
+
 ## Partnership Review
 
 ### PART-001 – Approval gate preserved human control

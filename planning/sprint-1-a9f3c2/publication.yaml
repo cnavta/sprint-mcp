@@ -1,0 +1,10 @@
+branch: feature/sprint-1-a9f3c2-human-llm-protocol
+head_commit: 5ede9d1
+status: blocked
+push:
+  status: not-executed
+  reason: "External push approval was rejected because no verified or specifically authorized remote destination exists."
+pull_request:
+  status: not-attempted
+  url: null
+required_human_action: "Provide and explicitly authorize the intended Git remote before push and PR creation."

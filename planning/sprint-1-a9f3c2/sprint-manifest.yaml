@@ -11,3 +11,5 @@ notes: |
   The execution plan and backlog were approved by the human on 2026-07-22.
   The feature branch was created after Git metadata became available. The repository
   has no baseline commit on main, so publication may require human resolution.
+  Publication is blocked because no verified remote is configured or explicitly
+  authorized for external push.
