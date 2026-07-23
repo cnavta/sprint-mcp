@@ -3,6 +3,8 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 agents_file="${repo_root}/AGENTS.md"
+retro_file="${repo_root}/planning/sprint-1-a9f3c2/retro.md"
+learnings_file="${repo_root}/planning/sprint-1-a9f3c2/key-learnings.md"
 
 echo "Installing dependencies..."
 cd "${repo_root}"
@@ -33,5 +35,13 @@ grep -Fq '### PART-001' "${agents_file}"
 grep -Fq '### LEARN-001' "${agents_file}"
 grep -Fq -- '- Confidence: low | medium | high' "${agents_file}"
 grep -Fq -- '- Tags: [tag-one, tag-two]' "${agents_file}"
+
+echo "Checking produced learning artifacts..."
+grep -Eq '^### OBS-[0-9]{3} ' "${retro_file}"
+grep -Eq '^### PART-[0-9]{3} ' "${retro_file}"
+grep -Eq '^### FOLLOW-[0-9]{3} ' "${retro_file}"
+grep -Eq '^### LEARN-[0-9]{3} ' "${learnings_file}"
+grep -Eq '^- Confidence: (low|medium|high)$' "${learnings_file}"
+grep -Eq '^- Tags: \[[a-z0-9-]+(, [a-z0-9-]+)*\]$' "${learnings_file}"
 
 echo "Validation complete."

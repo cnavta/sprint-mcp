@@ -53,6 +53,31 @@ The planning approval gate is satisfied. Implementation may begin after the requ
 - `planning/sprint-1-a9f3c2/backlog.yaml`
 - `planning/sprint-1-a9f3c2/request-log.md`
 
+## REQ-009 — 2026-07-23
+
+### Prompt summary
+
+Verify the completed protocol revision and prepare evidence and learning artifacts for publication.
+
+### Interpretation
+
+Record the successful coherent implementation commit, verify acceptance criteria, and produce extraction-ready retrospective and learning records before the completion handoff.
+
+### Commands and results
+
+- `git commit` with structured intent, request, and validation fields — created root commit `ad5be99` containing only `AGENTS.md` and scoped sprint artifacts.
+- `apply_patch` — created `verification-report.md`, `retro.md`, and `key-learnings.md` using the approved stable record schemas.
+- `apply_patch` — extended validation to assert that the produced retrospective and learning artifacts contain stable IDs, confidence values, and normalized tags.
+- Final validation run — passed dependency installation, TypeScript build, explicit no-tests Jest mode, protocol assertions, deprecated-language checks, template-schema checks, and produced-artifact schema checks.
+- Planned completion-artifact commit: `git commit -m "sprint(sprint-1-a9f3c2): record verification and learnings"` with REQ-005 and final validation evidence.
+
+### Files created or modified
+
+- `planning/sprint-1-a9f3c2/verification-report.md`
+- `planning/sprint-1-a9f3c2/retro.md`
+- `planning/sprint-1-a9f3c2/key-learnings.md`
+- `planning/sprint-1-a9f3c2/request-log.md`
+
 ## REQ-008 — 2026-07-23
 
 ### Prompt summary
