@@ -1,0 +1,38 @@
+sprint: sprint-1-a9f3c2
+status: in-progress
+items:
+  - id: REQ-001
+    title: Reframe the protocol as a Human-LLM partnership
+    status: complete
+    acceptance:
+      - Human decision rights are explicit.
+      - LLM responsibilities are explicit.
+      - Lifecycle language consistently reflects partnership.
+  - id: REQ-002
+    title: Define intentional Git behavior
+    status: complete
+    acceptance:
+      - A sprint branch is required at initialization.
+      - Regular commits represent coherent work units.
+      - Commit messages carry intent plus sprint and request traceability.
+      - Push occurs after validation and verification as the final LLM publication handoff.
+  - id: REQ-003
+    title: Make releases exclusively human-owned
+    status: complete
+    acceptance:
+      - LLMs cannot execute a mutating release command.
+      - The brat release command is documented as a human aid.
+      - Non-mutating release dry runs remain available for validation.
+  - id: REQ-004
+    title: Structure learning artifacts for future extraction
+    status: complete
+    acceptance:
+      - Retro records distinguish observations, evidence, decisions, and outcomes.
+      - Learning records are atomic and include applicability, confidence, and tags.
+      - No semantic extraction implementation is introduced.
+  - id: REQ-005
+    title: Validate and publish the governance revision
+    status: in-progress
+    acceptance:
+      - Documentation checks, build, and tests pass or exceptions are accepted.
+      - The branch is pushed and a PR is created, or a failed attempt is logged and accepted.

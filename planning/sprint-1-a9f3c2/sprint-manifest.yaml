@@ -1,0 +1,13 @@
+id: sprint-1-a9f3c2
+title: "Human-LLM Sprint Protocol revision"
+goal: "Revise AGENTS.md to define a Human-LLM partnership, intentional Git behavior, human-only releases, and extraction-ready learning artifacts."
+owner: "Christopher Navta"
+createdAt: "2026-07-23T00:02:03Z"
+status: "verifying"
+links:
+  branch: "feature/sprint-1-a9f3c2-human-llm-protocol"
+notes: |
+  Sprint initialized from the explicit command "Start sprint".
+  The execution plan and backlog were approved by the human on 2026-07-22.
+  The feature branch was created after Git metadata became available. The repository
+  has no baseline commit on main, so publication may require human resolution.
