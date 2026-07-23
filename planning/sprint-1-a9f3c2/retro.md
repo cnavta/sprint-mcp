@@ -62,6 +62,14 @@ The sprint produced a Human–LLM Sprint Protocol revision covering partnership 
 - Interpretation: Separating current accountability from conversational rationale makes both artifacts easier to inspect and extract.
 - Impact: Sprint status can be reconciled mechanically without duplicating the collaboration transcript.
 
+### OBS-008 – Phase loading reduced recurring protocol context
+
+- Type: worked
+- Evidence: REQ-019 through REQ-024; `AGENTS.md`; `verification-report.md` Semantic Preservation Review
+- Observation: Externalizing examples and development guidance, then consolidating repeated rules, reduced the protocol from 783 to 384 lines and from 4,825 to 3,086 words.
+- Interpretation: Stable operational safeguards can remain mandatory while detailed shapes and phase-specific guidance load only when the active phase needs them.
+- Impact: The always-loaded protocol is approximately one-third smaller by words and estimated tokens, while executable checks preserve required concepts and references.
+
 ## Partnership Review
 
 ### PART-001 – Approval gate preserved human control

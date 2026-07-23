@@ -85,3 +85,15 @@
 - Confidence: high
 - Tags: [backlog-contract, request-log, accountability]
 - Supersedes: none
+
+### LEARN-008 – Phase-load detailed protocol references
+
+- Statement: Keep authority, gates, state transitions, and safety rules in the always-loaded protocol; move detailed templates, examples, and task-specific development guidance into mandatory phase-loaded references.
+- Kind: process
+- Derived from: OBS-008; REQ-019 through REQ-024
+- Applies when: A coding-agent protocol repeats large artifact shapes or guidance needed only during particular phases.
+- Does not apply when: Moving a rule would make an approval, safety constraint, or state transition undiscoverable at the moment it governs behavior.
+- Recommended action: Externalize stable details, add explicit read-before-action links, and validate both reference existence and preservation of core concepts.
+- Confidence: high
+- Tags: [phase-loading, token-efficiency, protocol-design]
+- Supersedes: none

@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:34:11Z
+  updated_at: 2026-07-23T02:35:47Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -422,7 +422,7 @@ items:
   - id: REQ-024
     title: Verify semantic equivalence and token reduction
     priority: P0
-    status: in-progress
+    status: done
     approval: approved
     owner: partnership
     dependencies: [REQ-019, REQ-020, REQ-021, REQ-022, REQ-023]
@@ -433,8 +433,8 @@ items:
       - Every canonical reference exists and every protocol cross-reference resolves.
       - Validation proves preservation of authority, approvals, backlog transitions, Git safety, optional PR policy, human release authority, completion, and learning records.
       - A verification report identifies any intentional semantic changes rather than presenting them as compression.
-    evidence: []
-    updated_at: 2026-07-23T02:34:11Z
+    evidence: [path:AGENTS.md, path:planning/sprint-1-a9f3c2/verification-report.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:35:47Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -450,4 +450,9 @@ items:
         from: todo
         to: in-progress
         reason: All compression dependencies are done; final semantic and size verification started.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:35:47Z
+        from: in-progress
+        to: done
+        reason: Size target, cross-references, semantic safeguards, and executable validation were verified and recorded.
         turn_id: REQ-025

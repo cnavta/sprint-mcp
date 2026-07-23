@@ -166,7 +166,7 @@ If the human provides follow-up tasks or scope changes while a sprint is active:
 4. **Update Manifest:** If the goal has evolved significantly, update the `goal` or `title` in `sprint-manifest.yaml`.
 5. **Log Request:** Document the Human–LLM turn and its interpretation in `request-log.md`.
 6. **Approval Gate:** If the change is substantial, the LLM MUST pause and request human approval for the amended plan before proceeding.
-7. **Maintain Branch Integrity:** Perform all amended work on the existing feature branch (Rule S11).
+7. **Maintain Branch Integrity:** Perform all amended work on the existing feature branch (§2.2).
 
 ---
 

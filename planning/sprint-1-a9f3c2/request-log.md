@@ -288,6 +288,15 @@ Approve REQ-019 through REQ-024, execute them in declared order under `wip_limit
 - Measurement after REQ-023: `AGENTS.md` is 384 lines, 3,087 words, and 22,087 bytes; the on-demand reference is 38 lines and 176 words.
 - `apply_patch` — moved REQ-023 to `done` and REQ-024 to `in-progress`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): separate development guidance"`.
+- REQ-024 reviewed the complete compressed protocol and corrected one stale cross-reference from removed Rule S11 to canonical §2.2.
+- All nine canonical phase-loaded references exist and are linked from `AGENTS.md`.
+- Final measurement: 384 lines, 3,086 words, 22,084 bytes, and approximately 5,488 tokens versus 783 lines, 4,825 words, 33,257 bytes, and approximately 8,258 tokens at baseline.
+- Reduction: 51.0% of lines, 36.0% of words, 33.6% of bytes, and approximately 33.5% of tokens.
+- `verification-report.md` now distinguishes structural compression from earlier intentional policy changes and records preservation of all core safeguards.
+- `retro.md` and `key-learnings.md` record the reusable phase-loading result as atomic extraction-ready entries.
+- Final `validate_deliverable.sh` run passed dependency installation, TypeScript build, explicit no-tests Jest mode, policy assertions, reference checks, extraction schemas, produced learning artifacts, and backlog-contract checks.
+- `apply_patch` — moved REQ-024 to `done` with verification and validation evidence.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): verify compressed protocol"`.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23
