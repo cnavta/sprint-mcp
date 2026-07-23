@@ -26,6 +26,25 @@ Prepare a governance-document revision that assigns final authority to the human
 - `planning/sprint-1-a9f3c2/backlog.yaml`
 - `planning/sprint-1-a9f3c2/request-log.md`
 
+## REQ-026 — 2026-07-23
+
+### Prompt summary
+
+The human declared: `Sprint complete.`
+
+### Interpretation
+
+Record normal completion, accept the already documented omitted-push exception, and perform no PR or release action.
+
+### State and operation evidence
+
+- `sprint-manifest.yaml` moved from `verifying` to `complete` with `completionMode: normal` and no active blockers.
+- `backlog.yaml` sprint state moved from `blocked` to `complete`; all accountability items remain `done`.
+- `publication.yaml` records deliverable head `90c2d0b`, `pushStatus: omitted-accepted`, no planned PR, and no remaining human action.
+- `verification-report.md` and `retro.md` now record normal human completion and the accepted handoff exception.
+- No push, PR, release, or tag action was performed.
+- Planned final state commit: `git commit -m "sprint(sprint-1-a9f3c2): record human completion"`.
+
 ### Current gate
 
 At initialization, implementation was awaiting explicit human approval of `execution-plan.md` and `backlog.yaml`, as well as restoration of Git metadata.

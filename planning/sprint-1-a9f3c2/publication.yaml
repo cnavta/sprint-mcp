@@ -1,11 +1,11 @@
 branch: feature/sprint-1-a9f3c2-human-llm-protocol
-headCommit: null
-pushStatus: failed
-pushFailure: "External push approval was rejected because no verified or specifically authorized remote destination exists."
+headCommit: 90c2d0bc2e8a51c74734eb15c06de2ca019d1de8
+pushStatus: omitted-accepted
+pushFailure: "No verified or specifically authorized remote destination exists; the human accepted omitted push by declaring the sprint complete."
 pr:
   desired: false
   owner: null
   timing: null
   status: not-planned
   url: null
-requiredHumanAction: "Provide and explicitly authorize the intended Git remote if completion handoff should be pushed."
+requiredHumanAction: null

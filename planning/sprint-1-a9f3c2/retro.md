@@ -2,7 +2,7 @@
 
 ## Outcome Summary
 
-The sprint produced a Human–LLM Sprint Protocol revision covering partnership authority, intentional Git behavior, human-only releases, and extraction-ready learning artifacts. Validation passed. Publication and human completion remain pending because the local repository has no baseline commit or remote.
+The sprint produced a Human–LLM Sprint Protocol revision covering partnership authority, intentional Git behavior, human-only releases, extraction-ready learning artifacts, and a one-third estimated token reduction. Validation passed. The human completed the sprint normally and accepted omitted push because the local repository has no verified remote. No PR or release was requested or performed.
 
 ## Observations
 
