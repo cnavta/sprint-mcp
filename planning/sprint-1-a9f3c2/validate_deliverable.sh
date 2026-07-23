@@ -15,6 +15,7 @@ publication_reference="${reference_dir}/publication-example.yaml"
 verification_reference="${reference_dir}/verification-report-template.md"
 retro_reference="${reference_dir}/retro-template.md"
 learnings_reference="${reference_dir}/key-learnings-template.md"
+development_reference="${reference_dir}/development-guidance.md"
 
 echo "Installing dependencies..."
 cd "${repo_root}"
@@ -51,12 +52,12 @@ grep -Fq '### Human-Defined Release (optional and separate from sprint completio
 grep -Fq '# 🧪 2.6 Validation and Definition of Done' "${agents_file}"
 grep -Fq '**Required:** must run and pass; never mask failure' "${agents_file}"
 grep -Fq 'Documentation, research, and planning work instead validates applicable schemas' "${agents_file}"
-grep -Fq '# 🧱 3. Project Structure' "${agents_file}"
+grep -Fq '# 3. Development Guidance' "${agents_file}"
 grep -Fq '## 2.9.1 Learning Artifacts for Future Extraction' "${agents_file}"
 test "$(grep -c 'Frame Together → LLM Plans' "${agents_file}")" -eq 1
 
 echo "Checking phase-loaded artifact references..."
-for reference in "${manifest_reference}" "${backlog_reference}" "${plan_reference}" "${validation_reference}" "${publication_reference}" "${verification_reference}" "${retro_reference}" "${learnings_reference}"; do
+for reference in "${manifest_reference}" "${backlog_reference}" "${plan_reference}" "${validation_reference}" "${publication_reference}" "${verification_reference}" "${retro_reference}" "${learnings_reference}" "${development_reference}"; do
   test -f "${reference}"
   grep -Fq "documentation/reference/$(basename "${reference}")" "${agents_file}"
 done
@@ -86,6 +87,10 @@ if grep -Fq '# 👥 6. Collaboration Roles' "${agents_file}"; then
 fi
 if grep -Eq 'Sprint Lifecycle Summary|# End of AGENTS.md' "${agents_file}"; then
   echo "Found duplicate lifecycle or non-executable closing prose." >&2
+  exit 1
+fi
+if grep -Eq '^# .*Project Structure|^# .*Code Style|^# .*Error Handling' "${agents_file}"; then
+  echo "Found development guidance duplicated inside the sprint protocol." >&2
   exit 1
 fi
 

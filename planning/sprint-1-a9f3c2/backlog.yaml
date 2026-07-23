@@ -1,6 +1,6 @@
 meta:
   backlog_id: sprint-1-a9f3c2-backlog
-  updated_at: 2026-07-23T02:32:49Z
+  updated_at: 2026-07-23T02:34:11Z
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -385,7 +385,7 @@ items:
   - id: REQ-023
     title: Separate development guidance from sprint protocol
     priority: P2
-    status: in-progress
+    status: done
     approval: approved
     owner: partnership
     dependencies: []
@@ -395,8 +395,8 @@ items:
       - AGENTS.md retains only rules needed to execute the Human-LLM Sprint Protocol.
       - The protocol provides one clear link to the development guidance.
       - No repository-specific development constraint is silently discarded.
-    evidence: []
-    updated_at: 2026-07-23T02:32:49Z
+    evidence: [path:documentation/reference/development-guidance.md, path:AGENTS.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:34:11Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -413,11 +413,16 @@ items:
         to: in-progress
         reason: Prior declared work completed and the WIP limit permits development-guidance separation.
         turn_id: REQ-025
+      - at: 2026-07-23T02:34:11Z
+        from: in-progress
+        to: done
+        reason: Development guidance moved to a stable phase-loaded reference and validation passed.
+        turn_id: REQ-025
 
   - id: REQ-024
     title: Verify semantic equivalence and token reduction
     priority: P0
-    status: todo
+    status: in-progress
     approval: approved
     owner: partnership
     dependencies: [REQ-019, REQ-020, REQ-021, REQ-022, REQ-023]
@@ -429,7 +434,7 @@ items:
       - Validation proves preservation of authority, approvals, backlog transitions, Git safety, optional PR policy, human release authority, completion, and learning records.
       - A verification report identifies any intentional semantic changes rather than presenting them as compression.
     evidence: []
-    updated_at: 2026-07-23T02:23:33Z
+    updated_at: 2026-07-23T02:34:11Z
     history:
       - at: 2026-07-23T02:20:15Z
         from: null
@@ -440,4 +445,9 @@ items:
         from: todo
         to: todo
         reason: Human approved implementation; final verification remains queued behind all compression items.
+        turn_id: REQ-025
+      - at: 2026-07-23T02:34:11Z
+        from: todo
+        to: in-progress
+        reason: All compression dependencies are done; final semantic and size verification started.
         turn_id: REQ-025

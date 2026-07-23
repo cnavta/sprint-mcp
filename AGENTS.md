@@ -379,48 +379,6 @@ Force completion never authorizes a release.
 
 ---
 
-# 🧱 3. Project Structure
+# 3. Development Guidance
 
-```
-deprecated/      # Historical reference only
-examples/        # Useful templates
-planning/        # Sprint artifacts (authoritative)
-preview/         # Visionary, non-binding artifacts
-infrastructure/  # IaC, Cloud Build, Terraform files
-src/
-  apps/          # Service entrypoints
-  common/        # Shared utilities
-  config/        # Configuration
-  services/      # Core microservices
-  types/         # Shared types
-```
-
----
-
-# 🎯 4. Code Style Rules
-
-- Application/services code is in TypeScript by default. If a service explicitly specifies a different stack, follow that stack. Scripts and infrastructure files remain in their native formats.
-- kebab-case filenames
-- PascalCase classes and interfaces
-- camelCase functions and variables
-- UPPER_SNAKE_CASE constants
-
-Logging:
-
-- Always log through a logging facade if possible
-- `info` for useful info
-- `error` for errors
-- `debug` for deep insight
-- Log all network + filesystem operations with context
-
----
-
-# 🧯 5. Error Handling & Events
-
-- Strong try/catch discipline
-- Graceful shutdown of services
-- Validate environment variables
-- Use Pub/Sub for service communication
-- Normalize external events to internal schema
-
----
+Before changing product code, tests, scripts, or infrastructure, read `documentation/reference/development-guidance.md`. Its repository-specific constraints supplement this sprint protocol.
