@@ -1,5 +1,5 @@
 sprint: sprint-1-a9f3c2
-status: blocked
+status: amendment-pending-approval
 items:
   - id: REQ-001
     title: Reframe the protocol as a Human-LLM partnership
@@ -21,8 +21,8 @@ items:
     status: complete
     acceptance:
       - LLMs cannot execute a mutating release command.
-      - The brat release command is documented as a human aid.
-      - Non-mutating release dry runs remain available for validation.
+      - No project-specific release tool is prescribed.
+      - Non-mutating release assistance remains available when explicitly approved.
   - id: REQ-004
     title: Structure learning artifacts for future extraction
     status: complete
@@ -33,10 +33,11 @@ items:
   - id: REQ-005
     title: Validate and publish the governance revision
     status: blocked
-    blockedBy: A verified and explicitly authorized Git remote is required for push and PR creation.
+    blockedBy: A verified and explicitly authorized Git remote is required for push.
     acceptance:
       - Documentation checks, build, and tests pass or exceptions are accepted.
-      - The branch is pushed and a PR is created, or a failed attempt is logged and accepted.
+      - The branch is pushed, or a failed attempt is logged and accepted.
+      - Any PR action follows the owner and timing declared in the approved sprint plan.
   - id: REQ-011
     title: Add the human follow-up backlog loop
     status: complete
@@ -46,3 +47,22 @@ items:
       - Follow-up work is appended to the end of backlog.yaml unless the human specifies another position.
       - Existing scope-change approval gates remain in force.
       - After clarification and any required approval, work resumes at the next ready backlog item in declared order.
+  - id: REQ-013
+    title: Make PR and release policy flexible and project-neutral
+    status: pending-approval
+    acceptance:
+      - All brat and BitBrat references are removed from the protocol.
+      - PR creation is optional and its owner and timing are declared in the approved sprint plan.
+      - LLM PR creation occurs only when explicitly approved for the sprint.
+      - Sprint completion does not require a PR unless the approved sprint plan says it does.
+      - The human decides whether, when, and how to release without a prescribed project-specific command.
+      - Optional create-pull-request architecture capability remains available without being mandatory.
+  - id: REQ-015
+    title: Make Human-LLM turns the primary request-log record
+    status: complete
+    acceptance:
+      - Every sprint-relevant Human-LLM turn records intent, interpretation, decisions, and resulting state changes.
+      - State-changing operations, validation or publication evidence, and material failures remain logged.
+      - Routine read-only discovery and repeated diagnostics may be summarized or omitted.
+      - Logs prefer concise outcomes and references over raw terminal output.
+      - Secrets and credentials are never recorded.

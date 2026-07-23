@@ -49,3 +49,15 @@
 - Confidence: high
 - Tags: [backlog-order, follow-up-loop, human-authority]
 - Supersedes: none
+
+### LEARN-005 – Center traceability on collaboration turns
+
+- Statement: Use sprint-relevant Human–LLM turns as the primary traceability record and retain commands only as evidence for state changes, validation, publication, or material failures.
+- Kind: process
+- Derived from: OBS-005; REQ-015
+- Applies when: A workflow needs auditable decisions and future semantic extraction without retaining a noisy terminal transcript.
+- Does not apply when: A regulated or incident-response process explicitly requires complete command auditing.
+- Recommended action: Record intent, interpretation, decisions, outcomes, and stable evidence references for each sprint-relevant turn.
+- Confidence: high
+- Tags: [human-llm-turns, request-log, semantic-traceability]
+- Supersedes: none

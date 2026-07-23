@@ -16,6 +16,7 @@ Ready for publication attempt. Human completion remains pending.
 - [x] Added stable, atomic, evidence-backed schemas for retrospective observations and reusable learning records.
 - [x] Standardized the planning artifact name as `execution-plan.md`.
 - [x] Added the `Stop → Clarify → Append → Continue` loop for human follow-up tasks, including deterministic backlog placement and resumption rules.
+- [x] Replaced exhaustive operation logging with turn-centered Human–LLM traceability and material operation evidence.
 - [x] Added and executed `validate_deliverable.sh` successfully.
 
 ## Partial

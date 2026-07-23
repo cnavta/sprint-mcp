@@ -23,6 +23,12 @@ grep -Fq '## 2.5.1 Intentional Commit Protocol' "${agents_file}"
 grep -Fq '## 2.5.2 Human Follow-Up Loop' "${agents_file}"
 grep -Fq 'Stop → Clarify → Append → Continue' "${agents_file}"
 grep -Fq 'Place it at the end of `backlog.yaml` unless the human specifies another position' "${agents_file}"
+grep -Fq 'Record every sprint-relevant Human–LLM turn in `request-log.md`' "${agents_file}"
+grep -Fq 'Routine read-only discovery, navigation, and repeated diagnostic checks may be summarized or omitted.' "${agents_file}"
+if grep -Fq 'Log every meaningful shell and git operation into `request-log.md`' "${agents_file}"; then
+  echo "Found superseded operation-centered logging requirement." >&2
+  exit 1
+fi
 grep -Fq '### Human-Only Release (separate from sprint publication)' "${agents_file}"
 grep -Fq '## 2.9.1 Learning Artifacts for Future Extraction' "${agents_file}"
 

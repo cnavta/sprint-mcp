@@ -39,7 +39,8 @@ Agents **ARE allowed** to:
 
 Agents MUST:
 
-- Log every meaningful shell and git operation into `request-log.md`
+- Record every sprint-relevant Human–LLM turn in `request-log.md`
+- Record shell and Git operations only when they change state, provide validation or publication evidence, or fail materially
 - Operate only within the repository provided
 - Halt and request updated credentials if any authentication step fails
 - Report command results transparently
@@ -224,13 +225,22 @@ If the human provides follow-up tasks or scope changes while a sprint is active:
 
 # ⚙️ 2.5 Execution Phase
 
-Every human prompt relevant to the sprint MUST be logged in `request-log.md`:
+Every sprint-relevant Human–LLM turn MUST be recorded in `request-log.md`. Each turn record should capture:
 
 - Timestamp
-- Prompt summary
-- Interpretation
-- Shell/git commands executed
-- Files modified or created
+- Human intent or request summary
+- LLM interpretation and response summary
+- Decisions, questions, approvals, or exceptions
+- Resulting backlog, scope, or sprint-state changes
+- Links to relevant request IDs, backlog items, commits, files, or validation evidence
+
+Commands are supporting evidence, not the primary record. Record shell and Git operations when they:
+
+- Change repository or external state
+- Produce validation, verification, publication, or release-assistance evidence
+- Fail materially or affect a sprint decision
+
+Group related commands into one concise entry when practical. Prefer outcomes and affected files over raw terminal output. Routine read-only discovery, navigation, and repeated diagnostic checks may be summarized or omitted. Never record secrets or credentials.
 
 Optional:
 `code-summary.md` mapping files → request IDs.

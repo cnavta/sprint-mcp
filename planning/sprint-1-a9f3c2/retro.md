@@ -38,6 +38,14 @@ The sprint produced a Human–LLM Sprint Protocol revision covering partnership 
 - Interpretation: Separating task capture from task priority lets the partnership accept new information without silently disrupting approved work.
 - Impact: Follow-up behavior is deterministic while human ordering authority is preserved.
 
+### OBS-005 – Turn-centered logs preserve decision context
+
+- Type: worked
+- Evidence: REQ-015; `AGENTS.md` Execution Phase
+- Observation: The revised rule records Human–LLM intent, interpretation, decisions, and state changes while limiting command evidence to material operations.
+- Interpretation: Collaboration turns are more useful semantic units than exhaustive terminal transcripts.
+- Impact: Request logs remain traceable with less noise for human review and future extraction.
+
 ## Partnership Review
 
 ### PART-001 – Approval gate preserved human control

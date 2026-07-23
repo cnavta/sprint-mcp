@@ -53,6 +53,78 @@ The planning approval gate is satisfied. Implementation may begin after the requ
 - `planning/sprint-1-a9f3c2/backlog.yaml`
 - `planning/sprint-1-a9f3c2/request-log.md`
 
+## REQ-013 — 2026-07-23
+
+### Prompt summary
+
+Remove the requirement that the LLM create a pull request because pull-request creation belongs to the human-run `brat release` process.
+
+### Interpretation
+
+Keep the LLM responsible for the completion push, remove PR creation from LLM capabilities, handoff, completion criteria, force-completion exceptions, and lifecycle summaries, and describe PR creation as a possible effect of the human-run release workflow.
+
+### Commands and results
+
+- Targeted `rg` search — found LLM PR requirements throughout `AGENTS.md` and the active sprint plan/backlog.
+- The same search found a higher-precedence conflict in `architecture.yaml`: `create-pull-request` is currently defined as a tool that publishes sprint deliverables via GitHub PR.
+- `apply_patch` — logged the follow-up and the architecture decision required before appending or implementing it.
+
+### Current gate
+
+The human must decide whether this amendment also changes `architecture.yaml` by removing or redefining `create-pull-request`; `AGENTS.md` cannot override the current canonical architecture.
+
+## REQ-014 — 2026-07-23
+
+### Prompt summary
+
+Clarify that BitBrat belongs to another project and that the protocol should remain flexible about who creates PRs, when PRs are created, and how the human decides to release.
+
+### Interpretation
+
+Remove all BitBrat-specific instructions. Keep `create-pull-request` as an optional architecture capability, but require each approved sprint plan to declare PR requirement, owner, and timing. Preserve human authority over whether, when, and how to release without prescribing a tool.
+
+### Commands and results
+
+- `apply_patch` — amended the execution plan with project-neutral PR and release policy.
+- `apply_patch` — appended REQ-013 to the end of `backlog.yaml` and set the amendment approval gate.
+- Follow-up `rg` review — found superseded PR-ordering and project-specific release acceptance text in the amended plan and backlog.
+- Follow-up `apply_patch` — made push the default completion handoff, generalized REQ-003, and changed REQ-005 so PR actions depend on the sprint's declared policy.
+- `architecture.yaml` was not changed because an available PR tool does not require its use; `AGENTS.md` can govern authorization and timing without conflicting with the capability.
+
+### Files modified
+
+- `planning/sprint-1-a9f3c2/execution-plan.md`
+- `planning/sprint-1-a9f3c2/backlog.yaml`
+- `planning/sprint-1-a9f3c2/request-log.md`
+
+### Current gate
+
+Explicit human approval of the amended plan is required before project-specific release text and mandatory PR behavior are removed from `AGENTS.md`.
+
+## REQ-015 — 2026-07-23
+
+### Human intent
+
+Approve and implement turn-centered request logging so the collaboration record captures Human–LLM intent and outcomes without requiring exhaustive command transcripts.
+
+### LLM interpretation and response
+
+Append this follow-up after REQ-013. Treat the human's phrase `make it so` as explicit approval of the exact wording proposed in the preceding turn. Because REQ-013 remains unapproved, select REQ-015 as the next ready backlog item and do not implement the PR/release amendment.
+
+### Decisions and resulting state changes
+
+- Human–LLM turns become the primary traceability records.
+- State changes, validation/publication evidence, and material failures remain command evidence.
+- Routine read-only discovery and repeated diagnostics may be summarized or omitted.
+- REQ-015 was appended at the end of the backlog and completed; REQ-013 remains pending approval.
+
+### Operation evidence
+
+- `apply_patch` — revised `AGENTS.md`, amended the execution plan, appended REQ-015, and added validation assertions for turn-centered logging.
+- `validate_deliverable.sh` — passed dependency installation, TypeScript build, explicit no-tests Jest mode, policy/schema checks, and the new turn-centered logging assertions.
+- `apply_patch` — added REQ-015 outcomes to verification, retrospective, and durable learning records.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): center logs on Human-LLM turns"` with REQ-015 and successful validation evidence.
+
 ## REQ-009 — 2026-07-23
 
 ### Prompt summary
