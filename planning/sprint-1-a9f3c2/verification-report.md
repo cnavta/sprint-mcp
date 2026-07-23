@@ -21,6 +21,7 @@ Ready for publication attempt. Human completion remains pending.
 - [x] Replaced project-specific release commands with optional, human-defined and human-executed release policy.
 - [x] Added blocked, ready-for-handoff, cancelled, normal-completion, and forced-completion representation.
 - [x] Corrected execution-plan terminology and sequential section numbering.
+- [x] Defined and validated `backlog.yaml` as the sprint accountability contract with explicit status transitions and evidence requirements.
 - [x] Added and executed `validate_deliverable.sh` successfully.
 
 ## Partial

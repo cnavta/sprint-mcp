@@ -73,3 +73,15 @@
 - Confidence: high
 - Tags: [pull-request, human-authority, workflow-flexibility]
 - Supersedes: LEARN-001
+
+### LEARN-007 – Separate backlog accountability from interaction history
+
+- Statement: Use the backlog for current commitments, state transitions, and acceptance evidence; use the request log for Human–LLM intent, interpretation, and rationale.
+- Kind: process
+- Derived from: OBS-007; REQ-017
+- Applies when: A sprint needs both mechanically inspectable delivery state and semantically useful collaboration history.
+- Does not apply when: A workflow has no multi-step commitments or state transitions to track.
+- Recommended action: Link concise backlog transition records to request-log turn IDs without copying conversational narratives.
+- Confidence: high
+- Tags: [backlog-contract, request-log, accountability]
+- Supersedes: none

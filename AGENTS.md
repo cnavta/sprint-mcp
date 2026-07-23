@@ -145,7 +145,7 @@ planning/
     key-learnings.md
 ```
 
-This directory is the single authoritative source of truth for every sprint.
+This directory is the single authoritative source of truth for every sprint. Within it, `backlog.yaml` is the accountability contract for sprint commitments and current work state; `request-log.md` is the record of Human–LLM interactions, interpretations, decisions, and outcomes.
 
 ---
 
@@ -169,6 +169,62 @@ notes: |
   Key assumptions, constraints, and context.
 ```
 
+## 2.3.1 Backlog Accountability Contract
+
+Every sprint MUST maintain `backlog.yaml` as the authoritative contract for what the partnership has committed to deliver and the current state of each item. Update it as state changes occur, not only during verification or completion.
+
+`request-log.md` serves a different purpose: it records Human–LLM turns and why decisions were made. Backlog history contains concise state transitions and stable evidence references; it MUST NOT duplicate conversational narratives.
+
+### Required backlog shape
+
+```yaml
+meta:
+  backlog_id: <sprint-id>-backlog
+  updated_at: <ISO-8601 timestamp>
+  status_values: [todo, in-progress, blocked, done, deferred, cancelled]
+  approval_values: [not-required, pending, approved]
+
+sprint:
+  id: <sprint-id>
+  goal: <approved sprint goal>
+  status: <current sprint-manifest status>
+  wip_limit: 1 # optional; omit when the human has not defined a limit
+
+items:
+  - id: BL-001
+    title: <atomic outcome>
+    priority: P1 # P0 | P1 | P2 | P3
+    status: todo
+    approval: approved
+    owner: partnership # human | llm | partnership | external
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - <observable criterion>
+    evidence: []
+    updated_at: <ISO-8601 timestamp>
+    history:
+      - at: <ISO-8601 timestamp>
+        from: null
+        to: todo
+        reason: <why the item entered this state>
+        turn_id: <request-log turn ID>
+```
+
+Fields may be extended for project needs, but their meanings MUST NOT be redefined. `priority`, `owner`, and `wip_limit` guide execution; they do not override human approval, dependencies, or acceptance criteria.
+
+### Status transition rules
+
+- **Create:** Add a new item as `todo`, normally at the end of `items`, with acceptance criteria and `approval: pending` when approval is still required.
+- **Start:** Before implementation begins, change `todo` to `in-progress`. The item must have `approval: approved` or `not-required`, all required dependencies must be `done`, and the WIP limit must permit it.
+- **Block:** As soon as progress cannot continue, change the item to `blocked` and populate `blocked_reason` with the concrete unmet condition.
+- **Unblock:** When the condition clears, change `blocked` to `todo` or `in-progress`, clear `blocked_reason`, and state why work can resume.
+- **Complete:** Change `in-progress` to `done` only after every acceptance criterion is verified. Add stable evidence references such as commits, validation output, paths, or verification records.
+- **Defer or cancel:** Use `deferred` or `cancelled` only with explicit human direction. Record the reason and related Human–LLM turn.
+- **Materially revise:** When title, scope, priority, owner, dependencies, or acceptance criteria change, update the item timestamp and append a history record even if status does not change.
+
+Every transition or material revision MUST update both `item.updated_at` and `meta.updated_at`, append a concise `history` entry, and link the responsible `request-log.md` turn through `turn_id`. The backlog is the source of truth for current status; the request log is the source of truth for the interaction and rationale.
+
 ---
 
 # 📝 2.4 Planning Phase — *Coding Forbidden Until Approved*
@@ -176,6 +232,7 @@ notes: |
 Before ANY implementation begins, the LLM prepares the plan and the human exercises the approval gate:
 
 - The LLM generates `execution-plan.md` and `backlog.yaml`
+- The LLM ensures every planned deliverable maps to one or more backlog items with observable acceptance criteria
 - The human reviews and explicitly approves them
 - The LLM records the approval in `request-log.md`
 
@@ -231,10 +288,11 @@ If the human provides follow-up tasks or scope changes while a sprint is active:
 
 1. **Identify Scope Change:** The LLM determines whether the request adds deliverables or alters the approved goal and explains the impact.
 2. **Update Execution Plan:** Add the new tasks to `execution-plan.md`.
-3. **Update Manifest:** If the goal has evolved significantly, update the `goal` or `title` in `sprint-manifest.yaml`.
-4. **Log Request:** Document the prompt and its interpretation in `request-log.md`.
-5. **Approval Gate:** If the change is substantial, the LLM MUST pause and request human approval for the amended plan before proceeding.
-6. **Maintain Branch Integrity:** Perform all amended work on the existing feature branch (Rule S11).
+3. **Update Backlog:** Add or revise accountable backlog items, acceptance criteria, approval state, and transition history.
+4. **Update Manifest:** If the goal has evolved significantly, update the `goal` or `title` in `sprint-manifest.yaml`.
+5. **Log Request:** Document the Human–LLM turn and its interpretation in `request-log.md`.
+6. **Approval Gate:** If the change is substantial, the LLM MUST pause and request human approval for the amended plan before proceeding.
+7. **Maintain Branch Integrity:** Perform all amended work on the existing feature branch (Rule S11).
 
 ---
 
@@ -261,6 +319,8 @@ Optional:
 `code-summary.md` mapping files → request IDs.
 
 The LLM implements only approved scope. When judgment materially affects behavior, trade-offs, or scope, it records the choice and either ties it to existing approval or returns the decision to the human.
+
+Before starting, blocking, unblocking, completing, deferring, cancelling, or materially revising an item, the LLM MUST update its backlog state under §2.3.1. Status changes are part of execution, not end-of-sprint bookkeeping.
 
 ## 2.5.1 Intentional Commit Protocol
 
@@ -299,7 +359,7 @@ Stop → Clarify → Append → Continue
 
 1. **Stop:** Pause progression toward the next backlog item or sprint completion. Do not start the follow-up or silently change priorities.
 2. **Clarify:** Ask only questions required to make the follow-up actionable or resolve a material ambiguity. If no question is necessary, proceed directly to Append.
-3. **Append:** Log the request and add an atomic backlog item with an ID, acceptance criteria, status, and dependencies when applicable. Place it at the end of `backlog.yaml` unless the human specifies another position, priority, or dependency. Preserve the order of multiple follow-ups as received. Do not reorder existing items without human direction.
+3. **Append:** Log the interaction in `request-log.md` and add an atomic backlog item using the contract in §2.3.1. Place it at the end of `items` unless the human specifies another position, priority, or dependency. Preserve the order of multiple follow-ups as received. Do not reorder existing items without human direction.
 4. **Continue:** Apply the active-sprint amendment and approval rules in §2.4.1. After required answers and approvals are recorded, select the next ready backlog item in declared order, state which item is resuming, and continue execution.
 
 Appending a follow-up does not imply that it runs next. Existing ready items retain their order unless the human explicitly reprioritizes them. A follow-up that substantially changes scope remains behind the human approval gate even when its desired behavior is otherwise clear.
@@ -365,6 +425,9 @@ echo "✅ Validation complete."
 - Partial implementations
 - Deferred items
 - Deviations from the execution plan
+- Reconciliation against every `backlog.yaml` item and its current status
+
+Before verification completes, the LLM MUST confirm that every `done` item has acceptance evidence, every `blocked` item has a current blocker, and every `deferred` or `cancelled` item links to explicit human direction. Differences between the backlog and implementation are verification failures until corrected or accepted by the human.
 
 Example:
 

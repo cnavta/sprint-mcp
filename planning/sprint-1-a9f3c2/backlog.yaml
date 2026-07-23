@@ -1,77 +1,239 @@
-sprint: sprint-1-a9f3c2
-status: blocked
+meta:
+  backlog_id: sprint-1-a9f3c2-backlog
+  updated_at: 2026-07-23T02:06:21Z
+  status_values: [todo, in-progress, blocked, done, deferred, cancelled]
+  approval_values: [not-required, pending, approved]
+
+sprint:
+  id: sprint-1-a9f3c2
+  goal: Revise AGENTS.md into a coherent Human-LLM Sprint Protocol.
+  status: blocked
+  wip_limit: 1
+
 items:
   - id: REQ-001
     title: Reframe the protocol as a Human-LLM partnership
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - Human decision rights are explicit.
       - LLM responsibilities are explicit.
       - Lifecycle language consistently reflects partnership.
+    evidence: [commit:ad5be99, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-002
     title: Define intentional Git behavior
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - A sprint branch is required at initialization.
       - Regular commits represent coherent work units.
       - Commit messages carry intent plus sprint and request traceability.
-      - Push occurs after validation and verification as the final LLM publication handoff.
+      - Push occurs after validation and verification as the final LLM completion handoff.
+    evidence: [commit:ad5be99, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-003
     title: Make releases exclusively human-owned
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - LLMs cannot execute a mutating release command.
       - No project-specific release tool is prescribed.
       - Non-mutating release assistance remains available when explicitly approved.
+    evidence: [commit:b80cfd4, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-004
     title: Structure learning artifacts for future extraction
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - Retro records distinguish observations, evidence, decisions, and outcomes.
       - Learning records are atomic and include applicability, confidence, and tags.
       - No semantic extraction implementation is introduced.
+    evidence: [commit:5ede9d1, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-005
     title: Validate and publish the governance revision
+    priority: P1
     status: blocked
-    blockedBy: A verified and explicitly authorized Git remote is required for push.
+    approval: approved
+    owner: partnership
+    dependencies: [REQ-001, REQ-002, REQ-003, REQ-004, REQ-011, REQ-013, REQ-015, REQ-016, REQ-017]
+    blocked_reason: A verified and explicitly authorized Git remote is required for push.
     acceptance:
       - Documentation checks, build, and tests pass or exceptions are accepted.
       - The branch is pushed, or a failed attempt is logged and accepted.
       - Any PR action follows the owner and timing declared in the approved sprint plan.
+    evidence: [path:planning/sprint-1-a9f3c2/verification-report.md, path:planning/sprint-1-a9f3c2/publication.yaml]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: blocked
+        to: blocked
+        reason: Migrated the existing blocker without changing its state.
+        turn_id: REQ-018
+
   - id: REQ-011
     title: Add the human follow-up backlog loop
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - A compact Stop, Clarify, Append, Continue protocol is defined.
       - The LLM pauses advancement and asks only questions needed to make the follow-up actionable.
       - Follow-up work is appended to the end of backlog.yaml unless the human specifies another position.
       - Existing scope-change approval gates remain in force.
       - After clarification and any required approval, work resumes at the next ready backlog item in declared order.
+    evidence: [commit:042f55a, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-013
     title: Make PR and release policy flexible and project-neutral
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
-      - All brat and BitBrat references are removed from the protocol.
-      - PR creation is optional and its owner and timing are declared in the approved sprint plan.
-      - LLM PR creation occurs only when explicitly approved for the sprint.
-      - Sprint completion does not require a PR unless the approved sprint plan says it does.
+      - PR creation is optional and its owner and timing are human-defined.
+      - LLM PR creation occurs only when explicitly assigned.
+      - Sprint completion has no protocol-level PR gate.
       - The human decides whether, when, and how to release without a prescribed project-specific command.
-      - Optional create-pull-request architecture capability remains available without being mandatory.
+    evidence: [commit:b80cfd4, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-015
     title: Make Human-LLM turns the primary request-log record
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - Every sprint-relevant Human-LLM turn records intent, interpretation, decisions, and resulting state changes.
       - State-changing operations, validation or publication evidence, and material failures remain logged.
       - Routine read-only discovery and repeated diagnostics may be summarized or omitted.
       - Logs prefer concise outcomes and references over raw terminal output.
       - Secrets and credentials are never recorded.
+    evidence: [commit:a4eb7ca, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
   - id: REQ-016
     title: Repair lifecycle states, terminology, and section numbering
-    status: complete
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
     acceptance:
       - Manifest states include blocked, ready-for-handoff, complete, and cancelled.
       - Normal and forced completion are distinguished explicitly.
       - PR state is not a mandatory sprint lifecycle state.
       - Verification refers to the execution plan consistently.
       - Top-level section numbering is sequential.
+    evidence: [commit:b80cfd4, path:AGENTS.md]
+    updated_at: 2026-07-23T02:04:17Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: complete
+        to: done
+        reason: Migrated the delivered item to the approved backlog status vocabulary.
+        turn_id: REQ-018
+
+  - id: REQ-017
+    title: Define the backlog accountability contract
+    priority: P1
+    status: done
+    approval: approved
+    owner: partnership
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - backlog.yaml is explicitly the authoritative sprint accountability contract.
+      - request-log.md is explicitly the Human-LLM interaction record.
+      - A compact backlog schema includes metadata, sprint context, and trackable items.
+      - Items include priority, status, owner, dependencies, acceptance, blocker reason, timestamps, and transition history.
+      - Status values and required transition moments are defined.
+      - done requires verified acceptance criteria and evidence references.
+      - Transition history links to request-log turn IDs without duplicating conversation narratives.
+    evidence: [path:AGENTS.md, validation:planning/sprint-1-a9f3c2/validate_deliverable.sh]
+    updated_at: 2026-07-23T02:06:21Z
+    history:
+      - at: 2026-07-23T02:04:17Z
+        from: todo
+        to: in-progress
+        reason: Human approved the backlog accountability contract amendment.
+        turn_id: REQ-018
+      - at: 2026-07-23T02:06:21Z
+        from: in-progress
+        to: done
+        reason: All acceptance criteria were verified by the sprint validation script.
+        turn_id: REQ-018

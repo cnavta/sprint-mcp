@@ -54,6 +54,14 @@ The sprint produced a Human–LLM Sprint Protocol revision covering partnership 
 - Interpretation: Human-defined ownership and timing preserve flexibility without removing useful automation.
 - Impact: Projects can choose human, LLM, or automated PR creation independently from sprint completion and release.
 
+### OBS-007 – Separate accountability state from interaction narrative
+
+- Type: worked
+- Evidence: REQ-017; `AGENTS.md` §2.3.1; migrated `backlog.yaml`
+- Observation: Backlog items now hold current commitment state, acceptance evidence, and concise transition history, while the request log holds Human–LLM interaction context.
+- Interpretation: Separating current accountability from conversational rationale makes both artifacts easier to inspect and extract.
+- Impact: Sprint status can be reconciled mechanically without duplicating the collaboration transcript.
+
 ## Partnership Review
 
 ### PART-001 – Approval gate preserved human control

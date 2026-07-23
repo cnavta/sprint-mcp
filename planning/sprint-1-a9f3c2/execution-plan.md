@@ -21,6 +21,7 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Give `retro.md` and `key-learnings.md` stable, extraction-friendly structures using discrete evidence, outcomes, reusable lessons, applicability, confidence, and tags.
 - Add a compact follow-up loop for human-requested tasks after an LLM delivery turn: stop, clarify, append to the backlog by default, then continue in backlog order.
 - Make Human–LLM turns the primary traceability unit; retain only state-changing, evidentiary, or materially failed command records as supporting evidence.
+- Define `backlog.yaml` as the sprint accountability contract using a compact trackable schema derived from `documentation/reference/backlog-example.yaml`, while keeping Human–LLM interaction narratives in `request-log.md`.
 - Resolve internal terminology and artifact-name inconsistencies encountered in the edited sections.
 
 ### Out of scope
@@ -55,6 +56,10 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - When the human adds follow-up work after an LLM delivery turn, the LLM stops progression, asks only necessary questions, adds the task at the end of `backlog.yaml` unless another position is specified, applies any required approval gate, and resumes with the next ready backlog item.
 - Every sprint-relevant Human–LLM turn captures intent, interpretation, decisions, and resulting state changes without requiring a transcript of routine read-only commands.
 - State-changing operations, validation/publication evidence, and material command failures remain traceable; routine discovery may be summarized or omitted.
+- Backlog items include identity, priority, status, ownership, dependencies, acceptance criteria, blocker state, timestamps, and concise transition history.
+- The protocol defines when item status and timestamps MUST change, including start, block, unblock, completion, deferral, cancellation, and material scope change.
+- An item reaches `done` only after its acceptance criteria are verified and evidence is referenced.
+- Backlog transition history links to Human–LLM turn IDs without duplicating the interaction narrative.
 - The revision does not conflict with `architecture.yaml`.
 
 ## Testing Strategy
@@ -64,6 +69,7 @@ Revise `AGENTS.md` so the Sprint Protocol is explicitly a Human-LLM partnership 
 - Verify all referenced sprint artifacts use consistent filenames.
 - Assert that the compact follow-up loop and default append-order rule are present.
 - Assert that turn-centered logging replaces the requirement to log every meaningful shell and Git operation.
+- Assert the backlog accountability schema, status vocabulary, transition rules, and backlog/request-log separation.
 - Run the repository's existing test and build commands to detect unintended regressions.
 - Provide an executable documentation-oriented `validate_deliverable.sh` that performs the applicable checks.
 

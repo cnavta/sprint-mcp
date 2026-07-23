@@ -154,6 +154,59 @@ Treat this turn as approval of pending REQ-013 and append REQ-016 for the additi
 - Follow-up `apply_patch` — represented the human-defined PR path as a lifecycle side path so its approved timing and actor remain flexible.
 - `apply_patch` — added REQ-013 and REQ-016 outcomes to verification, retrospective, and durable learning records.
 - `apply_patch` — migrated the active sprint's `publication.yaml` to the optional-PR schema and removed PR creation from its required human action.
+
+## REQ-017 — 2026-07-23
+
+### Human intent
+
+Use `documentation/reference/backlog-example.yaml` to incorporate a trackable backlog schema into the protocol, require backlog status updates as work changes, define the backlog as the sprint accountability contract, and preserve `request-log.md` as the Human–LLM interaction record.
+
+### LLM interpretation and response
+
+Adopt the example's metadata, sprint context, priority, status, ownership, dependencies, acceptance criteria, timestamps, blocker reason, and item history. Restrict backlog history to state transitions and evidence references so it does not duplicate the conversational request log.
+
+### Decisions and resulting state changes
+
+- Appended REQ-017 at the end of the backlog.
+- Proposed a fixed item-status vocabulary with explicit transition rules.
+- Proposed verified acceptance evidence as a prerequisite for `done`.
+- Proposed linking transition history to Human–LLM turn IDs.
+- Set the backlog to `amendment-pending-approval`; `AGENTS.md` remains unchanged pending approval.
+
+### Operation evidence
+
+- Read `documentation/reference/backlog-example.yaml` and the relevant protocol planning, execution, follow-up, and current backlog sections.
+- `apply_patch` — amended the execution plan, appended REQ-017, and recorded the approval gate.
+
+## REQ-018 — 2026-07-23
+
+### Human intent
+
+Approve the backlog accountability contract amendment.
+
+### LLM interpretation and response
+
+Implement the compact backlog schema and transition rules, migrate the active sprint backlog, validate the contract, and update REQ-017 state as work progresses.
+
+### Decisions and resulting state changes
+
+- REQ-017 moved from `todo` to `in-progress` before implementation.
+- Existing legacy `complete` values were migrated to `done` without changing delivered outcomes.
+- REQ-005 remained `blocked` with its concrete remote condition.
+- Backlog interaction prose remains in `request-log.md`; item history contains only transitions and evidence references.
+
+### Operation evidence
+
+- `apply_patch` — added §2.3.1 Backlog Accountability Contract, required schema, transition rules, planning/amendment integration, execution-time status updates, follow-up integration, and verification reconciliation.
+- `apply_patch` — migrated the active `backlog.yaml` to metadata, sprint context, trackable item fields, evidence, and transition history.
+- `apply_patch` — extended validation to cover protocol requirements and the active backlog contract.
+- First validation attempt — build and explicit no-tests Jest mode passed, but an older assertion still expected follow-ups at the end of `backlog.yaml` rather than the new `items` collection.
+- Traced validation run — identified the stale assertion; no backlog contract requirement failed.
+- `apply_patch` — aligned the follow-up-order assertion with the new schema.
+- Corrected validation run — passed build, explicit no-tests Jest mode, protocol policy checks, learning schemas, and active backlog contract checks.
+- One combined artifact-update patch was rejected because it contained an empty malformed hunk; no files changed in that attempt.
+- Corrected `apply_patch` — moved REQ-017 from `in-progress` to `done`, added validation evidence and transition history, and updated verification and learning artifacts.
+- Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): define backlog accountability contract"` with REQ-017 and REQ-018 evidence.
 - Planned intent commit: `git commit -m "sprint(sprint-1-a9f3c2): make handoff and release policy flexible"` with REQ-013 and REQ-016 evidence.
 
 ## REQ-009 — 2026-07-23
