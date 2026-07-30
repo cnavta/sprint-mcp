@@ -2,54 +2,74 @@ backlog:
   - id: TASK-001
     title: "Create main branch with baseline commit"
     description: "Switch to main branch, add all project files, and create initial commit"
-    status: "pending"
+    status: "completed"
     acceptanceCriteria:
       - "main branch exists"
       - "Initial commit includes all project files"
       - "git log shows commit history on main"
-    evidence: null
-    transitions: []
+    evidence: "Commit cca5e4b created on main branch with 21 files. git log shows 18 commits on main."
+    transitions:
+      - timestamp: "2026-07-30T00:10:00Z"
+        from: "pending"
+        to: "completed"
+        reason: "Main branch created with baseline commit including all project files"
 
   - id: TASK-002
     title: "Configure Git remote origin"
     description: "Add remote origin pointing to git@github.com:cnavta/sprint-mcp.git"
-    status: "pending"
+    status: "completed"
     acceptanceCriteria:
       - "git remote -v shows origin configured"
       - "Remote URL matches git@github.com:cnavta/sprint-mcp.git"
-    evidence: null
-    transitions: []
+    evidence: "git remote -v confirms origin configured as git@github.com:cnavta/sprint-mcp.git (fetch and push)"
+    transitions:
+      - timestamp: "2026-07-30T00:12:00Z"
+        from: "pending"
+        to: "completed"
+        reason: "Remote origin configured successfully"
 
   - id: TASK-003
     title: "Push main branch to remote"
     description: "Push baseline commit to remote repository (authorized by human)"
-    status: "pending"
+    status: "completed"
     acceptanceCriteria:
       - "git push origin main succeeds"
       - "Remote repository contains main branch"
-    evidence: null
-    transitions: []
+    evidence: "Push successful: b69692e..de1142b main -> main. Merged remote's initial commit and pushed all changes."
+    transitions:
+      - timestamp: "2026-07-30T00:15:00Z"
+        from: "pending"
+        to: "completed"
+        reason: "Main branch successfully pushed to remote after merging remote's initial commit"
 
   - id: TASK-004
     title: "Verify feature branch workflow"
     description: "Return to sprint-2 branch and verify diff against main works"
-    status: "pending"
+    status: "completed"
     acceptanceCriteria:
       - "Can checkout sprint-2 feature branch"
       - "git diff main shows sprint artifacts"
       - "Feature branch can create PR against main"
-    evidence: null
-    transitions: []
+    evidence: "Checked out feature/sprint-2-b7e4d1-git-baseline-remote successfully. git diff main works. Feature branch fast-forwarded to main for clean workflow."
+    transitions:
+      - timestamp: "2026-07-30T00:18:00Z"
+        from: "pending"
+        to: "completed"
+        reason: "Feature branch workflow verified and operational"
 
   - id: TASK-005
     title: "Create and run validation script"
     description: "Create validate_deliverable.sh that checks Git configuration"
-    status: "pending"
+    status: "completed"
     acceptanceCriteria:
       - "validate_deliverable.sh exists and is executable"
       - "Script checks main branch existence"
       - "Script checks remote configuration"
       - "Script validates feature branch workflow"
       - "All validation checks pass"
-    evidence: null
-    transitions: []
+    evidence: "validate_deliverable.sh created with 5 validation checks. All checks passed: main exists (18 commits), remote configured (git@github.com:cnavta/sprint-mcp.git), feature branch workflow operational."
+    transitions:
+      - timestamp: "2026-07-30T00:20:00Z"
+        from: "pending"
+        to: "completed"
+        reason: "Validation script created and all checks passed"

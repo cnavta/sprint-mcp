@@ -1,0 +1,23 @@
+pullRequest:
+  url: "https://github.com/cnavta/sprint-mcp/pull/1"
+  title: "Sprint 2 Deliverables – Git Baseline and Remote Configuration"
+  base: "main"
+  head: "feature/sprint-2-b7e4d1-git-baseline-remote"
+  created: "2026-07-30T00:25:00Z"
+  status: "open"
+
+branch:
+  name: "feature/sprint-2-b7e4d1-git-baseline-remote"
+  pushed: true
+  remote: "origin"
+  tracking: "origin/feature/sprint-2-b7e4d1-git-baseline-remote"
+
+commits:
+  - sha: "99b0041"
+    message: "sprint(sprint-2-b7e4d1): complete Git baseline and remote setup"
+    timestamp: "2026-07-30T00:23:00Z"
+
+notes: |
+  PR created successfully using GitHub CLI.
+  All three deferred Git issues from sprint-1-a9f3c2 resolved.
+  Feature branch pushed to remote and PR opened against main.
