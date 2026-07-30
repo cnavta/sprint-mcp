@@ -137,9 +137,95 @@
 **Decisions Made**: Committed progress to preserve work. Next step: resolve ES module mocking or switch to integration test approach.
 
 ---
+
+## REQ-004 – Testing Strategy Decision
+**Timestamp**: 2026-07-30T18:40:00Z
+**Human**: "Let's do B, and be sure that various error states clean up the temp directories and files, as well as valid exit states."
+
+**LLM Interpretation**: User selected Option B (integration tests with real file system and temp directories). User emphasized cleanup must work in all states (error and success).
+
+**LLM Action**:
+
+### TASK-002 Completion (Revised Approach)
+- Rewrote all tests to use integration testing approach
+- Tests now use real file system operations with `mkdtemp()` for isolation
+- Each test suite:
+  - beforeEach: Creates temp directory, changes CWD
+  - afterEach: Restores CWD, cleans up temp dir (with try/catch for robustness)
+- Created `check-sprint-status.test.ts` with 13 tests:
+  - No sprints scenario (2 tests)
+  - Single active sprint (2 tests)
+  - Multiple active sprints / S3 violation (1 test)
+  - Completed sprints (2 tests)
+  - Error handling (3 tests)
+  - Response format (2 tests)
+  - Cleanup verification (1 test)
+- All 13 tests passing ✓
+
+### TASK-003: Write Integration Tests for start-sprint ✓ COMPLETE
+- Created `start-sprint.test.ts` with 18 comprehensive tests:
+  - Successful sprint creation (5 tests)
+    - All required artifacts created
+    - Directory structure validation
+    - Manifest content verification
+    - Request log creation
+    - Unique ID generation for sequential sprints
+  - S3 rule enforcement (2 tests)
+    - Blocks new sprint when active sprint exists
+    - Allows new sprint after previous completes
+  - Input validation (4 tests)
+    - Missing required arguments (title/goal/owner)
+    - Undefined arguments
+  - Feature branch naming (3 tests)
+    - Kebab-case conversion from titles
+    - Special character handling
+    - Long title truncation (≤32 chars)
+  - Response format (3 tests)
+    - Valid MCP response structure
+    - Sprint details included
+    - Next steps guidance
+  - Error handling and cleanup (1 test)
+- All 18 tests passing ✓
+- Cleanup guaranteed in all states (success and error paths)
+
+### TASK-004: Add Test Coverage Reporting ✓ COMPLETE
+- Fixed jest.config.js to prevent test infrastructure files from running as tests:
+  - Changed `testMatch` to only match `*.test.ts` files
+  - Added `testPathIgnorePatterns` for `test-helpers.ts` and `setup.ts`
+- Removed `setup.ts` (jest.fn() doesn't work in ES module context)
+- Coverage reporting now functional:
+  - `npm run test:coverage` generates full reports
+  - All 31 tests passing (13 + 18)
+  - **src/tools/ coverage: 92% statements, 92% lines** (exceeds 80% target)
+    - check-sprint-status.ts: 100% coverage
+    - start-sprint.ts: 85% coverage
+  - Global coverage: 69.73% (expected, index.ts and some utilities untested)
+
+**Material Operations**:
+- Git commit `630ca01`: Integration tests for start-sprint (18 tests)
+- Git commit `7b18381`: Coverage reporting configuration
+- Files created: `start-sprint.test.ts`
+- Files deleted: `setup.ts`
+- Files modified: `jest.config.js`
+
+**State Change**:
+- TASK-001 ✓ COMPLETE
+- TASK-002 ✓ COMPLETE
+- TASK-003 ✓ COMPLETE
+- TASK-004 ✓ COMPLETE
+- **Phase 1 (Test Infrastructure): COMPLETE**
+
+**Next Phase**: Phase 2 - Main Baseline Verification (TASK-005 through TASK-007)
+
+---
+
+## Decision Log (Carried Forward)
+
 3. Protocol changes before tooling changes (ensure alignment)
 4. Worktree structure: `.worktrees/sprint-<id>/`
 5. Main worktree stays on main branch
-6. Minimum 80% test coverage target for tools
+6. Minimum 80% test coverage target for tools ✓ ACHIEVED (92%)
+7. Integration tests with real file system (not mocks)
+8. Guaranteed cleanup in all test states (error and success)
 
 ---
