@@ -297,6 +297,105 @@
 
 ---
 
+## REQ-006 – Phase 3 & 4 Implementation
+**Timestamp**: 2026-07-30T18:50:00Z
+**Human**: "Continue on" (twice)
+
+**LLM Interpretation**: Execute Phases 3 and 4 per approved plan. Update protocol, implement worktree tooling, add comprehensive tests.
+
+**LLM Action**:
+
+### Phase 3: Protocol Updates ✓ COMPLETE
+
+**TASK-008 & TASK-009: Update Sprint Protocol ✓ COMPLETE**
+- Updated `AGENTS-uncompressed.md`:
+  - Section 2.2 (Sprint Start):
+    - Added Step 1: Verify main branch baseline (new)
+    - Updated Step 5: Replace "git checkout -b" with "git worktree add"
+    - Added worktree benefits explanation (isolation, parallel work, clean separation, easy cleanup)
+    - Added Step 6: Change to sprint worktree directory
+    - Updated example to show worktree creation
+    - Added note about AGENTS.md needing recompression (future sprint)
+  - Section 2.9 (Sprint Completion):
+    - Added "Worktree Cleanup" subsection
+    - Command: `git worktree remove .worktrees/sprint-<id>`
+    - Timing: After PR merge, force completion, or cancellation
+    - Error handling: `--force` for uncommitted changes (with human approval)
+    - Note: planning/ directory remains; only .worktrees/ removed
+- Directory structure: Main worktree (.) stays on main; sprint worktrees at .worktrees/sprint-<id>/
+
+### Phase 4: Worktree Tooling ✓ COMPLETE
+
+**TASK-010: Extend Git Utilities ✓ COMPLETE**
+- Added to `src/common/git-utils.ts`:
+  - `WorktreeInfo` interface: `{ path, branch, commit }`
+  - `listWorktrees()`: Returns array of WorktreeInfo, parses porcelain output
+  - `createWorktree(path, branchName)`: Creates worktree, returns success/failure
+  - `removeWorktree(path, force)`: Removes worktree, optional force parameter
+  - `getWorktreePath(sprintId)`: Returns `<cwd>/.worktrees/<sprintId>`
+- All functions include error handling and logging
+
+**TASK-011: Test Worktree Utilities ✓ COMPLETE**
+- Added 9 tests to `git-utils.test.ts`:
+  - listWorktrees (2 tests): returns worktree list, handles non-git repo
+  - createWorktree (2 tests): success, failure
+  - removeWorktree (3 tests): success, failure, force removal
+  - getWorktreePath (2 tests): correct path structure, different sprint IDs
+- All tests use real git operations with temp directories
+- Total git-utils tests: 20 (11 existing + 9 new)
+
+**TASK-012: Update start-sprint Tool ✓ COMPLETE**
+- Modified `src/tools/start-sprint.ts`:
+  - Import `createWorktree` and `getWorktreePath`
+  - Step 4: Create git worktree (not just branch name)
+  - Calls `createWorktree(worktreePath, branchName)`
+  - Returns error if worktree creation fails
+  - Updated success message to show worktree path
+  - Next steps: `cd .worktrees/<sprint-id>/` (not `git checkout`)
+  - Updated request log to mention worktree creation
+- Modified `start-sprint.test.ts`:
+  - Fixed "next steps" test to check for worktree commands
+  - Added 3 new tests:
+    - should create worktree directory
+    - should create worktree with correct branch
+    - should keep main worktree on main branch
+- Total start-sprint tests: 23 (20 existing + 3 new)
+
+**TASK-013: Worktree Workflow Integration Tests ✓ COMPLETE**
+- Added test: "should allow multiple worktrees to coexist"
+  - Creates two sprints sequentially
+  - Verifies both worktree directories exist
+  - Confirms different branches in each worktree
+- Total start-sprint tests: 24
+
+**Material Operations**:
+- Git commit `36b2aa4`: Protocol updates (TASK-008 & TASK-009)
+- Git commit `357f00e`: Worktree utilities (TASK-010)
+- Git commit `a7485aa`: Worktree utility tests (TASK-011)
+- Git commit `1287396`: start-sprint worktree integration (TASK-012)
+- Git commit `c11ea0e`: Multiple worktrees integration test (TASK-013)
+
+**Test Results**:
+- Total: 57/57 tests passing
+  - check-sprint-status: 13 tests
+  - git-utils: 20 tests (11 + 9 new)
+  - start-sprint: 24 tests (20 + 4 new)
+- Coverage: src/tools/ at 92% (exceeds 80% target)
+
+**State Change**:
+- TASK-008 ✓ COMPLETE
+- TASK-009 ✓ COMPLETE
+- TASK-010 ✓ COMPLETE
+- TASK-011 ✓ COMPLETE
+- TASK-012 ✓ COMPLETE
+- TASK-013 ✓ COMPLETE
+- **Phase 3 (Protocol Updates): COMPLETE**
+- **Phase 4 (Worktree Tooling): COMPLETE**
+
+**Next Phase**: Phase 5 - Validation and Documentation (TASK-015, TASK-016, TASK-018)
+
+---
+
 ## Decision Log (Carried Forward)
 
 3. Protocol changes before tooling changes (ensure alignment)
