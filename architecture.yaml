@@ -1,0 +1,77 @@
+project:
+  name: sprint-mcp
+  version: 0.1.0
+  description: MCP server providing Sprint Protocol tooling for LLM-driven development workflows
+
+stack:
+  runtime: node
+  language: typescript
+  target: ES2022
+  module: ESNext
+
+mcp:
+  protocol_version: "2024-11-05"
+  transport: stdio
+  capabilities:
+    tools: true
+    resources: false
+    prompts: false
+
+tools:
+  - name: start-sprint
+    description: Initialize a new sprint with manifest and directory structure
+  - name: check-sprint-status
+    description: Verify current sprint state and validate no conflicting active sprints
+  - name: create-sprint-manifest
+    description: Generate sprint-manifest.yaml with required metadata
+  - name: log-request
+    description: Log user prompts and agent actions to request-log.md
+  - name: validate-deliverable
+    description: Execute validation script and report results
+  - name: verify-deliverable
+    description: Generate verification-report.md with completed/partial/deferred items
+  - name: create-pull-request
+    description: Publish sprint deliverables via GitHub PR
+  - name: complete-sprint
+    description: Generate retro.md and key-learnings.md, mark sprint complete
+
+dependencies:
+  runtime:
+    - "@modelcontextprotocol/sdk": "^1.0.0"
+  dev:
+    - typescript: "^5.3.0"
+    - jest: "^29.7.0"
+    - "@types/node": "^20.10.0"
+    - "@types/jest": "^29.5.0"
+    - ts-jest: "^29.1.0"
+
+build:
+  outDir: dist
+  clean: true
+  sourceMaps: true
+  declaration: true
+
+testing:
+  framework: jest
+  coverage: true
+  threshold:
+    lines: 80
+    functions: 80
+    branches: 70
+
+deployment:
+  type: npm-package
+  registry: local
+
+constraints:
+  - No TODOs in production paths
+  - All external I/O must be logged
+  - Strong error handling required
+  - Validate environment on startup
+  - All tools must trace to sprint protocol phases
+
+llm_prompt: |
+  This is an MCP server that implements tooling for the Sprint Protocol defined in AGENTS.md.
+  When adding new tools, ensure they map to specific sprint phases (Plan, Implement, Validate, Verify, Publish, Retro).
+  All file operations should be atomic and traceable to request-log.md entries.
+  Follow the Definition of Done criteria from AGENTS.md.

@@ -1,0 +1,55 @@
+backlog:
+  - id: TASK-001
+    title: "Create main branch with baseline commit"
+    description: "Switch to main branch, add all project files, and create initial commit"
+    status: "pending"
+    acceptanceCriteria:
+      - "main branch exists"
+      - "Initial commit includes all project files"
+      - "git log shows commit history on main"
+    evidence: null
+    transitions: []
+
+  - id: TASK-002
+    title: "Configure Git remote origin"
+    description: "Add remote origin pointing to git@github.com:cnavta/sprint-mcp.git"
+    status: "pending"
+    acceptanceCriteria:
+      - "git remote -v shows origin configured"
+      - "Remote URL matches git@github.com:cnavta/sprint-mcp.git"
+    evidence: null
+    transitions: []
+
+  - id: TASK-003
+    title: "Push main branch to remote"
+    description: "Push baseline commit to remote repository (authorized by human)"
+    status: "pending"
+    acceptanceCriteria:
+      - "git push origin main succeeds"
+      - "Remote repository contains main branch"
+    evidence: null
+    transitions: []
+
+  - id: TASK-004
+    title: "Verify feature branch workflow"
+    description: "Return to sprint-2 branch and verify diff against main works"
+    status: "pending"
+    acceptanceCriteria:
+      - "Can checkout sprint-2 feature branch"
+      - "git diff main shows sprint artifacts"
+      - "Feature branch can create PR against main"
+    evidence: null
+    transitions: []
+
+  - id: TASK-005
+    title: "Create and run validation script"
+    description: "Create validate_deliverable.sh that checks Git configuration"
+    status: "pending"
+    acceptanceCriteria:
+      - "validate_deliverable.sh exists and is executable"
+      - "Script checks main branch existence"
+      - "Script checks remote configuration"
+      - "Script validates feature branch workflow"
+      - "All validation checks pass"
+    evidence: null
+    transitions: []

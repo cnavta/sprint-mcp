@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sprint-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["dist/index.js"],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

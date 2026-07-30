@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)",
+      "WebFetch(domain:code.claude.com)",
+      "mcp__sprint-mcp__check-sprint-status",
+      "mcp__sprint-mcp__start-sprint",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "sprint-mcp"
+  ]
+}
