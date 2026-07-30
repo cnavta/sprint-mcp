@@ -1,0 +1,345 @@
+backlog:
+  # PHASE 1: Test Infrastructure (FOLLOW-003) - HIGHEST PRIORITY
+
+  - id: TASK-001
+    title: "Set up Jest test directory structure"
+    description: "Create __tests__ directories and configure test environment for MCP tools"
+    priority: "P0-CRITICAL"
+    phase: "1-Testing"
+    status: "pending"
+    acceptanceCriteria:
+      - "src/tools/__tests__/ directory exists"
+      - "src/common/__tests__/ directory exists"
+      - "Test helper utilities created"
+      - "Mock fixtures for sprint manifests created"
+      - "Jest configuration supports ES modules correctly"
+    evidence: null
+    dependencies: []
+    estimatedEffort: "30 minutes"
+    transitions: []
+
+  - id: TASK-002
+    title: "Write unit tests for check-sprint-status tool"
+    description: "Create comprehensive tests for sprint status checking functionality"
+    priority: "P0-CRITICAL"
+    phase: "1-Testing"
+    status: "pending"
+    acceptanceCriteria:
+      - "Tests for no active sprints scenario"
+      - "Tests for single active sprint scenario"
+      - "Tests for multiple active sprints (protocol violation)"
+      - "Tests for completed sprints counting"
+      - "Tests handle missing planning directory"
+      - "All tests pass"
+    evidence: null
+    dependencies: ["TASK-001"]
+    estimatedEffort: "45 minutes"
+    transitions: []
+
+  - id: TASK-003
+    title: "Write unit tests for start-sprint tool"
+    description: "Create comprehensive tests for sprint initialization, including failure scenarios from sprint-2"
+    priority: "P0-CRITICAL"
+    phase: "1-Testing"
+    status: "pending"
+    acceptanceCriteria:
+      - "Tests for successful sprint creation"
+      - "Tests for active sprint blocking (S3 rule)"
+      - "Tests for sprint ID generation"
+      - "Tests for manifest creation"
+      - "Tests for directory creation"
+      - "Tests for error handling (missing args, filesystem errors)"
+      - "All tests pass"
+      - "Covers sprint-2 failure scenario"
+    evidence: null
+    dependencies: ["TASK-001"]
+    estimatedEffort: "60 minutes"
+    transitions: []
+
+  - id: TASK-004
+    title: "Add test coverage reporting"
+    description: "Configure Jest coverage reports and set minimum coverage thresholds"
+    priority: "P1-HIGH"
+    phase: "1-Testing"
+    status: "pending"
+    acceptanceCriteria:
+      - "Coverage report generated on test run"
+      - "Minimum 80% coverage for src/tools/"
+      - "Coverage thresholds enforced"
+      - "package.json test:coverage script works"
+    evidence: null
+    dependencies: ["TASK-002", "TASK-003"]
+    estimatedEffort: "15 minutes"
+    transitions: []
+
+  # PHASE 2: Main Baseline Verification (FOLLOW-002 Part 1)
+
+  - id: TASK-005
+    title: "Create Git utility module with baseline verification"
+    description: "Add git-utils.ts with functions to verify main branch exists and has commits"
+    priority: "P0-CRITICAL"
+    phase: "2-Baseline"
+    status: "pending"
+    acceptanceCriteria:
+      - "src/common/git-utils.ts created"
+      - "verifyMainBranch() function implemented"
+      - "Function checks main branch exists"
+      - "Function checks main has at least one commit"
+      - "Returns clear error messages for failures"
+      - "Uses child_process or simple-git for git operations"
+    evidence: null
+    dependencies: []
+    estimatedEffort: "30 minutes"
+    transitions: []
+
+  - id: TASK-006
+    title: "Write tests for Git utility module"
+    description: "Test main baseline verification logic with various scenarios"
+    priority: "P0-CRITICAL"
+    phase: "2-Baseline"
+    status: "pending"
+    acceptanceCriteria:
+      - "Tests for main exists and has commits (success case)"
+      - "Tests for main doesn't exist (error case)"
+      - "Tests for main exists but empty (error case)"
+      - "Tests for git command failures"
+      - "All tests pass with mocked git commands"
+    evidence: null
+    dependencies: ["TASK-001", "TASK-005"]
+    estimatedEffort: "30 minutes"
+    transitions: []
+
+  - id: TASK-007
+    title: "Integrate baseline verification into start-sprint tool"
+    description: "Add main baseline check as first step in sprint initialization"
+    priority: "P0-CRITICAL"
+    phase: "2-Baseline"
+    status: "pending"
+    acceptanceCriteria:
+      - "start-sprint calls verifyMainBranch() before proceeding"
+      - "Returns error with clear message if main doesn't exist"
+      - "Returns error with clear message if main is empty"
+      - "Logs baseline verification result"
+      - "Existing tests updated to mock baseline check"
+      - "New tests verify baseline check integration"
+    evidence: null
+    dependencies: ["TASK-005", "TASK-006"]
+    estimatedEffort: "20 minutes"
+    transitions: []
+
+  # PHASE 3: Git Worktree Integration (Protocol)
+
+  - id: TASK-008
+    title: "Update Sprint Protocol for worktree workflow"
+    description: "Modify AGENTS-uncompressed.md (NOT AGENTS.md) to specify git worktree usage in sprint initialization"
+    priority: "P1-HIGH"
+    phase: "3-Protocol"
+    status: "pending"
+    acceptanceCriteria:
+      - "AGENTS-uncompressed.md Section 2.2 updated with worktree creation command"
+      - "Worktree directory structure documented (.worktrees/sprint-<id>/)"
+      - "Worktree benefits explained in introduction"
+      - "Sprint completion includes worktree cleanup step"
+      - "All git checkout examples replaced with worktree equivalents"
+      - "Working directory paths updated for worktree context"
+      - "Note added that AGENTS.md will need recompression (future sprint)"
+    evidence: null
+    dependencies: []
+    estimatedEffort: "45 minutes"
+    transitions: []
+
+  - id: TASK-009
+    title: "Document worktree cleanup process"
+    description: "Add worktree removal to sprint completion workflow in protocol"
+    priority: "P1-HIGH"
+    phase: "3-Protocol"
+    status: "pending"
+    acceptanceCriteria:
+      - "Section 2.9 (or completion section) includes worktree cleanup"
+      - "Command documented: git worktree remove .worktrees/sprint-<id>"
+      - "Cleanup timing specified (after PR merge or force complete)"
+      - "Error handling documented (worktree has uncommitted changes)"
+    evidence: null
+    dependencies: ["TASK-008"]
+    estimatedEffort: "15 minutes"
+    transitions: []
+
+  # PHASE 4: Git Worktree Integration (Tooling)
+
+  - id: TASK-010
+    title: "Extend Git utilities with worktree operations"
+    description: "Add worktree management functions to git-utils.ts"
+    priority: "P1-HIGH"
+    phase: "4-Tooling"
+    status: "pending"
+    acceptanceCriteria:
+      - "createWorktree(path, branch) function implemented"
+      - "listWorktrees() function implemented"
+      - "removeWorktree(path) function implemented"
+      - "getWorktreePath(sprintId) helper function"
+      - "All functions use proper error handling"
+      - "Functions log operations appropriately"
+    evidence: null
+    dependencies: ["TASK-005"]
+    estimatedEffort: "45 minutes"
+    transitions: []
+
+  - id: TASK-011
+    title: "Write tests for worktree utilities"
+    description: "Test worktree creation, listing, and removal with mocked git"
+    priority: "P1-HIGH"
+    phase: "4-Tooling"
+    status: "pending"
+    acceptanceCriteria:
+      - "Tests for createWorktree() success and failure"
+      - "Tests for listWorktrees() parsing"
+      - "Tests for removeWorktree() success and failure"
+      - "Tests verify correct git commands are executed"
+      - "Tests handle git errors gracefully"
+      - "All tests pass"
+    evidence: null
+    dependencies: ["TASK-001", "TASK-010"]
+    estimatedEffort: "40 minutes"
+    transitions: []
+
+  - id: TASK-012
+    title: "Update start-sprint to use worktrees"
+    description: "Modify start-sprint tool to create worktree instead of checking out branch"
+    priority: "P1-HIGH"
+    phase: "4-Tooling"
+    status: "pending"
+    acceptanceCriteria:
+      - "Calls createWorktree() instead of git checkout"
+      - "Worktree path: .worktrees/sprint-<id>/"
+      - "Sprint artifacts created in worktree's planning/ directory"
+      - "Tool returns worktree path in success message"
+      - "Error handling for worktree creation failures"
+      - "Existing tests updated for worktree workflow"
+    evidence: null
+    dependencies: ["TASK-007", "TASK-010", "TASK-011"]
+    estimatedEffort: "40 minutes"
+    transitions: []
+
+  - id: TASK-013
+    title: "Write integration tests for worktree workflow"
+    description: "End-to-end tests for sprint creation with worktrees"
+    priority: "P1-HIGH"
+    phase: "4-Tooling"
+    status: "pending"
+    acceptanceCriteria:
+      - "Test: Create sprint with worktree successfully"
+      - "Test: Verify worktree directory structure"
+      - "Test: Verify sprint artifacts in correct location"
+      - "Test: Main worktree remains on main branch"
+      - "Test: Multiple worktrees can coexist"
+      - "Tests use temporary git repo for isolation"
+      - "All integration tests pass"
+    evidence: null
+    dependencies: ["TASK-012"]
+    estimatedEffort: "50 minutes"
+    transitions: []
+
+  - id: TASK-014
+    title: "Update check-sprint-status for worktrees (optional)"
+    description: "Enhance status tool to show worktree information"
+    priority: "P2-MEDIUM"
+    phase: "4-Tooling"
+    status: "pending"
+    acceptanceCriteria:
+      - "Lists active worktrees alongside sprint status"
+      - "Shows worktree path for each active sprint"
+      - "Detects orphaned worktrees (sprint complete but worktree remains)"
+      - "Tests verify worktree information display"
+    evidence: null
+    dependencies: ["TASK-010", "TASK-012"]
+    estimatedEffort: "30 minutes"
+    transitions: []
+
+  # PHASE 5: Validation and Documentation
+
+  - id: TASK-015
+    title: "Create validate_deliverable.sh"
+    description: "Comprehensive validation script for sprint deliverables"
+    priority: "P0-CRITICAL"
+    phase: "5-Validation"
+    status: "pending"
+    acceptanceCriteria:
+      - "Script runs npm ci (dependency install)"
+      - "Script runs npm run build (TypeScript compilation)"
+      - "Script runs npm test (test suite execution)"
+      - "Script verifies test coverage meets 80% for tools/"
+      - "Script checks for git worktree command availability"
+      - "Script performs basic worktree smoke test"
+      - "Script is executable (chmod +x)"
+      - "Script exits 0 on success, non-zero on failure"
+    evidence: null
+    dependencies: ["TASK-004", "TASK-013"]
+    estimatedEffort: "30 minutes"
+    transitions: []
+
+  - id: TASK-016
+    title: "Update README.md with worktree workflow"
+    description: "Document new worktree-based development workflow"
+    priority: "P1-HIGH"
+    phase: "5-Validation"
+    status: "pending"
+    acceptanceCriteria:
+      - "Worktree workflow section added"
+      - "Benefits of worktrees explained"
+      - "Sprint creation with worktrees documented"
+      - "Worktree cleanup process documented"
+      - "Testing instructions updated"
+      - "Development setup includes worktree notes"
+    evidence: null
+    dependencies: ["TASK-012"]
+    estimatedEffort: "25 minutes"
+    transitions: []
+
+  - id: TASK-017
+    title: "Create worktree migration guide"
+    description: "Document how to migrate existing sprints or work with legacy workflow"
+    priority: "P2-MEDIUM"
+    phase: "5-Validation"
+    status: "pending"
+    acceptanceCriteria:
+      - "Migration guide document created"
+      - "Explains worktree vs traditional workflow"
+      - "Provides commands to convert existing branch to worktree"
+      - "Documents backwards compatibility considerations"
+      - "Includes troubleshooting section"
+    evidence: null
+    dependencies: ["TASK-016"]
+    estimatedEffort: "20 minutes"
+    transitions: []
+
+  - id: TASK-018
+    title: "Run full validation and create verification report"
+    description: "Execute all validation checks and document results"
+    priority: "P0-CRITICAL"
+    phase: "5-Validation"
+    status: "pending"
+    acceptanceCriteria:
+      - "validate_deliverable.sh passes completely"
+      - "All tests pass (unit + integration)"
+      - "Code coverage meets 80% threshold"
+      - "Build succeeds with no errors"
+      - "Worktree operations verified manually"
+      - "verification-report.md created with evidence"
+    evidence: null
+    dependencies: ["TASK-015", "TASK-016"]
+    estimatedEffort: "20 minutes"
+    transitions: []
+
+# Summary Statistics
+totalTasks: 18
+priorityBreakdown:
+  P0-CRITICAL: 9
+  P1-HIGH: 7
+  P2-MEDIUM: 2
+phaseBreakdown:
+  1-Testing: 4
+  2-Baseline: 3
+  3-Protocol: 2
+  4-Tooling: 5
+  5-Validation: 4
+estimatedTotalEffort: "635 minutes (~10.5 hours)"
