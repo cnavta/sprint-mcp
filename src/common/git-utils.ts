@@ -106,7 +106,29 @@ export function verifyMainBranch(): MainBranchVerificationResult {
 export function worktreeExists(path: string): boolean {
   try {
     const worktrees = execSync('git worktree list --porcelain', { encoding: 'utf-8', stdio: 'pipe' });
-    return worktrees.includes(`worktree ${path}`);
+
+    // Parse worktree list and check if any worktree matches the path
+    // Handle symlinks by comparing normalized paths
+    const lines = worktrees.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith('worktree ')) {
+        const worktreePath = lines[i].substring('worktree '.length);
+        // Use realpath comparison to handle symlinks
+        try {
+          const normalizedWorktree = execSync(`cd "${worktreePath}" && pwd -P`, { encoding: 'utf-8', stdio: 'pipe' }).trim();
+          const normalizedPath = execSync(`cd "${path}" 2>/dev/null && pwd -P || echo "${path}"`, { encoding: 'utf-8', stdio: 'pipe' }).trim();
+          if (normalizedWorktree === normalizedPath) {
+            return true;
+          }
+        } catch {
+          // If path doesn't exist or can't be normalized, do simple string comparison
+          if (worktreePath === path) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   } catch (err) {
     logger.error('Failed to check worktree status', err);
     return false;
