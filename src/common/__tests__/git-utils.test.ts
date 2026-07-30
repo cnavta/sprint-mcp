@@ -4,7 +4,15 @@
  * Uses real git operations with temporary directories for isolation
  */
 
-import { verifyMainBranch, worktreeExists, getCurrentBranch } from '../git-utils.js';
+import {
+  verifyMainBranch,
+  worktreeExists,
+  getCurrentBranch,
+  listWorktrees,
+  createWorktree,
+  removeWorktree,
+  getWorktreePath,
+} from '../git-utils.js';
 import { mkdtemp, rm } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -207,6 +215,133 @@ describe('git-utils - Integration Tests', () => {
     it('should return null when not in a git repository', () => {
       const result = getCurrentBranch();
       expect(result).toBeNull();
+    });
+  });
+
+  describe('listWorktrees', () => {
+    it('should return list of worktrees', () => {
+      // Initialize git repo
+      execSync('git init');
+      execSync('git config user.email "test@example.com"');
+      execSync('git config user.name "Test User"');
+      execSync('git branch -M main');
+      execSync('echo "test" > README.md');
+      execSync('git add README.md');
+      execSync('git commit -m "Initial commit"');
+
+      // Create worktree
+      const worktreePath = join(testDir, 'wt1');
+      execSync(`git worktree add ${worktreePath} -b feature-1`);
+
+      const result = listWorktrees();
+
+      expect(result.length).toBe(2); // main + feature-1
+      expect(result[0].branch).toBe('main');
+      // Use endsWith to handle symlink path differences (/tmp vs /private/tmp on macOS)
+      expect(result[0].path).toContain(testDir.split('/').pop() || '');
+      expect(result[1].branch).toBe('feature-1');
+      expect(result[1].path).toContain('wt1');
+    });
+
+    it('should return empty array when not in git repository', () => {
+      const result = listWorktrees();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('createWorktree', () => {
+    it('should create worktree successfully', () => {
+      // Initialize git repo
+      execSync('git init');
+      execSync('git config user.email "test@example.com"');
+      execSync('git config user.name "Test User"');
+      execSync('git branch -M main');
+      execSync('echo "test" > README.md');
+      execSync('git add README.md');
+      execSync('git commit -m "Initial commit"');
+
+      const worktreePath = join(testDir, 'new-worktree');
+      const result = createWorktree(worktreePath, 'feature-branch');
+
+      expect(result).toBe(true);
+      expect(worktreeExists(worktreePath)).toBe(true);
+    });
+
+    it('should return false when worktree creation fails', () => {
+      // Don't initialize git - should fail
+      const worktreePath = join(testDir, 'fail-worktree');
+      const result = createWorktree(worktreePath, 'feature-branch');
+
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('removeWorktree', () => {
+    it('should remove worktree successfully', () => {
+      // Initialize git repo and create worktree
+      execSync('git init');
+      execSync('git config user.email "test@example.com"');
+      execSync('git config user.name "Test User"');
+      execSync('git branch -M main');
+      execSync('echo "test" > README.md');
+      execSync('git add README.md');
+      execSync('git commit -m "Initial commit"');
+
+      const worktreePath = join(testDir, 'temp-worktree');
+      execSync(`git worktree add ${worktreePath} -b temp-branch`);
+
+      const result = removeWorktree(worktreePath);
+
+      expect(result).toBe(true);
+      expect(worktreeExists(worktreePath)).toBe(false);
+    });
+
+    it('should return false when worktree removal fails', () => {
+      const result = removeWorktree('/nonexistent/worktree');
+      expect(result).toBe(false);
+    });
+
+    it('should force remove worktree with uncommitted changes', () => {
+      // Initialize git repo and create worktree
+      execSync('git init');
+      execSync('git config user.email "test@example.com"');
+      execSync('git config user.name "Test User"');
+      execSync('git branch -M main');
+      execSync('echo "test" > README.md');
+      execSync('git add README.md');
+      execSync('git commit -m "Initial commit"');
+
+      const worktreePath = join(testDir, 'dirty-worktree');
+      execSync(`git worktree add ${worktreePath} -b dirty-branch`);
+
+      // Add uncommitted changes
+      execSync(`echo "dirty" > ${worktreePath}/dirty.txt`);
+
+      // Normal remove should fail, but force should succeed
+      const result = removeWorktree(worktreePath, true);
+
+      expect(result).toBe(true);
+      expect(worktreeExists(worktreePath)).toBe(false);
+    });
+  });
+
+  describe('getWorktreePath', () => {
+    it('should return correct worktree path', () => {
+      const sprintId = 'sprint-1-abc123';
+      const result = getWorktreePath(sprintId);
+
+      // Check path structure (handle symlinks by checking end of path)
+      expect(result).toContain('.worktrees');
+      expect(result).toContain(sprintId);
+      expect(result).toMatch(/\.worktrees\/sprint-1-abc123$/);
+    });
+
+    it('should handle different sprint IDs', () => {
+      const sprintId1 = 'sprint-5-xyz789';
+      const sprintId2 = 'sprint-100-test';
+
+      expect(getWorktreePath(sprintId1)).toMatch(/\.worktrees\/sprint-5-xyz789$/);
+      expect(getWorktreePath(sprintId2)).toMatch(/\.worktrees\/sprint-100-test$/);
     });
   });
 });
