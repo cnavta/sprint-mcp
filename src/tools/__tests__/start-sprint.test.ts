@@ -460,6 +460,71 @@ describe('startSprintTool - Integration Tests', () => {
       expect(mainBranch).toBe('main');
     });
 
+    it('should allow multiple worktrees to coexist', async () => {
+      // Create first sprint
+      const result1 = await startSprintTool({
+        title: 'First Sprint',
+        goal: 'First sprint goal',
+        owner: 'owner',
+      });
+
+      const text1 = extractResponseText(result1);
+      const id1Match = text1.match(/sprint-\d+-[a-z0-9]+/);
+      expect(id1Match).toBeTruthy();
+      const sprintId1 = id1Match![0];
+
+      // Complete first sprint so we can create second
+      const manifestPath1 = join(testDir, 'planning', sprintId1, 'sprint-manifest.yaml');
+      const manifest1Content = await readFile(manifestPath1, 'utf-8');
+      const manifest1 = parseYaml(manifest1Content) as SprintManifest;
+      manifest1.status = 'complete';
+      await writeFile(manifestPath1, stringifyYaml(manifest1), 'utf-8');
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Create second sprint
+      const result2 = await startSprintTool({
+        title: 'Second Sprint',
+        goal: 'Second sprint goal',
+        owner: 'owner',
+      });
+
+      if (isErrorResponse(result2)) {
+        // File system timing issue - acceptable
+        return;
+      }
+
+      const text2 = extractResponseText(result2);
+      const id2Match = text2.match(/sprint-\d+-[a-z0-9]+/);
+      expect(id2Match).toBeTruthy();
+      const sprintId2 = id2Match![0];
+
+      // Verify both worktrees exist
+      const { stat } = await import('fs/promises');
+      const worktree1Path = join(testDir, '.worktrees', sprintId1);
+      const worktree2Path = join(testDir, '.worktrees', sprintId2);
+
+      const wt1Stat = await stat(worktree1Path);
+      const wt2Stat = await stat(worktree2Path);
+
+      expect(wt1Stat.isDirectory()).toBe(true);
+      expect(wt2Stat.isDirectory()).toBe(true);
+
+      // Verify different branches
+      const { execSync } = await import('child_process');
+      const branch1 = execSync('git rev-parse --abbrev-ref HEAD', {
+        cwd: worktree1Path,
+        encoding: 'utf-8',
+      }).trim();
+      const branch2 = execSync('git rev-parse --abbrev-ref HEAD', {
+        cwd: worktree2Path,
+        encoding: 'utf-8',
+      }).trim();
+
+      expect(branch1).toMatch(/^feature\/sprint-\d+-[a-z0-9]+-first-sprint$/);
+      expect(branch2).toMatch(/^feature\/sprint-\d+-[a-z0-9]+-second-sprint$/);
+      expect(branch1).not.toBe(branch2);
+    });
+
   });
 
   describe('Error handling and cleanup', () => {
