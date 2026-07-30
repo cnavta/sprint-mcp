@@ -277,4 +277,119 @@ describe('checkSprintStatusTool - Integration Tests', () => {
       // This test just ensures we exercise the error path
     });
   });
+
+  describe('Worktree information display', () => {
+    beforeEach(async () => {
+      // Initialize git repo for worktree tests
+      const { execSync } = await import('child_process');
+      execSync('git init', { cwd: testDir, stdio: 'pipe' });
+      execSync('git config user.email "test@example.com"', { cwd: testDir, stdio: 'pipe' });
+      execSync('git config user.name "Test User"', { cwd: testDir, stdio: 'pipe' });
+      execSync('git branch -M main', { cwd: testDir, stdio: 'pipe' });
+      execSync('echo "test" > README.md', { cwd: testDir, stdio: 'pipe' });
+      execSync('git add README.md', { cwd: testDir, stdio: 'pipe' });
+      execSync('git commit -m "Initial commit"', { cwd: testDir, stdio: 'pipe' });
+    });
+
+    it('should show worktree path for active sprint with worktree', async () => {
+      const activeManifest = createActiveManifest(1);
+      const { execSync } = await import('child_process');
+
+      // Create sprint directory and manifest
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, activeManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
+
+      // Create worktree for this sprint
+      const worktreePath = join(testDir, '.worktrees', activeManifest.id);
+      execSync(`git worktree add "${worktreePath}" -b feature-${activeManifest.id}`, {
+        cwd: testDir,
+        stdio: 'pipe',
+      });
+
+      const result = await checkSprintStatusTool({});
+      const text = extractResponseText(result);
+
+      expect(text).toContain('Worktree:');
+      expect(text).toContain(activeManifest.id);
+      expect(text).toContain(`feature-${activeManifest.id}`);
+    });
+
+    it('should warn when active sprint is missing expected worktree', async () => {
+      const activeManifest = createActiveManifest(1);
+
+      // Create sprint directory and manifest without worktree
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, activeManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
+
+      const result = await checkSprintStatusTool({});
+      const text = extractResponseText(result);
+
+      expect(text).toContain('Worktree:');
+      expect(text).toContain('Not found at expected path');
+      expect(text).toContain('.worktrees');
+    });
+
+    it('should detect orphaned worktrees from completed sprints', async () => {
+      const completedManifest = createCompletedManifest(1);
+      const { execSync } = await import('child_process');
+
+      // Create completed sprint
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, completedManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(completedManifest)
+      );
+
+      // Create orphaned worktree (sprint is complete but worktree still exists)
+      const worktreePath = join(testDir, '.worktrees', completedManifest.id);
+      execSync(`git worktree add "${worktreePath}" -b feature-${completedManifest.id}`, {
+        cwd: testDir,
+        stdio: 'pipe',
+      });
+
+      const result = await checkSprintStatusTool({});
+      const text = extractResponseText(result);
+
+      expect(text).toContain('Orphaned worktrees detected');
+      expect(text).toContain(completedManifest.id);
+      expect(text).toContain('git worktree remove');
+    });
+
+    it('should not report orphaned worktrees when none exist', async () => {
+      const activeManifest = createActiveManifest(1);
+      const { execSync } = await import('child_process');
+
+      // Create active sprint with worktree (not orphaned)
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, activeManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
+
+      const worktreePath = join(testDir, '.worktrees', activeManifest.id);
+      execSync(`git worktree add "${worktreePath}" -b feature-${activeManifest.id}`, {
+        cwd: testDir,
+        stdio: 'pipe',
+      });
+
+      const result = await checkSprintStatusTool({});
+      const text = extractResponseText(result);
+
+      expect(text).not.toContain('Orphaned worktrees detected');
+    });
+  });
 });
