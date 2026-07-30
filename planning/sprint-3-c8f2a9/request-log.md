@@ -219,6 +219,84 @@
 
 ---
 
+## REQ-005 – Phase 2 Implementation
+**Timestamp**: 2026-07-30T18:45:00Z
+**Human**: [Continued from context restoration]
+
+**LLM Interpretation**: Continue with Phase 2 (Main Baseline Verification) implementation per approved plan.
+
+**LLM Action**:
+
+### TASK-005: Create Git Utility Module ✓ COMPLETE
+- Created `src/common/git-utils.ts` with three functions:
+  - `verifyMainBranch()`: Checks if main exists (local or origin/main) and has commits
+  - `worktreeExists()`: Checks if worktree exists at specified path
+  - `getCurrentBranch()`: Returns current branch name
+- All functions use execSync for git operations
+- Comprehensive error handling with clear error messages
+- Logging via logger facade
+
+### TASK-006: Write Tests for Git Utility Module ✓ COMPLETE
+- Created `src/common/__tests__/git-utils.test.ts` with 11 comprehensive tests:
+  - verifyMainBranch (5 tests):
+    - Success when main exists with commits
+    - Error when main doesn't exist
+    - Error when main exists but has no commits
+    - Success when only origin/main exists
+    - Error when not in git repo
+  - worktreeExists (3 tests):
+    - No worktrees exist
+    - Worktree exists at path (handles macOS symlinks /tmp → /private/tmp)
+    - Not in git repo
+  - getCurrentBranch (3 tests):
+    - Returns current branch
+    - Returns main when on main
+    - Returns null when not in git repo
+- All tests use real git operations with temporary directories
+- Enhanced worktreeExists() to handle symlink path resolution
+- All 11 tests passing ✓
+
+### TASK-007: Integrate Baseline Verification into start-sprint ✓ COMPLETE
+- Updated `src/tools/start-sprint.ts`:
+  - Added import for verifyMainBranch
+  - Added "Step 0" baseline check before all other validations
+  - Returns clear error if main doesn't exist or has no commits
+  - Logs verification success
+- Updated `src/tools/__tests__/start-sprint.test.ts`:
+  - Modified beforeEach to initialize git repo with main branch in all tests
+  - Added new test suite "Baseline verification (FOLLOW-002)":
+    - Test: reject when main branch doesn't exist
+    - Test: succeed when main exists with commits
+  - All 20 tests passing (18 existing + 2 new) ✓
+
+**Material Operations**:
+- Git commit `9b689a4`: Git utility module creation
+- Git commit `40687ea`: Git utility module tests (11 tests)
+- Git commit `9b9b1bb`: Baseline verification integration (20 tests)
+- Files created:
+  - `src/common/git-utils.ts`
+  - `src/common/__tests__/git-utils.test.ts`
+- Files modified:
+  - `src/tools/start-sprint.ts`
+  - `src/tools/__tests__/start-sprint.test.ts`
+
+**Test Results**:
+- Total: 44/44 tests passing
+  - check-sprint-status: 13 tests
+  - git-utils: 11 tests
+  - start-sprint: 20 tests
+
+**State Change**:
+- TASK-005 ✓ COMPLETE
+- TASK-006 ✓ COMPLETE
+- TASK-007 ✓ COMPLETE
+- **Phase 2 (Main Baseline Verification): COMPLETE**
+- **FOLLOW-002 from sprint-2: RESOLVED**
+
+**Next Phase**: Phase 3 - Git Worktree Integration (Protocol - TASK-008 onwards)
+
+---
+
 ## Decision Log (Carried Forward)
 
 3. Protocol changes before tooling changes (ensure alignment)
