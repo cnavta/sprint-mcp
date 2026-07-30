@@ -513,3 +513,75 @@ Sprint 3 deliverables are ready for verification.
 **Next Step**: Create GitHub Pull Request per Sprint Protocol Section 2.8 (Publication Phase)
 
 ---
+
+## REQ-008 – TASK-014 Enhancement
+**Timestamp**: 2026-07-30T19:30:00Z
+**Human**: "Move forward with the TASK-014 (P2-MEDIUM): check-sprint-status worktree enhancements"
+
+**LLM Interpretation**: Implement previously deferred TASK-014 to enhance check-sprint-status tool with worktree information display. User requested implementation after Phase 5 completion.
+
+**LLM Action**:
+
+### TASK-014: Enhance check-sprint-status for Worktrees ✓ COMPLETE
+
+**Implementation**:
+- Updated `src/tools/check-sprint-status.ts`:
+  - Import `listWorktrees` and `getWorktreePath` from git-utils
+  - Retrieve all worktrees at start of status check
+  - For each active sprint:
+    - Check if worktree exists at expected path
+    - Display worktree path and branch if found
+    - Warn if worktree missing at expected path
+  - Detect orphaned worktrees:
+    - Identify sprint worktrees where sprint is complete or doesn't exist
+    - List orphaned worktrees with paths and sprint IDs
+    - Provide cleanup command: `git worktree remove <path>`
+  - Update logging to include orphaned worktree count
+
+**Tests Created** (`src/tools/__tests__/check-sprint-status.test.ts`):
+1. **show worktree path for active sprint with worktree** (lines 294-320)
+   - Creates active sprint with worktree
+   - Verifies output contains worktree path and branch name
+
+2. **warn when active sprint is missing expected worktree** (lines 322-340)
+   - Creates active sprint without worktree
+   - Verifies warning message with expected path
+
+3. **detect orphaned worktrees from completed sprints** (lines 342-368)
+   - Creates completed sprint with existing worktree
+   - Verifies orphaned worktree detection and cleanup command
+
+4. **not report orphaned worktrees when none exist** (lines 370-393)
+   - Creates active sprint with matching worktree
+   - Verifies no orphan warning appears
+
+**Acceptance Criteria**:
+- ✅ Lists active worktrees alongside sprint status
+- ✅ Shows worktree path for each active sprint
+- ✅ Detects orphaned worktrees (sprint complete but worktree remains)
+- ✅ Tests verify worktree information display
+
+**Material Operations**:
+- Git commit `4a1b60d`: Worktree enhancements to check-sprint-status (TASK-014)
+- File modified: `src/tools/check-sprint-status.ts` (+32 lines)
+- File modified: `src/tools/__tests__/check-sprint-status.test.ts` (+114 lines for 4 new tests)
+
+**Test Results**:
+- Total: 61/61 tests passing ✅
+  - check-sprint-status: 17 tests (13 existing + 4 new worktree tests)
+  - git-utils: 20 tests
+  - start-sprint: 24 tests
+- Build: TypeScript compilation successful ✅
+
+**State Change**:
+- TASK-014 ✓ COMPLETE (P2-MEDIUM, previously deferred)
+- All acceptance criteria met
+- No blockers
+
+**Rationale**:
+User requested implementation of previously deferred enhancement. Worktree visibility in status checks provides operational benefits:
+- Helps detect cleanup opportunities (orphaned worktrees)
+- Confirms worktree existence for active sprints
+- Aids troubleshooting when worktrees are missing
+
+---
