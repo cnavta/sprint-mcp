@@ -11,6 +11,7 @@ import { logger } from '../common/logger.js';
 import { ensureDir, writeFile } from '../common/file-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
+import { verifyMainBranch } from '../common/git-utils.js';
 
 interface StartSprintArgs {
   title: string;
@@ -70,6 +71,22 @@ export async function startSprintTool(
   };
 
   logger.info('Starting new sprint...', sprintArgs);
+
+  // Step 0: Verify main branch baseline (FOLLOW-002)
+  const baselineCheck = verifyMainBranch();
+  if (!baselineCheck.exists || !baselineCheck.hasCommits) {
+    logger.error('Main branch baseline verification failed', baselineCheck);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Cannot start sprint: ${baselineCheck.error}\n\nThe main branch must exist with at least one commit before starting a sprint. This ensures a stable baseline for feature branches.`,
+        },
+      ],
+      isError: true,
+    };
+  }
+  logger.info('Main branch baseline verified successfully');
 
   // Step 1: Check for active sprints (Rule S3)
   const statusResult = await checkSprintStatusTool({});

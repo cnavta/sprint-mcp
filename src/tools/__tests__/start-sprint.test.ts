@@ -29,6 +29,16 @@ describe('startSprintTool - Integration Tests', () => {
 
     // Change to test directory
     process.chdir(testDir);
+
+    // Initialize git repo with main branch (required for baseline verification)
+    const { execSync } = await import('child_process');
+    execSync('git init');
+    execSync('git config user.email "test@example.com"');
+    execSync('git config user.name "Test User"');
+    execSync('git branch -M main');
+    execSync('echo "test" > .gitkeep');
+    execSync('git add .gitkeep');
+    execSync('git commit -m "Initial commit"');
   });
 
   afterEach(async () => {
@@ -170,6 +180,40 @@ describe('startSprintTool - Integration Tests', () => {
 
       // Sprint numbers should increment
       expect(sprintNumber2).toBe(sprintNumber1 + 1);
+    });
+  });
+
+  describe('Baseline verification (FOLLOW-002)', () => {
+    it('should reject sprint creation when main branch does not exist', async () => {
+      // Remove main branch to simulate no baseline
+      const { execSync } = await import('child_process');
+      execSync('git checkout -b temp-branch');
+      execSync('git branch -D main');
+
+      const result = await startSprintTool({
+        title: 'Test Sprint',
+        goal: 'Should fail',
+        owner: 'owner',
+      });
+
+      expect(isErrorResponse(result)).toBe(true);
+      const text = extractResponseText(result);
+      expect(text).toContain('Cannot start sprint');
+      expect(text).toContain('Main branch does not exist');
+      expect(text).toContain('stable baseline');
+    });
+
+    it('should succeed when main branch exists with commits', async () => {
+      // Main already set up in beforeEach with a commit
+      const result = await startSprintTool({
+        title: 'Test Sprint',
+        goal: 'Should succeed',
+        owner: 'owner',
+      });
+
+      expect(isErrorResponse(result)).toBe(false);
+      const text = extractResponseText(result);
+      expect(text).toContain('initialized successfully');
     });
   });
 
