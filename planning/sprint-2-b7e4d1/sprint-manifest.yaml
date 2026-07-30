@@ -3,11 +3,12 @@ title: "Resolve Git Baseline and Remote Configuration"
 goal: "Establish repository baseline commit, configure Git remote, and enable normal publication workflow for future sprints"
 owner: "Christopher Navta"
 createdAt: "2026-07-30T00:00:00Z"
-status: "active"
-completionMode: null
+status: "complete"
+completionMode: "normal"
 blockers: []
 links:
   branch: "feature/sprint-2-b7e4d1-git-baseline-remote"
+  pullRequest: "https://github.com/cnavta/sprint-mcp/pull/1"
 notes: |
   Sprint initialized from explicit "Start sprint" command.
   This sprint addresses the three deferred items from sprint-1-a9f3c2:
@@ -19,3 +20,6 @@ notes: |
   - Remote: git@github.com:cnavta/sprint-mcp.git
   - Push authorization: granted to LLM
   - Baseline: include all current project files
+
+  Sprint completed normally on 2026-07-30. All validation passed.
+  PR #1 created and published successfully.
