@@ -5,6 +5,7 @@
  */
 
 import { execSync } from 'child_process';
+import { join } from 'path';
 import { logger } from './logger.js';
 
 /**
@@ -133,6 +134,105 @@ export function worktreeExists(path: string): boolean {
     logger.error('Failed to check worktree status', err);
     return false;
   }
+}
+
+/**
+ * Worktree information
+ */
+export interface WorktreeInfo {
+  path: string;
+  branch: string;
+  commit: string;
+}
+
+/**
+ * List all git worktrees
+ *
+ * @returns Array of worktree information
+ */
+export function listWorktrees(): WorktreeInfo[] {
+  try {
+    const output = execSync('git worktree list --porcelain', { encoding: 'utf-8', stdio: 'pipe' });
+    const worktrees: WorktreeInfo[] = [];
+    const lines = output.split('\n');
+
+    let currentWorktree: Partial<WorktreeInfo> = {};
+    for (const line of lines) {
+      if (line.startsWith('worktree ')) {
+        currentWorktree.path = line.substring('worktree '.length);
+      } else if (line.startsWith('HEAD ')) {
+        currentWorktree.commit = line.substring('HEAD '.length);
+      } else if (line.startsWith('branch ')) {
+        currentWorktree.branch = line.substring('branch '.length).replace('refs/heads/', '');
+      } else if (line === '') {
+        // Empty line indicates end of worktree entry
+        if (currentWorktree.path && currentWorktree.commit) {
+          worktrees.push({
+            path: currentWorktree.path,
+            branch: currentWorktree.branch || 'detached',
+            commit: currentWorktree.commit,
+          });
+        }
+        currentWorktree = {};
+      }
+    }
+
+    logger.info(`Found ${worktrees.length} worktree(s)`);
+    return worktrees;
+  } catch (err) {
+    logger.error('Failed to list worktrees', err);
+    return [];
+  }
+}
+
+/**
+ * Create a new git worktree
+ *
+ * @param path - Path where worktree should be created
+ * @param branchName - Name of the branch to create
+ * @returns true if successful, false otherwise
+ */
+export function createWorktree(path: string, branchName: string): boolean {
+  try {
+    logger.info(`Creating worktree at ${path} with branch ${branchName}`);
+    execSync(`git worktree add "${path}" -b "${branchName}"`, { encoding: 'utf-8', stdio: 'pipe' });
+    logger.info(`Worktree created successfully: ${path}`);
+    return true;
+  } catch (err) {
+    logger.error('Failed to create worktree', err);
+    return false;
+  }
+}
+
+/**
+ * Remove a git worktree
+ *
+ * @param path - Path of worktree to remove
+ * @param force - Force removal even if worktree has uncommitted changes
+ * @returns true if successful, false otherwise
+ */
+export function removeWorktree(path: string, force: boolean = false): boolean {
+  try {
+    const forceFlag = force ? ' --force' : '';
+    logger.info(`Removing worktree at ${path}${force ? ' (forced)' : ''}`);
+    execSync(`git worktree remove "${path}"${forceFlag}`, { encoding: 'utf-8', stdio: 'pipe' });
+    logger.info(`Worktree removed successfully: ${path}`);
+    return true;
+  } catch (err) {
+    logger.error('Failed to remove worktree', err);
+    return false;
+  }
+}
+
+/**
+ * Get the worktree path for a sprint ID
+ *
+ * @param sprintId - Sprint ID (e.g., "sprint-1-abc123")
+ * @returns Absolute path to the sprint worktree
+ */
+export function getWorktreePath(sprintId: string): string {
+  const cwd = process.cwd();
+  return join(cwd, '.worktrees', sprintId);
 }
 
 /**
