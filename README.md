@@ -1,6 +1,6 @@
 # Sprint MCP Server
 
-MCP server providing Sprint Protocol tooling for LLM-driven development workflows.
+A combination agent workflow and MCP server focused around iterative, collaborative development between Humans and Agents.
 
 ## Overview
 
