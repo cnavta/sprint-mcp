@@ -2,7 +2,12 @@ export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/*.test.ts'],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/*.test.ts'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/test-helpers\\.ts$',
+    '/__tests__/setup\\.ts$',
+  ],
   moduleFileExtensions: ['ts', 'js', 'json'],
   collectCoverageFrom: [
     'src/**/*.ts',
