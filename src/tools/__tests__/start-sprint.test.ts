@@ -392,9 +392,74 @@ describe('startSprintTool - Integration Tests', () => {
       const text = extractResponseText(result);
 
       expect(text).toContain('Next Steps');
-      expect(text).toContain('git checkout -b');
+      expect(text).toContain('cd .worktrees/');
+      expect(text).toContain('git branch --show-current');
       expect(text).toContain('implementation-plan.md');
     });
+  });
+
+  describe('Worktree integration', () => {
+    it('should create worktree directory', async () => {
+      const result = await startSprintTool({
+        title: 'Worktree Test',
+        goal: 'Test worktree creation',
+        owner: 'owner',
+      });
+
+      const text = extractResponseText(result);
+      const sprintIdMatch = text.match(/sprint-\d+-[a-z0-9]+/);
+      expect(sprintIdMatch).toBeTruthy();
+
+      const sprintId = sprintIdMatch![0];
+      const worktreePath = join(testDir, '.worktrees', sprintId);
+
+      // Verify worktree directory exists
+      const { stat } = await import('fs/promises');
+      const worktreeStat = await stat(worktreePath);
+      expect(worktreeStat.isDirectory()).toBe(true);
+    });
+
+    it('should create worktree with correct branch', async () => {
+      const result = await startSprintTool({
+        title: 'Branch Test',
+        goal: 'Test branch creation',
+        owner: 'owner',
+      });
+
+      const text = extractResponseText(result);
+      const sprintIdMatch = text.match(/sprint-\d+-[a-z0-9]+/);
+      const sprintId = sprintIdMatch![0];
+      const worktreePath = join(testDir, '.worktrees', sprintId);
+
+      // Check branch name in worktree
+      const { execSync } = await import('child_process');
+      const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+        cwd: worktreePath,
+        encoding: 'utf-8',
+      }).trim();
+
+      expect(branch).toMatch(/^feature\/sprint-\d+-[a-z0-9]+-branch-test$/);
+    });
+
+    it('should keep main worktree on main branch', async () => {
+      const result = await startSprintTool({
+        title: 'Main Branch Test',
+        goal: 'Verify main unchanged',
+        owner: 'owner',
+      });
+
+      expect(isErrorResponse(result)).toBe(false);
+
+      // Main worktree should still be on main
+      const { execSync } = await import('child_process');
+      const mainBranch = execSync('git rev-parse --abbrev-ref HEAD', {
+        cwd: testDir,
+        encoding: 'utf-8',
+      }).trim();
+
+      expect(mainBranch).toBe('main');
+    });
+
   });
 
   describe('Error handling and cleanup', () => {

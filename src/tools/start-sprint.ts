@@ -11,7 +11,7 @@ import { logger } from '../common/logger.js';
 import { ensureDir, writeFile } from '../common/file-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
-import { verifyMainBranch } from '../common/git-utils.js';
+import { verifyMainBranch, createWorktree, getWorktreePath } from '../common/git-utils.js';
 
 interface StartSprintArgs {
   title: string;
@@ -117,11 +117,28 @@ export async function startSprintTool(
   await ensureDir(sprintDir);
   logger.info(`Created sprint directory: ${sprintDir}`);
 
-  // Step 4: Create feature branch name (will be created via git externally)
+  // Step 4: Create git worktree with feature branch
   const branchName = `feature/${sprintId}-${sprintArgs.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .substring(0, 30)}`;
+
+  const worktreePath = getWorktreePath(sprintId);
+  const worktreeCreated = createWorktree(worktreePath, branchName);
+
+  if (!worktreeCreated) {
+    logger.error('Failed to create worktree for sprint');
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Failed to create git worktree for sprint ${sprintId}.\n\nWorktree creation failed at: ${worktreePath}\nBranch: ${branchName}\n\nPlease check git status and try again.`,
+        },
+      ],
+      isError: true,
+    };
+  }
+  logger.info(`Created worktree: ${worktreePath}`);
 
   // Step 5: Create sprint manifest
   const manifest: SprintManifest = {
@@ -156,12 +173,14 @@ export async function startSprintTool(
 
 **Actions**:
 - Created sprint directory: planning/${sprintId}/
+- Created git worktree: .worktrees/${sprintId}/
+- Created feature branch: ${branchName}
 - Created sprint-manifest.yaml
-- Suggested feature branch: ${branchName}
 
-**Files Created**:
+**Artifacts**:
 - planning/${sprintId}/sprint-manifest.yaml
 - planning/${sprintId}/request-log.md
+- .worktrees/${sprintId}/ (git worktree on branch ${branchName})
 `;
 
   const requestLogPath = join(sprintDir, 'request-log.md');
@@ -177,17 +196,23 @@ export async function startSprintTool(
 - Goal: ${sprintArgs.goal}
 - Owner: ${sprintArgs.owner}
 - Status: planning
-- Directory: planning/${sprintId}/
+- Planning directory: planning/${sprintId}/
+- Worktree: .worktrees/${sprintId}/
+- Branch: ${branchName}
 
 **Next Steps**:
-1. Create feature branch: \`git checkout -b ${branchName}\`
-2. Create implementation-plan.md with sprint execution details
-3. Get user approval for the plan before implementing
-4. Update sprint status to 'in-progress' when ready
+1. Change to sprint worktree: \`cd .worktrees/${sprintId}/\`
+2. Verify branch: \`git branch --show-current\` (should show: ${branchName})
+3. Create implementation-plan.md with sprint execution details
+4. Get user approval for the plan before implementing
+5. Update sprint status to 'in-progress' when ready
 
-**Files Created**:
+**Artifacts Created**:
 - planning/${sprintId}/sprint-manifest.yaml
 - planning/${sprintId}/request-log.md
+- .worktrees/${sprintId}/ (isolated worktree on branch ${branchName})
+
+**Note**: Main worktree remains on main branch. All sprint work happens in .worktrees/${sprintId}/
 
 Sprint Protocol rule S1 satisfied: Sprint started on explicit user request.
 `;
