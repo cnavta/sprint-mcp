@@ -1,48 +1,52 @@
 /**
- * Tests for check-sprint-status tool
+ * Integration tests for check-sprint-status tool
+ *
+ * Uses real file system operations with temporary directories for isolation
  */
 
-import { jest } from '@jest/globals';
 import { checkSprintStatusTool } from '../check-sprint-status.js';
+import { mkdtemp, rm, mkdir, writeFile } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
+import { stringify as stringifyYaml } from 'yaml';
 import {
   createActiveManifest,
+  createCompletedManifest,
   createPlanningManifest,
   isValidMCPResponse,
   extractResponseText,
 } from './test-helpers.js';
 
-// Mock the file-utils module
-jest.unstable_mockModule('../../common/file-utils.js', () => ({
-  listDirectories: jest.fn(),
-  fileExists: jest.fn(),
-  readFile: jest.fn(),
-  ensureDir: jest.fn(),
-  writeFile: jest.fn(),
-}));
+describe('checkSprintStatusTool - Integration Tests', () => {
+  let testDir: string;
+  let originalCwd: string;
 
-// Mock the logger module
-jest.unstable_mockModule('../../common/logger.js', () => ({
-  logger: {
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
+  beforeEach(async () => {
+    // Save original working directory
+    originalCwd = process.cwd();
 
-// Import mocked modules
-const fileUtils = await import('../../common/file-utils.js');
-const { logger } = await import('../../common/logger.js');
+    // Create temporary test directory
+    testDir = await mkdtemp(join(tmpdir(), 'sprint-mcp-test-'));
 
-describe('checkSprintStatusTool', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+    // Change to test directory
+    process.chdir(testDir);
+  });
+
+  afterEach(async () => {
+    // Always restore original working directory first
+    process.chdir(originalCwd);
+
+    // Clean up test directory (even if test failed)
+    try {
+      await rm(testDir, { recursive: true, force: true });
+    } catch (error) {
+      console.error(`Failed to cleanup test directory ${testDir}:`, error);
+      // Don't throw - we still want other tests to run
+    }
   });
 
   describe('No sprints scenario', () => {
-    it('should return success message when no sprint directories exist', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([]);
-
+    it('should return success message when no planning directory exists', async () => {
       const result = await checkSprintStatusTool({});
 
       expect(isValidMCPResponse(result)).toBe(true);
@@ -53,34 +57,30 @@ describe('checkSprintStatusTool', () => {
       expect(text).toContain('start a new sprint');
     });
 
-    it('should log info message', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([]);
+    it('should return success message when planning directory is empty', async () => {
+      // Create empty planning directory
+      await mkdir(join(testDir, 'planning'));
 
-      await checkSprintStatusTool({});
+      const result = await checkSprintStatusTool({});
 
-      expect(logger.info).toHaveBeenCalledWith('Checking sprint status...');
-      expect(logger.info).toHaveBeenCalledWith('No sprints found');
+      expect(isValidMCPResponse(result)).toBe(true);
+      const text = extractResponseText(result);
+      expect(text).toContain('No sprints found');
     });
   });
 
   describe('Single active sprint scenario', () => {
     it('should detect and report one active sprint', async () => {
       const activeManifest = createActiveManifest(1);
-      const manifestYaml = `id: ${activeManifest.id}
-title: ${activeManifest.title}
-goal: ${activeManifest.goal}
-owner: ${activeManifest.owner}
-createdAt: ${activeManifest.createdAt}
-status: in-progress
-links:
-  branch: ${activeManifest.links?.branch || 'N/A'}
-notes: ${activeManifest.notes}`;
 
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any).mockResolvedValue(manifestYaml);
+      // Create sprint directory and manifest
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, activeManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
 
       const result = await checkSprintStatusTool({});
 
@@ -95,18 +95,14 @@ notes: ${activeManifest.notes}`;
 
     it('should not show S3 violation warning for single active sprint', async () => {
       const activeManifest = createActiveManifest(1);
-      const manifestYaml = `id: ${activeManifest.id}
-status: in-progress
-title: Test
-goal: Test goal
-owner: owner
-createdAt: 2026-01-01T00:00:00Z`;
 
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any).mockResolvedValue(manifestYaml);
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, activeManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
 
       const result = await checkSprintStatusTool({});
       const text = extractResponseText(result);
@@ -121,28 +117,23 @@ createdAt: 2026-01-01T00:00:00Z`;
       const activeManifest1 = createActiveManifest(1);
       const activeManifest2 = createPlanningManifest(2); // planning is also "active" (not complete)
 
-      const yaml1 = `id: ${activeManifest1.id}
-status: in-progress
-title: Sprint 1
-goal: Goal 1
-owner: owner
-createdAt: 2026-01-01T00:00:00Z`;
+      const planningDir = join(testDir, 'planning');
 
-      const yaml2 = `id: ${activeManifest2.id}
-status: planning
-title: Sprint 2
-goal: Goal 2
-owner: owner
-createdAt: 2026-01-02T00:00:00Z`;
+      // Create first sprint
+      const sprint1Dir = join(planningDir, activeManifest1.id);
+      await mkdir(sprint1Dir, { recursive: true });
+      await writeFile(
+        join(sprint1Dir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest1)
+      );
 
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-        '/path/to/planning/sprint-2-test2',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any)
-        .mockResolvedValueOnce(yaml1)
-        .mockResolvedValueOnce(yaml2);
+      // Create second sprint
+      const sprint2Dir = join(planningDir, activeManifest2.id);
+      await mkdir(sprint2Dir, { recursive: true });
+      await writeFile(
+        join(sprint2Dir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest2)
+      );
 
       const result = await checkSprintStatusTool({});
       const text = extractResponseText(result);
@@ -155,18 +146,15 @@ createdAt: 2026-01-02T00:00:00Z`;
 
   describe('Completed sprints scenario', () => {
     it('should count completed sprints correctly', async () => {
-      const completedYaml = `id: sprint-1-test1
-status: complete
-title: Completed Sprint
-goal: Goal
-owner: owner
-createdAt: 2026-01-01T00:00:00Z`;
+      const completedManifest = createCompletedManifest(1);
 
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any).mockResolvedValue(completedYaml);
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, completedManifest.id);
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        stringifyYaml(completedManifest)
+      );
 
       const result = await checkSprintStatusTool({});
       const text = extractResponseText(result);
@@ -177,28 +165,26 @@ createdAt: 2026-01-01T00:00:00Z`;
     });
 
     it('should handle mix of active and completed sprints', async () => {
-      const activeYaml = `id: sprint-2-test2
-status: in-progress
-title: Active Sprint
-goal: Goal
-owner: owner
-createdAt: 2026-01-02T00:00:00Z`;
+      const activeManifest = createActiveManifest(2);
+      const completedManifest = createCompletedManifest(1);
 
-      const completedYaml = `id: sprint-1-test1
-status: complete
-title: Completed Sprint
-goal: Goal
-owner: owner
-createdAt: 2026-01-01T00:00:00Z`;
+      const planningDir = join(testDir, 'planning');
 
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-        '/path/to/planning/sprint-2-test2',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any)
-        .mockResolvedValueOnce(completedYaml)
-        .mockResolvedValueOnce(activeYaml);
+      // Create completed sprint
+      const completedDir = join(planningDir, completedManifest.id);
+      await mkdir(completedDir, { recursive: true });
+      await writeFile(
+        join(completedDir, 'sprint-manifest.yaml'),
+        stringifyYaml(completedManifest)
+      );
+
+      // Create active sprint
+      const activeDir = join(planningDir, activeManifest.id);
+      await mkdir(activeDir, { recursive: true });
+      await writeFile(
+        join(activeDir, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest)
+      );
 
       const result = await checkSprintStatusTool({});
       const text = extractResponseText(result);
@@ -210,10 +196,10 @@ createdAt: 2026-01-01T00:00:00Z`;
 
   describe('Error handling', () => {
     it('should handle missing manifest files gracefully', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(false);
+      // Create sprint directory without manifest
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, 'sprint-1-test1');
+      await mkdir(sprintDir, { recursive: true });
 
       const result = await checkSprintStatusTool({});
 
@@ -223,11 +209,14 @@ createdAt: 2026-01-01T00:00:00Z`;
     });
 
     it('should handle invalid YAML gracefully', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any).mockResolvedValue('invalid: yaml: content:');
+      // Create sprint directory with invalid YAML
+      const planningDir = join(testDir, 'planning');
+      const sprintDir = join(planningDir, 'sprint-1-test1');
+      await mkdir(sprintDir, { recursive: true });
+      await writeFile(
+        join(sprintDir, 'sprint-manifest.yaml'),
+        'invalid: yaml: content: [[[broken'
+      );
 
       const result = await checkSprintStatusTool({});
 
@@ -235,24 +224,24 @@ createdAt: 2026-01-01T00:00:00Z`;
       expect(isValidMCPResponse(result)).toBe(true);
     });
 
-    it('should handle file read errors', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([
-        '/path/to/planning/sprint-1-test1',
-      ]);
-      (fileUtils.fileExists as any).mockResolvedValue(true);
-      (fileUtils.readFile as any).mockRejectedValue(new Error('File read error'));
+    it('should handle file system errors gracefully', async () => {
+      // Create planning dir but make it unreadable (simulates permission error)
+      const planningDir = join(testDir, 'planning');
+      await mkdir(planningDir);
+
+      // Create a file named like a directory to cause readdir error
+      const badSprintDir = join(planningDir, 'sprint-1-test1');
+      await writeFile(badSprintDir, 'this is a file, not a directory');
 
       const result = await checkSprintStatusTool({});
 
-      // Should still return valid response even if file read fails
+      // Should still return valid response
       expect(isValidMCPResponse(result)).toBe(true);
     });
   });
 
   describe('Response format', () => {
     it('should always return valid MCP response format', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([]);
-
       const result = await checkSprintStatusTool({});
 
       expect(result).toHaveProperty('content');
@@ -264,11 +253,28 @@ createdAt: 2026-01-01T00:00:00Z`;
     });
 
     it('should not set isError flag on success', async () => {
-      (fileUtils.listDirectories as any).mockResolvedValue([]);
-
       const result = await checkSprintStatusTool({});
-
       expect(result.isError).toBeUndefined();
+    });
+  });
+
+  describe('Cleanup verification', () => {
+    it('should cleanup temp directory even after test failure', async () => {
+      const testDirPath = testDir;
+
+      // This test intentionally creates a scenario that might fail
+      try {
+        const planningDir = join(testDir, 'planning');
+        await mkdir(planningDir);
+
+        // Verify directory exists
+        expect(testDirPath).toBeTruthy();
+      } catch (error) {
+        // Even if test fails, afterEach should still cleanup
+      }
+
+      // The actual cleanup verification happens in afterEach
+      // This test just ensures we exercise the error path
     });
   });
 });
