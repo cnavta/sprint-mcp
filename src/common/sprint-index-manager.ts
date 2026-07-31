@@ -30,14 +30,20 @@ import type {
 import type { SprintManifest } from '../types/sprint.js';
 
 /**
- * Path to the sprint index file
+ * Get the path to the sprint index file
+ * Computed dynamically to support test isolation via process.chdir()
  */
-const SPRINT_INDEX_PATH = join(process.cwd(), 'planning', 'sprint-index.yaml');
+function getSprintIndexPath(): string {
+  return join(process.cwd(), 'planning', 'sprint-index.yaml');
+}
 
 /**
- * Path to the planning directory containing sprint manifests
+ * Get the path to the planning directory containing sprint manifests
+ * Computed dynamically to support test isolation via process.chdir()
  */
-const PLANNING_DIR = join(process.cwd(), 'planning');
+function getPlanningDir(): string {
+  return join(process.cwd(), 'planning');
+}
 
 /**
  * Header comment for the generated index file
@@ -68,13 +74,15 @@ const INDEX_FILE_HEADER = `# Sprint Index
 export async function loadSprintIndex(): Promise<SprintIndex> {
   logger.debug('Loading sprint index from disk');
 
-  if (!(await fileExists(SPRINT_INDEX_PATH))) {
+  const indexPath = getSprintIndexPath();
+
+  if (!(await fileExists(indexPath))) {
     logger.info('Sprint index does not exist, returning empty index');
     return createEmptyIndex();
   }
 
   try {
-    const content = await readFile(SPRINT_INDEX_PATH);
+    const content = await readFile(indexPath);
     const index = parseYaml(content) as SprintIndex;
 
     logger.info(
@@ -85,7 +93,7 @@ export async function loadSprintIndex(): Promise<SprintIndex> {
   } catch (error) {
     logger.error('Failed to parse sprint index', error);
     throw new Error(
-      `Failed to parse sprint index at ${SPRINT_INDEX_PATH}: ${error}`
+      `Failed to parse sprint index at ${indexPath}: ${error}`
     );
   }
 }
@@ -102,14 +110,16 @@ export async function loadSprintIndex(): Promise<SprintIndex> {
 export async function saveSprintIndex(index: SprintIndex): Promise<void> {
   logger.debug('Saving sprint index to disk');
 
+  const indexPath = getSprintIndexPath();
+
   // Update generation timestamp
   index.generatedAt = new Date().toISOString();
 
   // Create backup if index exists
-  if (await fileExists(SPRINT_INDEX_PATH)) {
-    const backupPath = `${SPRINT_INDEX_PATH}.backup`;
+  if (await fileExists(indexPath)) {
+    const backupPath = `${indexPath}.backup`;
     try {
-      await fs.copyFile(SPRINT_INDEX_PATH, backupPath);
+      await fs.copyFile(indexPath, backupPath);
       logger.debug(`Created backup at ${backupPath}`);
     } catch (error) {
       logger.warn('Failed to create backup of sprint index', error);
@@ -118,7 +128,7 @@ export async function saveSprintIndex(index: SprintIndex): Promise<void> {
   }
 
   // Write to temporary file
-  const tempPath = `${SPRINT_INDEX_PATH}.tmp`;
+  const tempPath = `${indexPath}.tmp`;
   const yamlContent = stringifyYaml(index, {
     lineWidth: 0, // Disable line wrapping
     indent: 2,
@@ -129,7 +139,7 @@ export async function saveSprintIndex(index: SprintIndex): Promise<void> {
     await writeFile(tempPath, fullContent);
 
     // Atomic rename
-    await fs.rename(tempPath, SPRINT_INDEX_PATH);
+    await fs.rename(tempPath, indexPath);
 
     logger.info(
       `Saved sprint index: ${index.totalSprints} sprints (${index.activeSprints} active, ${index.completedSprints} completed)`
@@ -250,7 +260,8 @@ export async function updateSprintInIndex(
 export async function regenerateSprintIndex(): Promise<SprintIndex> {
   logger.info('Regenerating sprint index from manifests');
 
-  const sprintDirs = await listDirectories(PLANNING_DIR);
+  const planningDir = getPlanningDir();
+  const sprintDirs = await listDirectories(planningDir);
   const entries: SprintIndexEntry[] = [];
 
   for (const sprintDir of sprintDirs) {
