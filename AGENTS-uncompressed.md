@@ -103,29 +103,54 @@ The human owns intent and consequential decisions. The LLM owns faithful executi
 
 When a sprint starts, the LLM MUST:
 
-1. **Check for active sprints.** Verify no `sprint-manifest.yaml` in `planning/` has a status other than `complete`. If an active sprint is found, do not proceed with a new sprint; notify the human that the active sprint must be completed or force-closed first (Rule S3).
-2. **Generate a sprint ID**
+1. **Verify main branch baseline.** Ensure the `main` branch exists (locally or as `origin/main`) and contains at least one commit. This provides a stable baseline for feature branches. If verification fails, do not proceed; notify the human that the main branch must be initialized first.
+2. **Check for active sprints.** Verify no `sprint-manifest.yaml` in `planning/` has a status other than `complete`. If an active sprint is found, do not proceed with a new sprint; notify the human that the active sprint must be completed or force-closed first (Rule S3).
+3. **Generate a sprint ID**
    ```
    sprint-<number>-<short-hash>
    ```
-3. **Create the sprint directory**
+4. **Create the sprint directory**
    ```
    planning/sprint-<id>/
    ```
-4. **Create a new feature branch**
+5. **Create a git worktree for sprint isolation**
    ```
-   git checkout -b feature/<sprint-id>-<short-description>
+   git worktree add .worktrees/sprint-<id> -b feature/<sprint-id>-<short-description>
    ```
-5. **Create `sprint-manifest.yaml`** with required metadata (see schema below)
-6. **Log the action in `request-log.md`**
-7. **Verify the branch before planning continues.** Record `git branch --show-current` and `git status --short --branch` results. Implementation MUST NOT begin on the default branch or in a detached HEAD state.
+   **Worktree benefits:**
+   - **Isolation**: Each sprint has its own working directory; no branch context switching
+   - **Parallel work**: Main worktree remains on `main`; sprint work happens in `.worktrees/sprint-<id>/`
+   - **Clean separation**: No risk of mixing sprint changes with main branch state
+   - **Easy cleanup**: Remove worktree after sprint completion
 
-Branch creation is an initialization requirement, not deferred publication work. If the working tree is dirty, preserve unrelated human changes, disclose the state, and stage only files within the approved sprint scope. If the branch cannot be created, keep the sprint in `planning`, log the blocker, and pause implementation.
+   The main worktree (repository root `.`) remains on the `main` branch throughout all sprints. Each sprint's worktree is created at `.worktrees/sprint-<id>/` with its own feature branch.
+
+6. **Change to the sprint worktree directory**
+   ```
+   cd .worktrees/sprint-<id>/
+   ```
+   All subsequent sprint work (planning, implementation, validation) happens within this worktree directory.
+
+7. **Create `sprint-manifest.yaml`** in the sprint directory with required metadata (see schema below). Note: The sprint directory `planning/sprint-<id>/` is accessible from both the main worktree and the sprint worktree.
+
+8. **Log the action in `request-log.md`**
+
+9. **Verify the worktree and branch before planning continues.** Record `git branch --show-current`, `git status --short --branch`, and `pwd` results. Implementation MUST NOT begin on the default branch or in a detached HEAD state. The current working directory should be `.worktrees/sprint-<id>/`.
+
+Worktree creation is an initialization requirement, not deferred publication work. If the main worktree has uncommitted changes, they are preserved; the sprint worktree starts clean from the main branch baseline. If the worktree cannot be created, keep the sprint in `planning`, log the blocker, and pause implementation.
 
 Example:
+```bash
+# From repository root (main worktree)
+git worktree add .worktrees/sprint-7-a13b2f -b feature/sprint-7-a13b2f-user-profile-service
+cd .worktrees/sprint-7-a13b2f/
+
+# Verify
+git branch --show-current  # Should show: feature/sprint-7-a13b2f-user-profile-service
+pwd                        # Should show: /path/to/repo/.worktrees/sprint-7-a13b2f
 ```
-git checkout -b feature/sprint-7-a13b2f-user-profile-service
-```
+
+**Note:** This protocol document (AGENTS-uncompressed.md) is the source of truth. The compressed version (AGENTS.md) will need to be regenerated in a future sprint to reflect these worktree changes.
 
 ---
 
@@ -535,6 +560,36 @@ After the human's declaration, the LLM records it, changes the manifest status t
 - Use `completionMode: forced` when the human says `Force complete sprint`.
 - Use `status: blocked` with explicit blockers when progress cannot continue.
 - Use `status: cancelled` only when the human explicitly cancels the sprint.
+
+## Worktree Cleanup
+
+After sprint completion (normal or forced) and after the PR has been merged (if applicable), the sprint worktree should be removed to keep the repository clean:
+
+```bash
+# Return to main worktree
+cd /path/to/repo  # Or use absolute path to repository root
+
+# Remove the sprint worktree
+git worktree remove .worktrees/sprint-<id>
+```
+
+**Timing**: Worktree cleanup should occur:
+- **After PR merge**: If the sprint resulted in a merged PR, remove the worktree after merge confirmation
+- **After force completion**: If force-completed without a PR, remove the worktree immediately after recording completion
+- **After cancellation**: If the sprint was cancelled, remove the worktree to clean up the failed attempt
+
+**Error handling**: If the worktree has uncommitted changes:
+```bash
+# Check worktree status first
+git worktree list
+
+# If worktree has uncommitted changes, use --force
+git worktree remove .worktrees/sprint-<id> --force
+```
+
+Use `--force` only after confirming with the human that uncommitted changes can be discarded. Document the cleanup action in the sprint's `request-log.md` before removal.
+
+**Note**: The sprint directory `planning/sprint-<id>/` remains in the repository as the permanent record. Only the `.worktrees/sprint-<id>/` working directory is removed.
 
 ## 2.9.1 Learning Artifacts for Future Extraction
 

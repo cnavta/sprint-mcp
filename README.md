@@ -90,12 +90,16 @@ Initialize a new sprint with manifest and directory structure.
 ```
 
 **Behavior**:
+- Verifies main branch baseline (must exist with commits)
 - Checks for active sprints (rule S3)
 - Generates unique sprint ID: `sprint-<number>-<hash>`
 - Creates sprint directory in `planning/`
+- **Creates isolated git worktree** at `.worktrees/sprint-<id>/`
+- Creates feature branch in worktree
 - Generates `sprint-manifest.yaml` and `request-log.md`
-- Suggests feature branch name
 - Sets status to `planning`
+
+**Git Worktrees**: Each sprint gets its own isolated worktree, allowing parallel development without branch switching. The main worktree stays on the main branch.
 
 ### `check-sprint-status`
 
@@ -149,28 +153,104 @@ sprint-mcp/
 │   ├── index.ts              # MCP server entry point
 │   ├── common/
 │   │   ├── logger.ts          # Logging facade
-│   │   └── file-utils.ts      # File system utilities
+│   │   ├── file-utils.ts      # File system utilities
+│   │   └── git-utils.ts       # Git operations (worktrees, baseline)
 │   ├── tools/
 │   │   ├── start-sprint.ts    # Start sprint tool implementation
 │   │   └── check-sprint-status.ts  # Status check tool
 │   └── types/
 │       └── sprint.ts          # TypeScript type definitions
 ├── planning/                   # Sprint artifacts directory
+├── .worktrees/                 # Sprint worktrees (gitignored)
+│   └── sprint-<id>/           # Isolated worktree per sprint
 ├── architecture.yaml          # Canonical source of truth
-├── AGENTS.md                  # Sprint Protocol definition
+├── AGENTS.md                  # Sprint Protocol definition (compressed)
+├── AGENTS-uncompressed.md     # Sprint Protocol source (explicit)
 ├── CLAUDE.md                  # Claude Code guidance
 └── package.json
 ```
 
 ## Sprint Protocol
 
-This server implements the Sprint Protocol defined in `AGENTS.md`. Key principles:
+This server implements the Sprint Protocol defined in `AGENTS-uncompressed.md` (source) and `AGENTS.md` (compressed). Key principles:
 
-1. **Precedence**: `architecture.yaml` > `AGENTS.md` > everything else
+1. **Precedence**: `architecture.yaml` > `AGENTS-uncompressed.md` > `AGENTS.md` > everything else
 2. **Sprint Control**: Only one sprint active at a time (rule S3)
 3. **Lifecycle**: Plan → Approve → Implement → Validate → Verify → Publish → Retro → Learn
 4. **Traceability**: All actions logged in `request-log.md`
 5. **Definition of Done**: Code quality, testing, deployment, documentation, traceability
+6. **Git Worktrees**: Each sprint uses an isolated worktree for clean separation
+
+## Git Worktree Workflow
+
+### Why Worktrees?
+
+Git worktrees provide isolated working directories for each sprint:
+
+- **Isolation**: Each sprint has its own directory; no branch context switching needed
+- **Parallel Work**: Main worktree stays on `main` branch; sprint work happens in `.worktrees/sprint-<id>/`
+- **Clean Separation**: No risk of mixing sprint changes with main branch state
+- **Easy Cleanup**: Remove worktree after sprint completion with `git worktree remove`
+
+### Sprint Creation with Worktrees
+
+When you start a sprint:
+
+1. **Main baseline verified**: Ensures `main` branch exists with commits
+2. **Worktree created**: `.worktrees/sprint-<id>/` directory created
+3. **Feature branch**: Worktree is on new feature branch `feature/sprint-<id>-<description>`
+4. **Working directory**: All sprint work happens in the worktree directory
+
+Example:
+```bash
+# Start sprint (creates worktree automatically)
+# Via MCP: use start-sprint tool
+
+# Change to sprint worktree
+cd .worktrees/sprint-7-a13b2f/
+
+# Verify you're on the feature branch
+git branch --show-current
+# Output: feature/sprint-7-a13b2f-user-profile-service
+
+# Do your work here...
+npm test
+git add .
+git commit -m "Implement feature"
+
+# Main worktree is unchanged
+cd ../..  # Back to repo root
+git branch --show-current
+# Output: main
+```
+
+### Worktree Cleanup
+
+After sprint completion and PR merge:
+
+```bash
+# Return to repository root
+cd /path/to/sprint-mcp
+
+# Remove sprint worktree
+git worktree remove .worktrees/sprint-<id>
+
+# If worktree has uncommitted changes (with human approval)
+git worktree remove .worktrees/sprint-<id> --force
+```
+
+**Note**: The `planning/sprint-<id>/` directory remains as the permanent sprint record. Only the `.worktrees/sprint-<id>/` working directory is removed.
+
+### Multiple Sprints
+
+Worktrees allow multiple sprint directories to coexist (though only one sprint should be active per protocol S3):
+
+```bash
+ls .worktrees/
+# Output:
+# sprint-5-abc123/  (completed, can be cleaned up)
+# sprint-6-def456/  (active sprint)
+```
 
 ## Logging
 

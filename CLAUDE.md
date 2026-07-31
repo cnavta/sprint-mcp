@@ -10,10 +10,16 @@ This is a sprint-based development repository governed by a strict LLM agent wor
 
 **Always consult these sources in order:**
 1. `architecture.yaml` — canonical source of truth for system behavior (when it exists)
-2. `AGENTS.md` — operational and behavioral rules for agents
-3. Everything else — examples, legacy docs, and supporting materials
+2. `AGENTS-uncompressed.md` — operational and behavioral rules for agents (SOURCE FILE with explicit intent)
+3. `AGENTS.md` — semantically compressed version of AGENTS-uncompressed.md for token efficiency (DO NOT MODIFY)
+4. Everything else — examples, legacy docs, and supporting materials
 
 If conflicts occur, `architecture.yaml` wins. Surface the conflict and align to it.
+
+### Protocol File Relationship
+
+- **AGENTS-uncompressed.md**: The SOURCE file for all protocol changes. Higher token count, more explicit intent. **Always modify this file when updating the Sprint Protocol.**
+- **AGENTS.md**: A semantically compressed version optimized for token efficiency. This is generated FROM AGENTS-uncompressed.md and should NOT be modified directly. Future sprints may need to recompress this file when AGENTS-uncompressed.md changes significantly.
 
 ## Sprint Protocol Overview
 

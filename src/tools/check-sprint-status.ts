@@ -9,6 +9,7 @@ import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
+import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
 
 interface CheckSprintStatusResult {
@@ -60,6 +61,23 @@ export async function checkSprintStatusTool(
     }
   }
 
+  // Get all worktrees and identify sprint worktrees
+  const allWorktrees = listWorktrees();
+  const activeSprintIds = new Set(activeSprints.map(s => s.id));
+  const completedSprintIds = new Set(completedSprints.map(s => s.id));
+
+  // Identify orphaned worktrees (sprint is complete but worktree still exists)
+  const orphanedWorktrees = allWorktrees.filter(wt => {
+    // Check if this is a sprint worktree
+    const match = wt.path.match(/\.worktrees\/(sprint-\d+-[a-z0-9]+)/);
+    if (match) {
+      const sprintId = match[1];
+      // Orphaned if sprint is completed or doesn't exist
+      return completedSprintIds.has(sprintId) || (!activeSprintIds.has(sprintId) && !completedSprintIds.has(sprintId));
+    }
+    return false;
+  });
+
   let resultText = '';
 
   if (activeSprints.length > 0) {
@@ -69,7 +87,17 @@ export async function checkSprintStatusTool(
       resultText += `  Status: ${sprint.status}\n`;
       resultText += `  Goal: ${sprint.goal}\n`;
       resultText += `  Owner: ${sprint.owner}\n`;
-      resultText += `  Branch: ${sprint.links?.branch || 'N/A'}\n\n`;
+      resultText += `  Branch: ${sprint.links?.branch || 'N/A'}\n`;
+
+      // Check if worktree exists for this sprint
+      const expectedWorktreePath = getWorktreePath(sprint.id);
+      const worktree = allWorktrees.find(wt => wt.path.includes(sprint.id));
+
+      if (worktree) {
+        resultText += `  Worktree: ${worktree.path} (branch: ${worktree.branch})\n\n`;
+      } else {
+        resultText += `  Worktree: ⚠️  Not found at expected path ${expectedWorktreePath}\n\n`;
+      }
     });
 
     if (activeSprints.length > 1) {
@@ -85,7 +113,18 @@ export async function checkSprintStatusTool(
     resultText += `\n📊 Completed sprints: ${completedSprints.length}\n`;
   }
 
-  logger.info(`Sprint status check complete: ${activeSprints.length} active, ${completedSprints.length} completed`);
+  // Show orphaned worktrees
+  if (orphanedWorktrees.length > 0) {
+    resultText += `\n⚠️  Orphaned worktrees detected (${orphanedWorktrees.length}):\n`;
+    orphanedWorktrees.forEach(wt => {
+      const match = wt.path.match(/\.worktrees\/(sprint-\d+-[a-z0-9]+)/);
+      const sprintId = match ? match[1] : 'unknown';
+      resultText += `  - ${wt.path} (sprint: ${sprintId}, branch: ${wt.branch})\n`;
+    });
+    resultText += `\nℹ️  These worktrees can be removed with: git worktree remove <path>\n`;
+  }
+
+  logger.info(`Sprint status check complete: ${activeSprints.length} active, ${completedSprints.length} completed, ${orphanedWorktrees.length} orphaned worktrees`);
 
   return {
     content: [

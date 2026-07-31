@@ -14,7 +14,11 @@
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(chmod:*)",
-      "Bash(./planning/sprint-2-b7e4d1/validate_deliverable.sh:*)"
+      "Bash(./planning/sprint-2-b7e4d1/validate_deliverable.sh:*)",
+      "Bash(gh pr create:*)",
+      "Bash(npm test:*)",
+      "Bash(git worktree:*)",
+      "Bash(npm run test:coverage:*)"
     ],
     "deny": [],
     "ask": []
