@@ -9,7 +9,7 @@ metadata:
   sprintTitle: "Sprint Index System Implementation"
   createdAt: "2026-07-30T20:00:00Z"
   totalTasks: 19
-  completedTasks: 3
+  completedTasks: 4
   phases: 5
 
 # Task Priority Levels:
@@ -99,7 +99,7 @@ tasks:
     description: "Create src/tools/regenerate-sprint-index.ts to rebuild index from scratch"
     priority: "P0-CRITICAL"
     phase: "2-Regeneration"
-    status: "pending"
+    status: "completed"
     estimatedEffort: "1 hour"
     acceptanceCriteria:
       - "Tool scans planning/ directory for sprint manifests"
@@ -110,8 +110,12 @@ tasks:
       - "Returns success message with counts"
       - "Handles missing/corrupted manifests gracefully"
     dependencies: ["TASK-003"]
-    evidence: null
-    transitions: []
+    evidence: "src/tools/regenerate-sprint-index.ts created and registered in MCP server; tool uses SprintIndexManager.regenerateSprintIndex(); TypeScript compilation successful"
+    transitions:
+      - timestamp: "2026-07-31T13:00:00Z"
+        from: "pending"
+        to: "completed"
+        note: "Created MCP tool with formatted output and error handling; registered in src/index.ts"
 
   - id: TASK-005
     title: "Write integration tests for regenerate tool"
@@ -412,9 +416,9 @@ summary:
     P3-LOW: 0
 
   byStatus:
-    pending: 15
+    pending: 14
     in_progress: 1
-    completed: 3
+    completed: 4
 
   estimatedTotalEffort: "~8 hours"
 

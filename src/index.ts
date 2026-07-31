@@ -16,6 +16,7 @@ import {
 import { logger } from './common/logger.js';
 import { startSprintTool } from './tools/start-sprint.js';
 import { checkSprintStatusTool } from './tools/check-sprint-status.js';
+import { regenerateSprintIndexTool } from './tools/regenerate-sprint-index.js';
 
 /**
  * Initialize and start the MCP server
@@ -70,6 +71,14 @@ async function main() {
             properties: {},
           },
         },
+        {
+          name: 'regenerate-sprint-index',
+          description: 'Rebuild the sprint index (planning/sprint-index.yaml) from scratch by scanning all sprint manifests. Use this to recover from index corruption or sync issues.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+          },
+        },
       ],
     };
   });
@@ -85,6 +94,9 @@ async function main() {
           break;
         case 'check-sprint-status':
           result = await checkSprintStatusTool(request.params.arguments);
+          break;
+        case 'regenerate-sprint-index':
+          result = await regenerateSprintIndexTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
