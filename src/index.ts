@@ -17,6 +17,7 @@ import { logger } from './common/logger.js';
 import { startSprintTool } from './tools/start-sprint.js';
 import { checkSprintStatusTool } from './tools/check-sprint-status.js';
 import { regenerateSprintIndexTool } from './tools/regenerate-sprint-index.js';
+import { updateSprintStatusTool } from './tools/update-sprint-status.js';
 
 /**
  * Initialize and start the MCP server
@@ -79,6 +80,36 @@ async function main() {
             properties: {},
           },
         },
+        {
+          name: 'update-sprint-status',
+          description: 'Atomically update sprint status in both the manifest and index. Updates status, completion metadata, and PR URL.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              sprintId: {
+                type: 'string',
+                description: 'Sprint ID (e.g., sprint-1-abc123)',
+              },
+              status: {
+                type: 'string',
+                description: 'New sprint status (planning, in-progress, validating, verifying, published, complete)',
+              },
+              completedAt: {
+                type: 'string',
+                description: 'ISO 8601 timestamp when sprint was completed (optional)',
+              },
+              completionMode: {
+                type: 'string',
+                description: 'Completion mode: normal or forced (optional)',
+              },
+              pr: {
+                type: 'string',
+                description: 'GitHub Pull Request URL (optional)',
+              },
+            },
+            required: ['sprintId'],
+          },
+        },
       ],
     };
   });
@@ -97,6 +128,9 @@ async function main() {
           break;
         case 'regenerate-sprint-index':
           result = await regenerateSprintIndexTool(request.params.arguments);
+          break;
+        case 'update-sprint-status':
+          result = await updateSprintStatusTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
