@@ -83,6 +83,16 @@ describe('startSprintTool - Integration Tests', () => {
       const { readdir, stat } = await import('fs/promises');
       const planningEntries = await readdir(planningDir);
 
+      // Should have sprint directory and possibly sprint-index.yaml
+      expect(planningEntries.length).toBeGreaterThanOrEqual(1);
+
+      // Find the sprint directory (matches pattern sprint-N-hash, not sprint-index.yaml)
+      const sprintDirs = planningEntries.filter(entry => /^sprint-\d+-[a-z0-9]+$/.test(entry));
+      expect(sprintDirs.length).toBe(1);
+      expect(sprintDirs[0]).toMatch(/^sprint-\d+-[a-z0-9]+$/);
+
+      // Verify sprint directory exists and is a directory
+      const sprintDir = join(planningDir, sprintDirs[0]);
       expect(planningEntries.length).toBe(1);
       expect(planningEntries[0]).toMatch(/^sprint-\d+-[a-z0-9]+$/);
 

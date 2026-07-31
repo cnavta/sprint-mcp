@@ -17,6 +17,7 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "npm run build && node dist/index.js",
+    "sprint:index:regenerate": "npm run build && node -e \"import('./dist/common/sprint-index-manager.js').then(m => m.regenerateSprintIndex().then(() => console.log('✅ Sprint index regenerated successfully')))\"",
     "release": "node scripts/release.js",
     "release:dry": "node scripts/release.js --dry-run"
   },
