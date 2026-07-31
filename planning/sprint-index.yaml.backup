@@ -11,9 +11,9 @@
 #
 
 version: "1.0"
-generatedAt: 2026-07-31T17:36:20.526Z
-totalSprints: 23
-activeSprints: 20
+generatedAt: 2026-07-31T17:36:20.296Z
+totalSprints: 22
+activeSprints: 19
 completedSprints: 3
 sprints:
   - id: sprint-1-a9f3c2
@@ -168,14 +168,6 @@ sprints:
     manifestPath: planning/sprint-1-kh4o86/sprint-manifest.yaml
     branch: feature/sprint-1-kh4o86-first-sprint
     worktreePath: .worktrees/sprint-1-kh4o86
-  - id: sprint-1-48s2gw
-    title: Test
-    status: planning
-    owner: owner
-    createdAt: 2026-07-31T17:36:20.524Z
-    manifestPath: planning/sprint-1-48s2gw/sprint-manifest.yaml
-    branch: feature/sprint-1-48s2gw-test
-    worktreePath: .worktrees/sprint-1-48s2gw
   - id: sprint-2-b7e4d1
     title: Resolve Git Baseline and Remote Configuration
     status: complete
@@ -204,7 +196,7 @@ sprints:
     startedAt: 2026-07-31T12:35:00Z
 statistics:
   byStatus:
-    planning: 19
+    planning: 18
     in-progress: 0
     validating: 0
     verifying: 0
