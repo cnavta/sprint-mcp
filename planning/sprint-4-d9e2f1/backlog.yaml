@@ -1,0 +1,423 @@
+# Sprint 4 Backlog – Sprint Index System Implementation
+# sprint-4-d9e2f1
+#
+# This backlog tracks all tasks for implementing the centralized sprint index
+# system as defined in planning/sprint-index-architecture.md
+
+metadata:
+  sprintId: sprint-4-d9e2f1
+  sprintTitle: "Sprint Index System Implementation"
+  createdAt: "2026-07-30T20:00:00Z"
+  totalTasks: 19
+  completedTasks: 0
+  phases: 5
+
+# Task Priority Levels:
+# P0-CRITICAL: Must complete for sprint success
+# P1-HIGH: Important for full functionality
+# P2-MEDIUM: Nice to have, can defer if needed
+# P3-LOW: Optional enhancements
+
+tasks:
+  # =============================================================================
+  # PHASE 1: Foundation (P0-CRITICAL)
+  # =============================================================================
+
+  - id: TASK-001
+    title: "Define TypeScript types for sprint index"
+    description: "Create src/types/sprint-index.ts with SprintIndex, SprintIndexEntry, and IndexValidationResult types"
+    priority: "P0-CRITICAL"
+    phase: "1-Foundation"
+    status: "pending"
+    estimatedEffort: "30 minutes"
+    acceptanceCriteria:
+      - "SprintIndex interface defined with all fields per architecture"
+      - "SprintIndexEntry interface defined with required/optional fields"
+      - "IndexValidationResult interface for validation results"
+      - "Types exported and importable by other modules"
+      - "TypeScript compilation successful"
+    dependencies: []
+    evidence: null
+    transitions: []
+
+  - id: TASK-002
+    title: "Implement SprintIndexManager module"
+    description: "Create src/common/sprint-index-manager.ts with core index operations (load, save, add, update, regenerate)"
+    priority: "P0-CRITICAL"
+    phase: "1-Foundation"
+    status: "pending"
+    estimatedEffort: "1.5 hours"
+    acceptanceCriteria:
+      - "loadSprintIndex() loads index from disk or creates empty"
+      - "saveSprintIndex() writes index with atomic write + backup"
+      - "addSprintToIndex() adds new entry and updates statistics"
+      - "updateSprintInIndex() modifies existing entry"
+      - "regenerateSprintIndex() rebuilds from manifests"
+      - "All functions include error handling and logging"
+      - "Statistics computed correctly (counts, averages)"
+    dependencies: ["TASK-001"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-003
+    title: "Write unit tests for SprintIndexManager"
+    description: "Create comprehensive unit tests for all SprintIndexManager functions"
+    priority: "P0-CRITICAL"
+    phase: "1-Foundation"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "Tests for loadSprintIndex (missing file, valid file, invalid YAML)"
+      - "Tests for addSprintToIndex (new entry, statistics update)"
+      - "Tests for updateSprintInIndex (existing entry, not found)"
+      - "Tests for saveSprintIndex (atomic write, backup created)"
+      - "Tests for regenerateSprintIndex (multiple manifests, sorting)"
+      - "Test coverage > 80% for sprint-index-manager.ts"
+      - "All tests passing"
+    dependencies: ["TASK-002"]
+    evidence: null
+    transitions: []
+
+  # =============================================================================
+  # PHASE 2: Regeneration Tool (P0-CRITICAL)
+  # =============================================================================
+
+  - id: TASK-004
+    title: "Implement regenerate-sprint-index MCP tool"
+    description: "Create src/tools/regenerate-sprint-index.ts to rebuild index from scratch"
+    priority: "P0-CRITICAL"
+    phase: "2-Regeneration"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "Tool scans planning/ directory for sprint manifests"
+      - "Reads each manifest and extracts metadata"
+      - "Sorts sprints by number (ascending)"
+      - "Computes statistics (byStatus, byCompletionMode, duration)"
+      - "Validates index before saving"
+      - "Returns success message with counts"
+      - "Handles missing/corrupted manifests gracefully"
+    dependencies: ["TASK-003"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-005
+    title: "Write integration tests for regenerate tool"
+    description: "Create integration tests using real manifests and filesystem"
+    priority: "P0-CRITICAL"
+    phase: "2-Regeneration"
+    status: "pending"
+    estimatedEffort: "45 minutes"
+    acceptanceCriteria:
+      - "Test with 0 sprints (empty index)"
+      - "Test with 1 sprint (single entry)"
+      - "Test with 3 sprints (multiple entries, correct sorting)"
+      - "Test with corrupted manifest (graceful handling)"
+      - "Test statistics computation accuracy"
+      - "All tests passing"
+    dependencies: ["TASK-004"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-006
+    title: "Run initial regeneration on existing sprints"
+    description: "Execute regenerate-sprint-index tool to create initial index from sprints 1-3"
+    priority: "P0-CRITICAL"
+    phase: "2-Regeneration"
+    status: "pending"
+    estimatedEffort: "15 minutes"
+    acceptanceCriteria:
+      - "Tool executed successfully"
+      - "planning/sprint-index.yaml created"
+      - "Index contains 3 entries (sprint-1, sprint-2, sprint-3)"
+      - "All sprints show status=complete"
+      - "Statistics show completedSprints=3, activeSprints=0"
+      - "Index validates successfully"
+    dependencies: ["TASK-005"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-007
+    title: "Commit initial sprint-index.yaml"
+    description: "Commit the generated index file to repository"
+    priority: "P0-CRITICAL"
+    phase: "2-Regeneration"
+    status: "pending"
+    estimatedEffort: "5 minutes"
+    acceptanceCriteria:
+      - "planning/sprint-index.yaml committed to git"
+      - "Commit message includes task reference"
+      - "File includes DO NOT EDIT header comment"
+      - "Index becomes part of repository history"
+    dependencies: ["TASK-006"]
+    evidence: null
+    transitions: []
+
+  # =============================================================================
+  # PHASE 3: Tool Integration (P1-HIGH)
+  # =============================================================================
+
+  - id: TASK-008
+    title: "Update start-sprint tool to add index entries"
+    description: "Enhance src/tools/start-sprint.ts to update index when creating sprints"
+    priority: "P1-HIGH"
+    phase: "3-Integration"
+    status: "pending"
+    estimatedEffort: "30 minutes"
+    acceptanceCriteria:
+      - "After creating manifest, call addSprintToIndex()"
+      - "Pass sprint metadata to index manager"
+      - "Handle index update failures gracefully (non-fatal warning)"
+      - "Include worktree path in index entry"
+      - "Success message mentions index update"
+      - "Existing start-sprint tests still pass"
+    dependencies: ["TASK-007"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-009
+    title: "Update start-sprint tests for index integration"
+    description: "Add tests verifying index updates on sprint creation"
+    priority: "P1-HIGH"
+    phase: "3-Integration"
+    status: "pending"
+    estimatedEffort: "30 minutes"
+    acceptanceCriteria:
+      - "Test: sprint added to index on creation"
+      - "Test: index statistics updated correctly"
+      - "Test: index update failure doesn't block sprint creation"
+      - "Test: index entry contains all required fields"
+      - "All start-sprint tests passing (existing + new)"
+    dependencies: ["TASK-008"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-010
+    title: "Implement update-sprint-status MCP tool"
+    description: "Create new tool to atomically update sprint status in manifest and index"
+    priority: "P1-HIGH"
+    phase: "3-Integration"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "Tool accepts sprintId, status, completedAt, completionMode, pr parameters"
+      - "Updates sprint manifest (authoritative source)"
+      - "Updates sprint index (derived cache)"
+      - "Validates index consistency after update"
+      - "Returns success message with updated fields"
+      - "Handles sprint not found error"
+      - "Handles invalid status error"
+    dependencies: ["TASK-007"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-011
+    title: "Write tests for update-sprint-status tool"
+    description: "Create comprehensive tests for status update tool"
+    priority: "P1-HIGH"
+    phase: "3-Integration"
+    status: "pending"
+    estimatedEffort: "45 minutes"
+    acceptanceCriteria:
+      - "Test: status update in manifest and index"
+      - "Test: completion metadata (completedAt, completionMode)"
+      - "Test: PR URL update"
+      - "Test: sprint not found error"
+      - "Test: invalid status error"
+      - "Test: statistics recalculated correctly"
+      - "All tests passing"
+    dependencies: ["TASK-010"]
+    evidence: null
+    transitions: []
+
+  # =============================================================================
+  # PHASE 4: Validation (P1-HIGH)
+  # =============================================================================
+
+  - id: TASK-012
+    title: "Implement validation logic"
+    description: "Create src/common/sprint-index-validator.ts with comprehensive validation"
+    priority: "P1-HIGH"
+    phase: "4-Validation"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "validateSprintIndex() checks schema correctness"
+      - "Validates count consistency (totalSprints, activeSprints, completedSprints)"
+      - "Validates statistics match actual entries"
+      - "Compares index vs filesystem (missing/extra sprints)"
+      - "Validates manifest paths point to existing files"
+      - "Returns IndexValidationResult with errors and warnings"
+      - "Distinguishes fatal errors from warnings"
+    dependencies: ["TASK-011"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-013
+    title: "Write validation tests"
+    description: "Create tests for all validation rules and edge cases"
+    priority: "P1-HIGH"
+    phase: "4-Validation"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "Test: valid index passes validation"
+      - "Test: detect count mismatches"
+      - "Test: detect missing sprints (in manifest but not index)"
+      - "Test: detect extra sprints (in index but no manifest)"
+      - "Test: detect invalid status values"
+      - "Test: detect invalid timestamps"
+      - "Test: detect missing required fields"
+      - "All validation tests passing"
+    dependencies: ["TASK-012"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-014
+    title: "Integrate validation into regenerate tool"
+    description: "Add validation check before saving regenerated index"
+    priority: "P1-HIGH"
+    phase: "4-Validation"
+    status: "pending"
+    estimatedEffort: "15 minutes"
+    acceptanceCriteria:
+      - "Validation runs before saving index"
+      - "Fatal errors prevent save and throw exception"
+      - "Warnings logged but allow save"
+      - "Validation result included in tool output"
+    dependencies: ["TASK-013"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-015
+    title: "Add validation to start-sprint and update-status tools"
+    description: "Integrate validation into index-modifying tools"
+    priority: "P1-HIGH"
+    phase: "4-Validation"
+    status: "pending"
+    estimatedEffort: "20 minutes"
+    acceptanceCriteria:
+      - "start-sprint validates index after adding entry"
+      - "update-sprint-status validates index after update"
+      - "Warnings logged for non-fatal issues"
+      - "Auto-regeneration triggered if critical validation fails"
+    dependencies: ["TASK-014"]
+    evidence: null
+    transitions: []
+
+  # =============================================================================
+  # PHASE 5: Documentation (P2-MEDIUM)
+  # =============================================================================
+
+  - id: TASK-016
+    title: "Update AGENTS-uncompressed.md with index workflow"
+    description: "Add sprint index documentation to Sprint Protocol"
+    priority: "P2-MEDIUM"
+    phase: "5-Documentation"
+    status: "pending"
+    estimatedEffort: "30 minutes"
+    acceptanceCriteria:
+      - "Section 2.2 updated: Add step for index update on sprint start"
+      - "Section 2.5 updated: Add guidance on update-sprint-status tool"
+      - "Section 2.10 updated: Add step for index update on completion"
+      - "New section: Sprint Index Management explaining purpose and maintenance"
+      - "Include regeneration guidance for recovery scenarios"
+    dependencies: ["TASK-015"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-017
+    title: "Update README.md with index documentation"
+    description: "Add user-facing documentation for sprint index"
+    priority: "P2-MEDIUM"
+    phase: "5-Documentation"
+    status: "pending"
+    estimatedEffort: "20 minutes"
+    acceptanceCriteria:
+      - "New section under Sprint Management: Sprint Index"
+      - "Explain index purpose and benefits"
+      - "Document regenerate-sprint-index tool usage"
+      - "Document update-sprint-status tool usage"
+      - "Include example index YAML snippet"
+      - "Add note about DO NOT EDIT header"
+    dependencies: ["TASK-016"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-018
+    title: "Create troubleshooting guide"
+    description: "Document common index issues and recovery procedures"
+    priority: "P2-MEDIUM"
+    phase: "5-Documentation"
+    status: "pending"
+    estimatedEffort: "20 minutes"
+    acceptanceCriteria:
+      - "Issue: Index out of sync → Solution: regenerate"
+      - "Issue: Index corrupted → Solution: delete and regenerate"
+      - "Issue: Index missing → Solution: run regenerate tool"
+      - "Issue: Validation warnings → Solution: interpret and fix"
+      - "Include example commands for each scenario"
+      - "Add to README or create separate TROUBLESHOOTING.md"
+    dependencies: ["TASK-017"]
+    evidence: null
+    transitions: []
+
+  - id: TASK-019
+    title: "Complete sprint artifacts and verification"
+    description: "Finalize all sprint 4 artifacts (validation, verification, retro, etc.)"
+    priority: "P2-MEDIUM"
+    phase: "5-Documentation"
+    status: "pending"
+    estimatedEffort: "1 hour"
+    acceptanceCriteria:
+      - "Create validate_deliverable.sh for sprint 4"
+      - "Run all tests and validation"
+      - "Create verification-report.md with evidence"
+      - "Update sprint-manifest.yaml with completion metadata"
+      - "All acceptance criteria met"
+      - "Ready for PR creation"
+    dependencies: ["TASK-018"]
+    evidence: null
+    transitions: []
+
+# =============================================================================
+# Summary Statistics
+# =============================================================================
+
+summary:
+  totalTasks: 19
+  byPhase:
+    "1-Foundation": 3
+    "2-Regeneration": 4
+    "3-Integration": 4
+    "4-Validation": 4
+    "5-Documentation": 4
+
+  byPriority:
+    P0-CRITICAL: 7   # Tasks 1-7
+    P1-HIGH: 8       # Tasks 8-15
+    P2-MEDIUM: 4     # Tasks 16-19
+    P3-LOW: 0
+
+  byStatus:
+    pending: 19
+    in_progress: 0
+    completed: 0
+
+  estimatedTotalEffort: "~8 hours"
+
+# =============================================================================
+# Critical Path
+# =============================================================================
+# The fastest path to working index system:
+# TASK-001 → TASK-002 → TASK-003 → TASK-004 → TASK-005 → TASK-006 → TASK-007
+# (Phase 1 + Phase 2 = Core functionality complete, ~4 hours)
+
+# =============================================================================
+# Notes
+# =============================================================================
+# - Phases 1-2 (P0) must complete for basic index functionality
+# - Phases 3-4 (P1) required for full MCP tool integration
+# - Phase 5 (P2) can be partially deferred if time-constrained
+# - All tasks follow test-driven development approach
+# - Integration tests use real filesystem with temp directories
