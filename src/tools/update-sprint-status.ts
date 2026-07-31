@@ -10,6 +10,7 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
 import { updateSprintInIndex } from '../common/sprint-index-manager.js';
+import { validateSprintIndex } from '../common/sprint-index-validator.js';
 import type { SprintManifest, SprintStatus } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -169,6 +170,18 @@ export async function updateSprintStatusTool(
       );
     }
 
+    // Validate the updated index (optional, non-blocking)
+    let validationResult;
+    try {
+      validationResult = await validateSprintIndex();
+      logger.debug(
+        `Index validation: ${validationResult.valid ? 'PASSED' : 'FAILED'} (${validationResult.errors.length} errors, ${validationResult.warnings.length} warnings)`
+      );
+    } catch (error) {
+      // Validation failure is non-fatal
+      logger.warn(`Index validation failed (non-fatal): ${error}`);
+    }
+
     // Build success message
     let resultText = `✅ Sprint ${sprintId} status updated successfully!\n\n`;
     resultText += `**Updated Fields**:\n`;
@@ -192,6 +205,19 @@ export async function updateSprintStatusTool(
     resultText += `\n**Files Updated**:\n`;
     resultText += `- ${manifestPath} (authoritative)\n`;
     resultText += `- planning/sprint-index.yaml (derived cache)\n`;
+
+    // Include validation results if available
+    if (validationResult) {
+      resultText += `\n**Index Validation**:\n`;
+      if (validationResult.valid && validationResult.warnings.length === 0) {
+        resultText += `✅ All checks passed\n`;
+      } else if (validationResult.valid) {
+        resultText += `⚠️  ${validationResult.warnings.length} warning${validationResult.warnings.length > 1 ? 's' : ''} (see logs)\n`;
+      } else {
+        resultText += `❌ ${validationResult.errors.length} error${validationResult.errors.length > 1 ? 's' : ''} detected\n`;
+        resultText += `Run \`regenerate-sprint-index\` to fix inconsistencies.\n`;
+      }
+    }
 
     logger.info(`Sprint ${sprintId} status update complete`);
 
