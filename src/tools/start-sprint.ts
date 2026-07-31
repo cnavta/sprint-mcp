@@ -14,6 +14,7 @@ import type { SprintIndexEntry } from '../types/sprint-index.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
 import { verifyMainBranch, createWorktree, getWorktreePath } from '../common/git-utils.js';
 import { addSprintToIndex } from '../common/sprint-index-manager.js';
+import { validateSprintIndex } from '../common/sprint-index-validator.js';
 
 interface StartSprintArgs {
   title: string;
@@ -209,6 +210,30 @@ export async function startSprintTool(
     logger.warn(`Failed to add sprint to index (non-fatal): ${error}`);
   }
 
+  // Validate the updated index (optional, non-blocking)
+  let validationResult;
+  try {
+    validationResult = await validateSprintIndex();
+    logger.debug(
+      `Index validation: ${validationResult.valid ? 'PASSED' : 'FAILED'} (${validationResult.errors.length} errors, ${validationResult.warnings.length} warnings)`
+    );
+  } catch (error) {
+    // Validation failure is non-fatal
+    logger.warn(`Index validation failed (non-fatal): ${error}`);
+  }
+
+  // Build validation status message
+  let validationStatus = '';
+  if (validationResult) {
+    if (validationResult.valid && validationResult.warnings.length === 0) {
+      validationStatus = '✅ Index validation: All checks passed';
+    } else if (validationResult.valid) {
+      validationStatus = `⚠️  Index validation: ${validationResult.warnings.length} warning${validationResult.warnings.length > 1 ? 's' : ''} (see logs)`;
+    } else {
+      validationStatus = `❌ Index validation: ${validationResult.errors.length} error${validationResult.errors.length > 1 ? 's' : ''} (run regenerate-sprint-index)`;
+    }
+  }
+
   // Return success message
   const resultText = `✅ Sprint ${sprintId} initialized successfully!
 
@@ -235,6 +260,7 @@ export async function startSprintTool(
 - .worktrees/${sprintId}/ (isolated worktree on branch ${branchName})
 - planning/sprint-index.yaml (updated with new sprint entry)
 
+${validationStatus ? `\n${validationStatus}\n` : ''}
 **Note**: Main worktree remains on main branch. All sprint work happens in .worktrees/${sprintId}/
 
 Sprint Protocol rule S1 satisfied: Sprint started on explicit user request.
