@@ -1,0 +1,566 @@
+# Sprint 5 Backlog
+# Complete Sprint 4 Deferred Work
+#
+# This backlog contains all 10 deferred tasks from Sprint 4, organized by
+# priority and dependency relationships for optimal execution flow.
+
+sprintId: TBD # Will be assigned at sprint start
+title: "Complete Sprint 4 Deferred Work"
+goal: "Complete all 10 deferred tasks: validation layer, comprehensive test coverage, and complete documentation"
+estimatedEffort: "7-9 hours"
+owner: "Christopher Navta"
+
+# Task Status Legend:
+# - pending: Not started
+# - in-progress: Currently being worked on
+# - completed: Finished and verified
+# - blocked: Waiting on dependencies
+# - deferred: Moved to future sprint
+
+tasks:
+  # =============================================================================
+  # PHASE 1: Validation Layer Foundation (Critical Path)
+  # =============================================================================
+
+  - id: TASK-012
+    title: "Implement Validation Logic"
+    description: "Create sprint-index-validator.ts module to detect index inconsistencies"
+    category: "validation-layer"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 1.5
+    dependencies: []
+
+    deliverables:
+      - "src/common/sprint-index-validator.ts"
+      - "Type definitions: ValidationIssue, IndexValidationResult"
+      - "Function: validateSprintIndex()"
+
+    acceptanceCriteria:
+      - "Validate index schema (version, required fields)"
+      - "Validate sprint entry fields (id, title, status, owner, etc.)"
+      - "Check status values against allowed enum"
+      - "Verify manifest files exist for all index entries"
+      - "Detect orphaned manifests (in planning/ but not in index)"
+      - "Compare index data with manifest data for consistency"
+      - "Return structured validation result with errors and warnings"
+      - "No thrown errors - always return IndexValidationResult"
+
+    validationChecks:
+      - "Schema validation (version, top-level fields)"
+      - "Entry validation (required fields per sprint)"
+      - "Status enum validation"
+      - "Manifest file existence"
+      - "Data consistency (index vs manifest)"
+      - "Orphan detection"
+      - "Statistics accuracy"
+
+    implementationNotes: |
+      Interface structure:
+      - ValidationIssue: { severity, code, message, sprintId?, field? }
+      - IndexValidationResult: { valid, errors, warnings, validatedAt }
+
+      Key principles:
+      - Return structured results (not thrown errors)
+      - Distinguish errors vs. warnings
+      - Provide actionable error codes and messages
+      - Non-blocking (always returns result)
+
+    testingNotes: "Will be tested in TASK-013"
+
+  - id: TASK-013
+    title: "Write Validation Tests"
+    description: "Comprehensive test suite for validation logic"
+    category: "validation-layer"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 1.0
+    dependencies: ["TASK-012"]
+
+    deliverables:
+      - "src/common/__tests__/sprint-index-validator.test.ts"
+
+    acceptanceCriteria:
+      - "Test valid index passes validation"
+      - "Test missing required fields detected"
+      - "Test invalid status values detected"
+      - "Test missing manifest files detected"
+      - "Test orphaned manifests detected (warning)"
+      - "Test data inconsistencies detected"
+      - "Test statistics mismatch detected"
+      - "Test multiple issues reported together"
+      - "Test validation result structure"
+
+    testScenarios:
+      - scenario: "Valid index"
+        expected: "{ valid: true, errors: [], warnings: [] }"
+      - scenario: "Missing required field"
+        expected: "{ valid: false, errors: [{ code: 'MISSING_FIELD', ... }] }"
+      - scenario: "Invalid status"
+        expected: "{ valid: false, errors: [{ code: 'INVALID_STATUS', ... }] }"
+      - scenario: "Missing manifest"
+        expected: "{ valid: false, errors: [{ code: 'MANIFEST_NOT_FOUND', ... }] }"
+      - scenario: "Orphaned manifest"
+        expected: "{ valid: true, warnings: [{ code: 'ORPHANED_MANIFEST', ... }] }"
+      - scenario: "Data inconsistency"
+        expected: "{ valid: false, errors: [{ code: 'DATA_MISMATCH', ... }] }"
+      - scenario: "Statistics mismatch"
+        expected: "{ valid: false, errors: [{ code: 'STATS_MISMATCH', ... }] }"
+
+    implementationNotes: |
+      - Create fixture files for various scenarios
+      - Use temporary directories for isolation
+      - Mock file I/O where appropriate
+      - Follow existing test patterns
+
+  # =============================================================================
+  # PHASE 2: Test Coverage Completion
+  # =============================================================================
+
+  - id: TASK-005
+    title: "Integration Tests for Regenerate Tool"
+    description: "Write integration tests for regenerate-sprint-index MCP tool"
+    category: "test-coverage"
+    priority: "P2-LOW"
+    status: "pending"
+    estimatedHours: 0.5
+    dependencies: []
+
+    deliverables:
+      - "src/tools/__tests__/regenerate-sprint-index.test.ts"
+
+    acceptanceCriteria:
+      - "Test regeneration with zero sprints"
+      - "Test regeneration with multiple sprints (1, 5, 10)"
+      - "Test regeneration with corrupted manifest (graceful handling)"
+      - "Verify statistics computation accuracy"
+      - "Test file I/O operations"
+      - "Test both MCP tool wrapper and core function"
+
+    testScenarios:
+      - scenario: "Zero sprints"
+        expected: "Empty index with totalSprints: 0"
+      - scenario: "One sprint"
+        expected: "Index with 1 sprint, correct statistics"
+      - scenario: "Multiple sprints (5)"
+        expected: "Index with 5 sprints, aggregated statistics"
+      - scenario: "Corrupted manifest"
+        expected: "Skip corrupted, include valid sprints"
+      - scenario: "Statistics computation"
+        expected: "Counts by status, by mode, average duration"
+
+    implementationNotes: |
+      - Follow pattern from existing integration tests
+      - Use temporary directories for isolation
+      - Create test manifests programmatically
+      - Verify generated index structure and content
+
+  - id: TASK-009
+    title: "Update Start-Sprint Tests for Index Integration"
+    description: "Add tests verifying start-sprint correctly updates the sprint index"
+    category: "test-coverage"
+    priority: "P2-LOW"
+    status: "pending"
+    estimatedHours: 0.5
+    dependencies: []
+
+    deliverables:
+      - "Extended src/tools/__tests__/start-sprint.test.ts"
+
+    acceptanceCriteria:
+      - "Test that sprint is added to index after creation"
+      - "Test that index statistics are updated"
+      - "Test non-fatal index failure handling"
+      - "Verify index entry contains all required fields"
+
+    testScenarios:
+      - scenario: "Sprint creation updates index"
+        expected: "Index contains new sprint entry"
+      - scenario: "Index statistics updated"
+        expected: "totalSprints incremented, status counts correct"
+      - scenario: "Index entry fields"
+        expected: "id, title, status, owner, createdAt, manifestPath, branch present"
+      - scenario: "Index failure handling"
+        expected: "Sprint still created, warning logged, operation succeeds"
+
+    implementationNotes: |
+      - Extend existing src/tools/__tests__/start-sprint.test.ts
+      - Add assertions checking index file after sprint creation
+      - Verify index contents match created sprint
+      - Test error handling when index update fails
+
+  - id: TASK-011
+    title: "Tests for Update-Sprint-Status Tool"
+    description: "Create comprehensive test suite for update-sprint-status MCP tool"
+    category: "test-coverage"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 0.75
+    dependencies: []
+
+    deliverables:
+      - "src/tools/__tests__/update-sprint-status.test.ts"
+
+    acceptanceCriteria:
+      - "Test status update (manifest + index atomic)"
+      - "Test completedAt timestamp update"
+      - "Test completionMode update"
+      - "Test PR URL update"
+      - "Test invalid status rejection"
+      - "Test sprint not found error"
+      - "Test partial updates (only some fields)"
+      - "Test non-fatal index update failures"
+
+    testScenarios:
+      - scenario: "Status update"
+        expected: "Both manifest and index updated atomically"
+      - scenario: "Timestamp update"
+        expected: "completedAt set in manifest and index"
+      - scenario: "Completion mode update"
+        expected: "completionMode set to 'normal' or 'forced'"
+      - scenario: "PR URL update"
+        expected: "pr field updated in manifest and index"
+      - scenario: "Invalid status"
+        expected: "Error thrown, no changes made"
+      - scenario: "Sprint not found"
+        expected: "Error thrown with clear message"
+      - scenario: "Partial update"
+        expected: "Only specified fields updated"
+      - scenario: "Index failure"
+        expected: "Manifest updated, warning logged, operation succeeds"
+
+    implementationNotes: |
+      - Create src/tools/__tests__/update-sprint-status.test.ts
+      - Use temporary directories with real manifest files
+      - Verify atomicity (both files updated or neither)
+      - Test all parameter combinations
+      - Mock filesystem operations where appropriate
+
+  # =============================================================================
+  # PHASE 3: Validation Integration
+  # =============================================================================
+
+  - id: TASK-014
+    title: "Integrate Validation into Regenerate Tool"
+    description: "Call validation after regeneration and report issues"
+    category: "validation-layer"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 0.5
+    dependencies: ["TASK-012"]
+
+    deliverables:
+      - "Modified src/tools/regenerate-sprint-index.ts"
+
+    acceptanceCriteria:
+      - "Validation runs automatically after regeneration"
+      - "Validation results included in tool output"
+      - "Warnings shown but don't block operation"
+      - "Errors shown with remediation guidance"
+      - "Success message if no issues found"
+
+    implementationApproach: |
+      After regeneration completes:
+      1. Call validateSprintIndex()
+      2. If validation.valid === false:
+         - Append "Validation Issues" section to output
+         - List all errors with codes and messages
+         - List all warnings with codes and messages
+         - Provide remediation guidance
+      3. If validation.valid === true:
+         - Append "Validation: Passed" to output
+
+    implementationNotes: |
+      - Import validateSprintIndex from sprint-index-validator
+      - Call after regenerateSprintIndex() completes
+      - Format validation results as markdown
+      - Don't throw on validation failures (non-fatal)
+      - Include validatedAt timestamp
+
+  - id: TASK-015
+    title: "Add Validation to Start/Update Tools"
+    description: "Add optional validation to start-sprint and update-sprint-status tools"
+    category: "validation-layer"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 0.75
+    dependencies: ["TASK-012"]
+
+    deliverables:
+      - "Modified src/tools/start-sprint.ts"
+      - "Modified src/tools/update-sprint-status.ts"
+
+    acceptanceCriteria:
+      - "Validate index after adding sprint (start-sprint)"
+      - "Validate index after status update (update-sprint-status)"
+      - "Validation failures logged as warnings"
+      - "Operations still succeed even with validation warnings"
+      - "Optional: Can disable validation via parameter"
+
+    implementationApproach: |
+      For both tools:
+      1. After index update completes
+      2. Call validateSprintIndex()
+      3. If !validation.valid:
+         - Log warnings to console/output
+         - Don't block operation
+         - Include validation summary in result
+      4. Tool still returns success
+
+    implementationNotes: |
+      - Add validation as optional final step
+      - Non-fatal (operations complete regardless)
+      - Log validation results for troubleshooting
+      - Consider adding --skip-validation flag (optional)
+      - Consistent error formatting across both tools
+
+  # =============================================================================
+  # PHASE 4: Documentation
+  # =============================================================================
+
+  - id: TASK-016
+    title: "Update AGENTS-uncompressed.md with Index Workflow"
+    description: "Document sprint index system in the Sprint Protocol"
+    category: "documentation"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 1.0
+    dependencies: []
+
+    deliverables:
+      - "Modified AGENTS-uncompressed.md"
+
+    acceptanceCriteria:
+      - "Add 'Sprint Index' section to Sprint Protocol"
+      - "Explain derived/regenerable cache pattern"
+      - "Document when index updates automatically"
+      - "Explain recovery via regeneration"
+      - "Document MCP tools (regenerate, update-status)"
+      - "Include troubleshooting guidance"
+
+    contentToAdd:
+      - section: "Sprint Index"
+        location: "After 'Sprint Directory Structure' section"
+        topics:
+          - "Principles (authoritative source, derived cache, regenerable)"
+          - "Automatic updates (sprint creation, status updates)"
+          - "Manual regeneration (MCP tool, npm script)"
+          - "Recovery procedures"
+          - "MCP tools reference"
+          - "File format and schema"
+
+    keyConcepts:
+      - "Manifests are authoritative (single source of truth)"
+      - "Index is computed cache (never manually edit)"
+      - "Regenerable from manifests at any time"
+      - "Updates are atomic (manifest first, index second)"
+      - "Index failures are non-fatal (can regenerate)"
+
+    implementationNotes: |
+      Location: Add new section after "Sprint Directory Structure"
+      Format: Markdown with code examples
+      Include: Principles, automatic updates, manual regeneration, recovery
+      Reference: MCP tools (regenerate-sprint-index, update-sprint-status)
+
+      DO NOT modify AGENTS.md (compressed version)
+      ONLY modify AGENTS-uncompressed.md (source file)
+
+  - id: TASK-017
+    title: "Update README.md with Index Documentation"
+    description: "Add Sprint Index section to README with usage examples"
+    category: "documentation"
+    priority: "P1-HIGH"
+    status: "pending"
+    estimatedHours: 0.75
+    dependencies: []
+
+    deliverables:
+      - "Modified README.md"
+
+    acceptanceCriteria:
+      - "Add 'Sprint Index' section to README"
+      - "Explain purpose and architecture"
+      - "Document MCP tools with examples"
+      - "Provide usage examples"
+      - "Include troubleshooting tips"
+
+    contentToAdd:
+      - section: "Sprint Index"
+        location: "After project overview, before Development section"
+        topics:
+          - "Overview and purpose"
+          - "Architecture (authoritative vs derived)"
+          - "MCP tools (regenerate-sprint-index, update-sprint-status)"
+          - "Usage examples"
+          - "Manual regeneration (npm script)"
+          - "Statistics explanation"
+          - "Troubleshooting tips"
+
+    usageExamples:
+      - "Regenerate index: npm run sprint:index:regenerate"
+      - "MCP tool: regenerate-sprint-index (no parameters)"
+      - "MCP tool: update-sprint-status (sprintId, status, etc.)"
+      - "View statistics: cat planning/sprint-index.yaml"
+
+    implementationNotes: |
+      Target audience: Users and contributors
+      Format: User-friendly with code examples
+      Include: Architecture, tools, usage, troubleshooting
+      Keep concise (aim for 1-2 pages)
+
+  - id: TASK-018
+    title: "Create Troubleshooting Guide"
+    description: "Document common issues and solutions"
+    category: "documentation"
+    priority: "P2-MEDIUM"
+    status: "pending"
+    estimatedHours: 0.5
+    dependencies: []
+
+    deliverables:
+      - "Modified README.md (add Troubleshooting subsection)"
+
+    acceptanceCriteria:
+      - "Document common issues"
+      - "Provide step-by-step solutions"
+      - "Include diagnostic commands"
+      - "Reference recovery tools"
+
+    commonIssues:
+      - issue: "Index out of sync with manifests"
+        symptoms: ["Sprint counts incorrect", "Missing sprints", "Stale data"]
+        solution: "npm run sprint:index:regenerate"
+
+      - issue: "Index file corrupted"
+        symptoms: ["YAML parse errors", "MCP tools fail"]
+        solution: "npm run sprint:index:regenerate"
+
+      - issue: "Test entries in index"
+        symptoms: ["Extra sprints", "High sprint count"]
+        solution: "npm run sprint:index:regenerate"
+
+      - issue: "Index update failed during sprint creation"
+        symptoms: ["Warning logged", "Sprint created but not in index"]
+        solution: "npm run sprint:index:regenerate (non-fatal)"
+
+    diagnosticCommands:
+      - "cat planning/sprint-index.yaml # View index"
+      - "ls -d planning/sprint-*/ | wc -l # Count manifests"
+      - "grep 'totalSprints:' planning/sprint-index.yaml # Check count"
+
+    implementationNotes: |
+      Decision: Add to README.md as "Troubleshooting" subsection
+      Format: Issue → Symptoms → Solution pattern
+      Include diagnostic commands for investigation
+      Reference: npm run sprint:index:regenerate as primary recovery tool
+
+    formatExample: |
+      ## Troubleshooting
+
+      ### Issue: Index out of sync
+
+      **Symptoms**: Sprint counts incorrect, missing sprints
+      **Solution**:
+      ```bash
+      npm run sprint:index:regenerate
+      ```
+
+# =============================================================================
+# Sprint Summary
+# =============================================================================
+
+summary:
+  totalTasks: 10
+
+  byCategory:
+    validation-layer: 4
+    test-coverage: 3
+    documentation: 3
+
+  byPriority:
+    P1-HIGH: 7
+    P2-LOW: 2
+    P2-MEDIUM: 1
+
+  estimatedEffort:
+    validation-layer: 3.75 hours
+    test-coverage: 1.75 hours
+    documentation: 2.25 hours
+    total: 7.75 hours
+
+  dependencies:
+    - "TASK-013 depends on TASK-012"
+    - "TASK-014 depends on TASK-012"
+    - "TASK-015 depends on TASK-012"
+    - "All others have no dependencies"
+
+  criticalPath:
+    - "TASK-012 (1.5h)"
+    - "TASK-013 (1h)"
+    - "TASK-014 (0.5h)"
+    - "TASK-015 (0.75h)"
+    - "Total: 3.75h"
+
+  parallelizable:
+    - "Documentation tasks (TASK-016, TASK-017, TASK-018) can start immediately"
+    - "Test coverage tasks (TASK-005, TASK-009, TASK-011) can run parallel to validation integration"
+
+# =============================================================================
+# Success Metrics
+# =============================================================================
+
+successCriteria:
+  code:
+    - "All 10 tasks completed"
+    - "No new TODOs or placeholder logic"
+    - "Follows existing code patterns"
+    - "Type-safe TypeScript throughout"
+
+  testing:
+    - "All tests passing (target: 90+ tests, 100% pass rate)"
+    - "No regression in existing tests"
+    - "Integration tests for all MCP tools"
+    - "Validation logic comprehensively tested"
+
+  validation:
+    - "Detects common corruption scenarios"
+    - "Provides actionable error messages"
+    - "Non-blocking (doesn't break existing operations)"
+    - "Performance impact <100ms"
+
+  documentation:
+    - "Sprint Protocol updated (AGENTS-uncompressed.md)"
+    - "User documentation complete (README.md)"
+    - "Troubleshooting guide available"
+    - "Common issues have documented solutions"
+
+  build:
+    - "npm run build passes"
+    - "npm test passes (100%)"
+    - "validate_deliverable.sh passes"
+    - "No linting errors"
+
+# =============================================================================
+# Notes
+# =============================================================================
+
+notes: |
+  This backlog represents 100% completion of Sprint 4's deferred work.
+
+  All tasks are enhancements (not bug fixes) to the production-ready
+  sprint index system delivered in Sprint 4.
+
+  Critical path is validation layer (TASK-012 → TASK-013 → TASK-014/015).
+  Documentation and test coverage can proceed in parallel.
+
+  Success = All 10 tasks completed, tests passing, documentation complete.
+
+references:
+  - "planning/sprint-4-d9e2f1/deferred-work.md - Source document"
+  - "planning/sprint-4-d9e2f1/verification-report.md - Sprint 4 context"
+  - "planning/sprint-4-d9e2f1/key-learnings.md - Lessons learned"
+  - "PR #3 - Sprint 4 implementation details"
+
+version: "1.0"
+createdAt: "2026-07-31"
+status: "draft"
