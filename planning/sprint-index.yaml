@@ -7,13 +7,13 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-07-31T19:09:11.128Z
+# Generated: 2026-07-31T19:58:47.657Z
 #
 
 version: "1.0"
-generatedAt: 2026-07-31T19:15:00.000Z
-totalSprints: 4
-activeSprints: 0
+generatedAt: 2026-07-31T19:58:47.664Z
+totalSprints: 5
+activeSprints: 1
 completedSprints: 4
 sprints:
   - id: sprint-1-a9f3c2
@@ -53,10 +53,18 @@ sprints:
     completedAt: 2026-07-31T19:15:00Z
     completionMode: normal
     pr: https://github.com/cnavta/sprint-mcp/pull/3
+  - id: sprint-5-f38572
+    title: Complete Sprint 4 Deferred Work
+    status: in-progress
+    owner: Christopher Navta
+    createdAt: 2026-07-31T20:00:00Z
+    startedAt: 2026-07-31T20:00:00Z
+    manifestPath: planning/sprint-5-f38572/sprint-manifest.yaml
+    branch: feature/sprint-5-f38572-deferred-work
 statistics:
   byStatus:
     planning: 0
-    in-progress: 0
+    in-progress: 1
     validating: 0
     verifying: 0
     published: 0
@@ -64,4 +72,4 @@ statistics:
   byCompletionMode:
     normal: 4
     forced: 0
-  averageSprintDuration: PT6H45M
+  averageSprintDuration: PT14H
