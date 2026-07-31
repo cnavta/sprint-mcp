@@ -3,7 +3,8 @@ title: "Sprint Index System Implementation"
 goal: "Implement centralized sprint index (planning/sprint-index.yaml) with regeneration, validation, and MCP tool integration per architecture document"
 owner: "Christopher Navta"
 createdAt: "2026-07-30T20:00:00Z"
-status: "planning"
+startedAt: "2026-07-31T12:35:00Z"
+status: "in_progress"
 completionMode: null
 blockers: []
 links:
