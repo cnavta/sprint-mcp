@@ -8,12 +8,13 @@
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
 # Generated: 2026-07-31T17:36:16.361Z
+# Updated: 2026-07-31T17:47:00Z (Sprint 4 published)
 #
 
 version: "1.0"
-generatedAt: 2026-07-31T17:36:20.526Z
+generatedAt: 2026-07-31T17:47:00.000Z
 totalSprints: 23
-activeSprints: 20
+activeSprints: 19
 completedSprints: 3
 sprints:
   - id: sprint-1-a9f3c2
@@ -196,21 +197,22 @@ sprints:
     pr: https://github.com/cnavta/sprint-mcp/pull/2
   - id: sprint-4-d9e2f1
     title: Sprint Index System Implementation
-    status: in_progress
+    status: published
     owner: Christopher Navta
     createdAt: 2026-07-30T20:00:00Z
     manifestPath: planning/sprint-4-d9e2f1/sprint-manifest.yaml
     branch: feature/sprint-4-d9e2f1-sprint-index
     startedAt: 2026-07-31T12:35:00Z
+    pr: https://github.com/cnavta/sprint-mcp/pull/3
 statistics:
   byStatus:
     planning: 19
     in-progress: 0
     validating: 0
     verifying: 0
-    published: 0
+    published: 1
     complete: 3
-    in_progress: 1
+    in_progress: 0
   byCompletionMode:
     normal: 3
     forced: 0
