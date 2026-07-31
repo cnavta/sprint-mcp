@@ -9,7 +9,7 @@ metadata:
   sprintTitle: "Sprint Index System Implementation"
   createdAt: "2026-07-30T20:00:00Z"
   totalTasks: 19
-  completedTasks: 6
+  completedTasks: 7
   phases: 5
 
 # Task Priority Levels:
@@ -186,7 +186,7 @@ tasks:
     description: "Enhance src/tools/start-sprint.ts to update index when creating sprints"
     priority: "P1-HIGH"
     phase: "3-Integration"
-    status: "pending"
+    status: "completed"
     estimatedEffort: "30 minutes"
     acceptanceCriteria:
       - "After creating manifest, call addSprintToIndex()"
@@ -196,8 +196,12 @@ tasks:
       - "Success message mentions index update"
       - "Existing start-sprint tests still pass"
     dependencies: ["TASK-007"]
-    evidence: null
-    transitions: []
+    evidence: "src/tools/start-sprint.ts updated with Step 7 to add sprint to index; wrapped in try-catch for non-fatal errors; success message updated; TypeScript compilation successful"
+    transitions:
+      - timestamp: "2026-07-31T13:10:00Z"
+        from: "pending"
+        to: "completed"
+        note: "Added addSprintToIndex() call after request log creation; included worktreePath in index entry"
 
   - id: TASK-009
     title: "Update start-sprint tests for index integration"
@@ -424,9 +428,9 @@ summary:
     P3-LOW: 0
 
   byStatus:
-    pending: 12
+    pending: 11
     in_progress: 1
-    completed: 6
+    completed: 7
 
   estimatedTotalEffort: "~8 hours"
 

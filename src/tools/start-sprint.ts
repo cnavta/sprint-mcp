@@ -10,8 +10,10 @@ import { stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { ensureDir, writeFile } from '../common/file-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
+import type { SprintIndexEntry } from '../types/sprint-index.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
 import { verifyMainBranch, createWorktree, getWorktreePath } from '../common/git-utils.js';
+import { addSprintToIndex } from '../common/sprint-index-manager.js';
 
 interface StartSprintArgs {
   title: string;
@@ -187,6 +189,26 @@ export async function startSprintTool(
   await writeFile(requestLogPath, requestLogContent);
   logger.info(`Created request log: ${requestLogPath}`);
 
+  // Step 7: Add sprint to index
+  try {
+    const indexEntry: SprintIndexEntry = {
+      id: sprintId,
+      title: sprintArgs.title,
+      status: manifest.status,
+      owner: sprintArgs.owner,
+      createdAt: manifest.createdAt,
+      manifestPath: `planning/${sprintId}/sprint-manifest.yaml`,
+      branch: branchName,
+      worktreePath: `.worktrees/${sprintId}`,
+    };
+
+    await addSprintToIndex(indexEntry);
+    logger.info(`Added sprint ${sprintId} to index`);
+  } catch (error) {
+    // Non-fatal: log warning but continue
+    logger.warn(`Failed to add sprint to index (non-fatal): ${error}`);
+  }
+
   // Return success message
   const resultText = `✅ Sprint ${sprintId} initialized successfully!
 
@@ -211,6 +233,7 @@ export async function startSprintTool(
 - planning/${sprintId}/sprint-manifest.yaml
 - planning/${sprintId}/request-log.md
 - .worktrees/${sprintId}/ (isolated worktree on branch ${branchName})
+- planning/sprint-index.yaml (updated with new sprint entry)
 
 **Note**: Main worktree remains on main branch. All sprint work happens in .worktrees/${sprintId}/
 
