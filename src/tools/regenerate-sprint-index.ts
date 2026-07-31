@@ -9,6 +9,7 @@
 
 import { logger } from '../common/logger.js';
 import { regenerateSprintIndex } from '../common/sprint-index-manager.js';
+import { validateSprintIndex } from '../common/sprint-index-validator.js';
 
 interface RegenerateSprintIndexResult {
   content: Array<{
@@ -35,6 +36,9 @@ export async function regenerateSprintIndexTool(
   try {
     // Regenerate index from all manifests
     const index = await regenerateSprintIndex();
+
+    // Validate the regenerated index
+    const validation = await validateSprintIndex();
 
     // Build success message
     let resultText = `✅ Sprint index regenerated successfully!\n\n`;
@@ -78,6 +82,42 @@ export async function regenerateSprintIndexTool(
 
     if (index.statistics.averageSprintDuration) {
       resultText += `- Average sprint duration: ${index.statistics.averageSprintDuration}\n`;
+    }
+
+    // Include validation results
+    resultText += `\n**Validation:**\n`;
+    if (validation.valid && validation.warnings.length === 0) {
+      resultText += `✅ All validation checks passed\n`;
+    } else if (validation.valid && validation.warnings.length > 0) {
+      resultText += `✅ Validation passed (${validation.warnings.length} warning${validation.warnings.length > 1 ? 's' : ''})\n`;
+    } else {
+      resultText += `❌ Validation failed (${validation.errors.length} error${validation.errors.length > 1 ? 's' : ''}, ${validation.warnings.length} warning${validation.warnings.length > 1 ? 's' : ''})\n`;
+    }
+
+    if (validation.errors.length > 0) {
+      resultText += `\n**Errors (${validation.errors.length}):**\n`;
+      validation.errors.forEach((error) => {
+        resultText += `  ❌ **${error.code}**: ${error.message}\n`;
+        if (error.sprintId) {
+          resultText += `     Sprint: ${error.sprintId}\n`;
+        }
+      });
+    }
+
+    if (validation.warnings.length > 0) {
+      resultText += `\n**Warnings (${validation.warnings.length}):**\n`;
+      validation.warnings.forEach((warning) => {
+        resultText += `  ⚠️  **${warning.code}**: ${warning.message}\n`;
+        if (warning.sprintId) {
+          resultText += `     Sprint: ${warning.sprintId}\n`;
+        }
+      });
+    }
+
+    if (!validation.valid) {
+      resultText += `\n**Remediation:**\n`;
+      resultText += `To fix validation errors, regenerate the index or manually correct the issues.\n`;
+      resultText += `Most issues can be resolved by running this tool again after fixing manifest files.\n`;
     }
 
     resultText += `\n📄 Index file: planning/sprint-index.yaml\n`;
