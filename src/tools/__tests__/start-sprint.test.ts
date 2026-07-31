@@ -93,6 +93,11 @@ describe('startSprintTool - Integration Tests', () => {
 
       // Verify sprint directory exists and is a directory
       const sprintDir = join(planningDir, sprintDirs[0]);
+      expect(planningEntries.length).toBe(1);
+      expect(planningEntries[0]).toMatch(/^sprint-\d+-[a-z0-9]+$/);
+
+      // Verify sprint directory exists and is a directory
+      const sprintDir = join(planningDir, planningEntries[0]);
       const sprintStat = await stat(sprintDir);
       expect(sprintStat.isDirectory()).toBe(true);
     });
