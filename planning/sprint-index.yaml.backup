@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-07-31T21:52:51.037Z
+# Generated: 2026-08-01T03:08:54.623Z
 #
 
 version: "1.0"
-generatedAt: 2026-07-31T21:53:26.576Z
-totalSprints: 6
+generatedAt: 2026-08-01T19:12:38.252Z
+totalSprints: 10
 activeSprints: 1
-completedSprints: 5
+completedSprints: 9
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -67,21 +67,61 @@ sprints:
     pr: https://github.com/cnavta/sprint-mcp/pull/4
   - id: sprint-6-24txmg
     title: LLM-Powered AGENTS.md Compression System
-    status: planning
+    status: complete
     owner: christophernavta
     createdAt: 2026-07-31T21:53:26.571Z
     manifestPath: planning/sprint-6-24txmg/sprint-manifest.yaml
     branch: feature/sprint-6-24txmg-llm-powered-agents-md-compress
     worktreePath: .worktrees/sprint-6-24txmg
+    completedAt: 2026-07-31T23:10:00Z
+    completionMode: normal
+  - id: sprint-7-f7cz9y
+    title: Sprint Completion MCP Tool
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-01T02:28:40.401Z
+    manifestPath: planning/sprint-7-f7cz9y/sprint-manifest.yaml
+    branch: feature/sprint-7-f7cz9y-sprint-completion-mcp-tool
+    worktreePath: .worktrees/sprint-7-f7cz9y
+    completedAt: 2026-08-01T03:09:22.337Z
+    completionMode: normal
+  - id: sprint-8-xksnd8
+    title: Sprint Cleanup Tool - Git Worktree and Artifact Management
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-01T03:55:03.224Z
+    manifestPath: planning/sprint-8-xksnd8/sprint-manifest.yaml
+    branch: feature/sprint-8-xksnd8-sprint-cleanup-tool-git-worktr
+    worktreePath: .worktrees/sprint-8-xksnd8
+    completedAt: 2026-08-01T14:03:09.533Z
+    completionMode: normal
+  - id: sprint-9-qpzk5e
+    title: Test Coverage, Documentation, and README Updates
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-01T14:28:31.768Z
+    manifestPath: planning/sprint-9-qpzk5e/sprint-manifest.yaml
+    branch: feature/sprint-9-qpzk5e-test-coverage-documentation-an
+    worktreePath: .worktrees/sprint-9-qpzk5e
+    completedAt: 2026-08-01T15:06:55.028Z
+    completionMode: normal
+  - id: sprint-10-t5kiid
+    title: Testing Infrastructure and Coverage Improvements
+    status: in-progress
+    owner: christophernavta
+    createdAt: 2026-08-01T18:59:39.646Z
+    manifestPath: planning/sprint-10-t5kiid/sprint-manifest.yaml
+    branch: feature/sprint-10-t5kiid-testing-infrastructure-and-cov
+    worktreePath: .worktrees/sprint-10-t5kiid
 statistics:
   byStatus:
-    planning: 1
-    in-progress: 0
+    planning: 0
+    in-progress: 1
     validating: 0
     verifying: 0
     published: 0
-    complete: 5
+    complete: 9
   byCompletionMode:
-    normal: 5
+    normal: 9
     forced: 0
-  averageSprintDuration: PT10H
+  averageSprintDuration: PT6H
