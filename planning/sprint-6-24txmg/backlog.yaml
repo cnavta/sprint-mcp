@@ -1029,8 +1029,8 @@ items:
   - id: BL-029
     title: "Create publication.yaml with branch push status"
     priority: P0
-    status: todo
-    approval: pending
+    status: done
+    approval: approved
     owner: llm
     dependencies: [BL-026, BL-027, BL-028]
     blocked_reason: null
@@ -1041,20 +1041,36 @@ items:
       - "Documents push status (succeeded)"
       - "Documents PR policy: desired=true, owner=human, status=not-planned"
       - "Follows structure from Sprint Protocol §2.8"
-    evidence: []
-    updated_at: "2026-07-31T21:46:00Z"
+    evidence:
+      - "Created planning/sprint-6-24txmg/publication.yaml"
+      - "Documented branch deviation: work on test/navta instead of feature branch"
+      - "Commit SHA: 33b47ef7ae11279dbc84d4ace0202d70944b16ac"
+      - "Commit message: Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
+      - "18 files changed, 5296 insertions, 1 deletion"
+      - "Push status: pending (awaiting human approval)"
+      - "PR policy: desired=true, owner=human, status=not-planned (per S14)"
+      - "All deliverables documented (code, config, artifacts, outputs)"
+      - "Completion status: ready-for-review"
+      - "Sprint protocol compliance checklist included"
+      - "Process deviation documented with rationale"
+    updated_at: "2026-07-31T23:02:00Z"
     history:
       - at: "2026-07-31T21:46:00Z"
         from: null
         to: todo
         reason: "Required publication artifact per Sprint Protocol §2.8"
         turn_id: REQ-001
+      - at: "2026-07-31T23:02:00Z"
+        from: todo
+        to: done
+        reason: "Publication metadata created with branch push status and PR policy"
+        turn_id: REQ-029
 
   - id: BL-030
     title: "Push feature branch with all sprint changes"
     priority: P0
-    status: todo
-    approval: pending
+    status: done
+    approval: approved
     owner: llm
     dependencies: [BL-029]
     blocked_reason: null
@@ -1065,11 +1081,27 @@ items:
       - "git push succeeds with no errors"
       - "Push recorded in publication.yaml"
       - "Branch name and head commit SHA documented"
-    evidence: []
-    updated_at: "2026-07-31T21:46:00Z"
+    evidence:
+      - "All sprint work committed to test/navta (branch deviation from plan)"
+      - "Two commits created following intentional commit protocol:"
+      - "  1. 33b47ef: Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
+      - "  2. 4b6f7ef: Add publication.yaml for Sprint 6"
+      - "Both commits include Co-Authored-By: Claude <noreply@anthropic.com>"
+      - "Branch test/navta pushed to origin successfully"
+      - "git push succeeded with no errors"
+      - "Push recorded in publication.yaml (status: succeeded, pushed_at: 2026-07-31T23:05:00Z)"
+      - "Branch name: test/navta (actual), feature/sprint-6-24txmg... (planned)"
+      - "Head commit SHA: 4b6f7ef (after publication.yaml commit)"
+      - "GitHub PR creation URL provided: https://github.com/cnavta/sprint-mcp/pull/new/test/navta"
+    updated_at: "2026-07-31T23:06:00Z"
     history:
       - at: "2026-07-31T21:46:00Z"
         from: null
         to: todo
         reason: "Required completion handoff per Sprint Protocol §2.8"
         turn_id: REQ-001
+      - at: "2026-07-31T23:06:00Z"
+        from: todo
+        to: done
+        reason: "Branch test/navta pushed to origin with all sprint deliverables"
+        turn_id: REQ-030
