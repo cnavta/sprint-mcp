@@ -38,16 +38,15 @@ push:
 pull_request:
   desired: true
   policy: human-owned
-  status: pending
-  url: null
-  number: null
+  status: created
+  url: https://github.com/cnavta/sprint-mcp/pull/7
+  number: 7
   title: "Sprint 8 Deliverables – Sprint Cleanup Tool"
-  created_at: null
-  created_by: null
+  created_at: 2026-08-01T14:05:00Z
+  created_by: llm
   assignment: |
-    Per Sprint Protocol §2.8 (S14), PR creation requires explicit human assignment.
-    If human says "Create the PR for me", LLM may proceed.
-    Otherwise, PR creation remains human-owned.
+    Human explicitly assigned PR creation with command: "Commit, push and create PR"
+    Per Sprint Protocol §2.8 (S14), this explicit assignment allows LLM to create PR.
 
 deliverables:
   code:
