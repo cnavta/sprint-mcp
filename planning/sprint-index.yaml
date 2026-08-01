@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-07-31T20:54:50.915Z
+# Generated: 2026-07-31T21:52:51.037Z
 #
 
 version: "1.0"
-generatedAt: 2026-07-31T20:54:50.924Z
-totalSprints: 5
+generatedAt: 2026-08-01T01:34:59.325Z
+totalSprints: 6
 activeSprints: 0
-completedSprints: 5
+completedSprints: 6
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -53,6 +53,7 @@ sprints:
     completedAt: 2026-07-31T19:15:00Z
     completionMode: normal
     pr: https://github.com/cnavta/sprint-mcp/pull/3
+    worktreePath: .worktrees/sprint-4-d9e2f1
   - id: sprint-5-f38572
     title: Complete Sprint 4 Deferred Work
     status: complete
@@ -64,6 +65,16 @@ sprints:
     completedAt: 2026-07-31T20:50:51.926Z
     completionMode: normal
     pr: https://github.com/cnavta/sprint-mcp/pull/4
+  - id: sprint-6-24txmg
+    title: LLM-Powered AGENTS.md Compression System
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-07-31T21:53:26.571Z
+    manifestPath: planning/sprint-6-24txmg/sprint-manifest.yaml
+    branch: feature/sprint-6-24txmg-llm-powered-agents-md-compress
+    worktreePath: .worktrees/sprint-6-24txmg
+    completedAt: 2026-07-31T23:10:00Z
+    completionMode: normal
 statistics:
   byStatus:
     planning: 0
@@ -71,8 +82,8 @@ statistics:
     validating: 0
     verifying: 0
     published: 0
-    complete: 5
+    complete: 6
   byCompletionMode:
-    normal: 5
+    normal: 6
     forced: 0
-  averageSprintDuration: PT10H
+  averageSprintDuration: PT8H
