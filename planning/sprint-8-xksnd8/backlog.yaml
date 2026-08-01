@@ -1,7 +1,7 @@
 sprint_id: sprint-8-xksnd8
 title: Sprint Cleanup Tool - Git Worktree and Artifact Management
 created_at: 2026-08-01T03:15:00Z
-last_updated: 2026-08-01T13:48:40.996Z
+last_updated: 2026-08-01T14:04:22.293Z
 items:
   - id: BL-001
     title: Create execution plan with tool design and workflow
@@ -578,7 +578,7 @@ items:
   - id: BL-026
     title: Test complete-sprint tool on Sprint 8 itself (dogfooding)
     priority: P0
-    status: todo
+    status: done
     approval: pending
     owner: llm
     dependencies:
@@ -591,9 +591,21 @@ items:
       - "Tool updates manifest to status: complete"
       - Tool updates sprint index
       - Completion summary is accurate
-    evidence: []
-    updated_at: 2026-08-01T03:15:00Z
-    history: []
+    evidence:
+      - All 4 required completion artifacts verified present
+      - Used complete-sprint MCP tool to complete Sprint 8
+      - Tool validated all artifacts correctly
+      - "Tool updated manifest to status: complete"
+      - Tool updated sprint index successfully
+      - "Completion timestamp: 2026-08-01T14:03:09.533Z"
+      - "Dogfooding validation: PASSED"
+    updated_at: 2026-08-01T14:04:22.293Z
+    history:
+      - at: 2026-08-01T14:04:22.293Z
+        from: in-progress
+        to: done
+        reason: Dogfooding complete - complete-sprint tool validated
+        turn_id: REQ-002
 summary:
   total_items: 26
   p0_items: 20
