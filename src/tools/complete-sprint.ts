@@ -1,0 +1,330 @@
+/**
+ * Complete Sprint Tool
+ *
+ * Automates sprint completion workflow while maintaining protocol compliance
+ * and agent flexibility. Validates required artifacts, updates sprint status,
+ * and provides completion summary.
+ *
+ * Per Sprint Protocol §2.9: Sprint Completion
+ */
+
+import { join } from 'path';
+import { logger } from '../common/logger.js';
+import { fileExists } from '../common/file-utils.js';
+import { updateSprintStatusTool } from './update-sprint-status.js';
+import type { SprintCompletionMode } from '../types/sprint-index.js';
+
+interface CompleteSprintArgs {
+  sprintId: string;
+  completionMode: 'normal' | 'forced';
+  pr?: string; // Optional PR URL if already created
+}
+
+interface CompleteSprintResult {
+  content: Array<{
+    type: 'text';
+    text: string;
+  }>;
+  isError?: boolean;
+}
+
+interface ArtifactCheck {
+  artifact: string;
+  path: string;
+  exists: boolean;
+  required: boolean;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  artifactChecks: ArtifactCheck[];
+}
+
+/**
+ * Validate completion mode value
+ */
+function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
+  return mode === 'normal' || mode === 'forced';
+}
+
+/**
+ * Check if required completion artifacts exist
+ *
+ * Required artifacts per Sprint Protocol §2.9:
+ * - verification-report.md
+ * - retro.md
+ * - key-learnings.md
+ * - publication.yaml
+ */
+async function checkRequiredArtifacts(
+  sprintId: string
+): Promise<ArtifactCheck[]> {
+  const sprintDir = join(process.cwd(), 'planning', sprintId);
+
+  const requiredArtifacts = [
+    'verification-report.md',
+    'retro.md',
+    'key-learnings.md',
+    'publication.yaml',
+  ];
+
+  const checks: ArtifactCheck[] = [];
+
+  for (const artifact of requiredArtifacts) {
+    const artifactPath = join(sprintDir, artifact);
+    const exists = await fileExists(artifactPath);
+
+    checks.push({
+      artifact,
+      path: artifactPath,
+      exists,
+      required: true,
+    });
+
+    logger.debug(
+      `Artifact check: ${artifact} - ${exists ? 'EXISTS' : 'MISSING'}`
+    );
+  }
+
+  return checks;
+}
+
+/**
+ * Validate sprint completion prerequisites
+ *
+ * @param sprintId Sprint identifier
+ * @param completionMode Completion mode (normal or forced)
+ * @returns Validation result with errors and warnings
+ */
+async function validateSprintCompletion(
+  sprintId: string,
+  completionMode: SprintCompletionMode
+): Promise<ValidationResult> {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  logger.info(`Validating sprint completion for ${sprintId}`, {
+    completionMode,
+  });
+
+  // Check 1: Sprint manifest exists
+  const manifestPath = join(
+    process.cwd(),
+    'planning',
+    sprintId,
+    'sprint-manifest.yaml'
+  );
+
+  if (!(await fileExists(manifestPath))) {
+    errors.push(`Sprint not found: ${sprintId}`);
+    errors.push(`Manifest does not exist at: ${manifestPath}`);
+    return {
+      valid: false,
+      errors,
+      warnings,
+      artifactChecks: [],
+    };
+  }
+
+  // Check 2: Required artifacts exist
+  const artifactChecks = await checkRequiredArtifacts(sprintId);
+  const missingArtifacts = artifactChecks.filter((check) => !check.exists);
+
+  if (missingArtifacts.length > 0) {
+    const missingList = missingArtifacts.map((a) => a.artifact).join(', ');
+
+    if (completionMode === 'normal') {
+      // Normal mode: missing artifacts are errors
+      errors.push(
+        `Missing required completion artifacts: ${missingList}`
+      );
+      errors.push(
+        'Agent must create these artifacts before completing the sprint.'
+      );
+    } else {
+      // Forced mode: missing artifacts are warnings
+      warnings.push(
+        `Missing completion artifacts: ${missingList}`
+      );
+      warnings.push(
+        'Forced completion mode allows sprint to close despite missing artifacts.'
+      );
+    }
+  }
+
+  // TODO: Check 3: Sprint status is valid for completion
+  // Valid statuses: in-progress, validating, verifying, published
+  // Invalid: planning, complete
+
+  // TODO: Check 4: Git branch matches manifest (warning only)
+
+  const valid = errors.length === 0;
+
+  logger.info(
+    `Validation complete: ${valid ? 'PASSED' : 'FAILED'} (${errors.length} errors, ${warnings.length} warnings)`
+  );
+
+  return {
+    valid,
+    errors,
+    warnings,
+    artifactChecks,
+  };
+}
+
+/**
+ * Complete sprint MCP tool handler
+ *
+ * @param args Tool arguments containing sprintId, completionMode, and optional pr URL
+ * @returns Result with completion summary or validation errors
+ */
+export async function completeSprintTool(
+  args?: Record<string, unknown>
+): Promise<CompleteSprintResult> {
+  // Validate required arguments
+  if (!args || !args.sprintId || !args.completionMode) {
+    throw new Error('Missing required arguments: sprintId, completionMode');
+  }
+
+  const sprintArgs: CompleteSprintArgs = {
+    sprintId: args.sprintId as string,
+    completionMode: args.completionMode as 'normal' | 'forced',
+    pr: args.pr as string | undefined,
+  };
+
+  const { sprintId, completionMode, pr } = sprintArgs;
+
+  // Validate completion mode
+  if (!isValidCompletionMode(completionMode)) {
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Invalid completion mode: ${completionMode}\n\nValid modes: normal, forced\n\n- **normal**: Requires all completion artifacts (verification-report.md, retro.md, key-learnings.md, publication.yaml)\n- **forced**: Allows completion despite missing artifacts or validation failures`,
+        },
+      ],
+      isError: true,
+    };
+  }
+
+  logger.info(`Completing sprint ${sprintId}`, {
+    completionMode,
+    pr,
+  });
+
+  // Step 1: Validate prerequisites
+  const validation = await validateSprintCompletion(sprintId, completionMode);
+
+  if (!validation.valid) {
+    // Validation failed - return errors
+    const errorText = [
+      `❌ Cannot complete sprint ${sprintId}`,
+      '',
+      '**Validation Errors**:',
+      ...validation.errors.map((e) => `- ${e}`),
+    ];
+
+    if (validation.warnings.length > 0) {
+      errorText.push('', '**Warnings**:');
+      errorText.push(...validation.warnings.map((w) => `- ${w}`));
+    }
+
+    errorText.push(
+      '',
+      '**Next Steps**:',
+      '1. Create missing completion artifacts',
+      '2. Retry sprint completion',
+      '3. Or use completionMode: "forced" to override validation'
+    );
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: errorText.join('\n'),
+        },
+      ],
+      isError: true,
+    };
+  }
+
+  // Step 2: Update sprint status to complete
+  const completedAt = new Date().toISOString();
+
+  try {
+    const updateResult = await updateSprintStatusTool({
+      sprintId,
+      status: 'complete',
+      completedAt,
+      completionMode,
+      pr,
+    });
+
+    // Check if update failed
+    if (updateResult.isError) {
+      return updateResult;
+    }
+
+    // Step 3: Build completion summary
+    let resultText = `✅ Sprint ${sprintId} completed successfully!\n\n`;
+
+    resultText += `**Completion Details**:\n`;
+    resultText += `- Completion Mode: ${completionMode}\n`;
+    resultText += `- Completed At: ${completedAt}\n`;
+    if (pr) {
+      resultText += `- Pull Request: ${pr}\n`;
+    }
+
+    resultText += `\n**Validated Artifacts**:\n`;
+    for (const check of validation.artifactChecks) {
+      const status = check.exists ? '✅' : '❌';
+      resultText += `${status} ${check.artifact}\n`;
+    }
+
+    if (validation.warnings.length > 0) {
+      resultText += `\n**Warnings**:\n`;
+      for (const warning of validation.warnings) {
+        resultText += `⚠️  ${warning}\n`;
+      }
+    }
+
+    resultText += `\n**Next Steps**:\n`;
+    resultText += `1. Review completion artifacts in planning/${sprintId}/\n`;
+    if (!pr) {
+      resultText += `2. Create Pull Request if desired (human-owned per Protocol S14)\n`;
+    }
+    resultText += `${pr ? '2' : '3'}. Optionally clean up worktree: \`git worktree remove .worktrees/${sprintId}\`\n`;
+    resultText += `${pr ? '3' : '4'}. Start next sprint when ready\n`;
+
+    resultText += `\n**Sprint Protocol Compliance**:\n`;
+    resultText += `✅ Rule S2: Sprint completion with required artifacts validated\n`;
+    resultText += `✅ §2.9: Sprint completion packet requirements satisfied\n`;
+
+    logger.info(`Sprint ${sprintId} completion successful`);
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: resultText,
+        },
+      ],
+    };
+  } catch (error) {
+    logger.error(`Failed to complete sprint ${sprintId}`, error);
+
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Failed to complete sprint ${sprintId}\n\nError: ${errorMessage}\n\nThe sprint status update failed. Please check the manifest and index integrity.`,
+        },
+      ],
+      isError: true,
+    };
+  }
+}

@@ -1,0 +1,117 @@
+# Sprint 7 Publication Metadata
+# Per Sprint Protocol §2.8 (Completion Handoff)
+
+branch:
+  planned: feature/sprint-7-f7cz9y-sprint-completion-mcp-tool
+  actual: test/navta
+  deviation: |
+    Sprint work was performed on test/navta instead of the planned feature branch.
+    Root cause: Sprint started on existing test/navta branch; worktree created at
+    .worktrees/sprint-7-f7cz9y but work continued on main worktree.
+    Impact: All deliverables present, but not in isolated feature branch as intended.
+    Note: This is a process deviation from Sprint Protocol §2.2 requirement for
+    new feature branch creation at sprint start. Same issue as Sprint 6.
+
+commit:
+  sha: null  # Pending - will be updated after final commit
+  short: null
+  message: "Sprint 7 Deliverables – Sprint Completion MCP Tool"
+  timestamp: null
+  files_changed: null
+  insertions: null
+  deletions: null
+
+push:
+  status: pending
+  remote: origin
+  target_branch: test/navta
+  pushed_at: null
+  commits_pushed: []
+  note: |
+    Awaiting final commit and push to origin.
+    Human will approve push after reviewing completion artifacts.
+
+pull_request:
+  desired: true
+  policy: human-owned
+  status: pending
+  url: null
+  number: null
+  title: "Sprint 7 Deliverables – Sprint Completion MCP Tool"
+  created_at: null
+  created_by: null
+  assignment: |
+    Per Sprint Protocol §2.8 (S14), PR creation requires explicit human assignment.
+    If human says "Create the PR for me", LLM may proceed.
+    Otherwise, PR creation remains human-owned.
+
+deliverables:
+  code:
+    - src/tools/complete-sprint.ts
+    - src/index.ts (updated with complete-sprint tool registration)
+
+  configuration:
+    - tsconfig.json (no changes, but verified compilation succeeds)
+
+  sprint_artifacts:
+    - planning/sprint-7-f7cz9y/sprint-manifest.yaml
+    - planning/sprint-7-f7cz9y/execution-plan.md
+    - planning/sprint-7-f7cz9y/backlog.yaml
+    - planning/sprint-7-f7cz9y/verification-report.md
+    - planning/sprint-7-f7cz9y/retro.md
+    - planning/sprint-7-f7cz9y/key-learnings.md
+    - planning/sprint-7-f7cz9y/publication.yaml (this file)
+    - planning/sprint-index.yaml (updated with sprint-7 entry)
+
+  deferred:
+    - Unit tests (BL-009 to BL-014) - 6 items
+    - JSDoc documentation (BL-018) - 1 item
+    - Total deferred: 7 P1 items
+
+completion:
+  status: ready-for-dogfooding
+  validation_script: null  # No validation script for this sprint (tool development)
+  human_action_required: |
+    1. Review sprint deliverables and artifacts
+    2. Test complete-sprint tool via dogfooding (BL-023):
+       a. Use complete-sprint tool to complete Sprint 7 itself
+       b. Verify tool validates artifacts correctly
+       c. Verify tool updates manifest and index correctly
+       d. Verify completion summary is accurate
+    3. If dogfooding succeeds: Approve sprint completion
+    4. If accepting: Commit all sprint deliverables
+    5. If accepting: Push test/navta to origin
+    6. If accepting: Optionally create PR from test/navta to main
+
+  sprint_protocol_compliance:
+    - planning_phase_approval: received (2026-07-31T23:30:00Z)
+    - backlog_contract: maintained (23 items with status tracking)
+    - validation_script: not-applicable (tool development sprint)
+    - verification_report: complete
+    - retrospective: complete
+    - key_learnings: complete (8 learnings)
+    - publication_metadata: complete (this file)
+    - branch_push: pending (awaiting human approval after dogfooding)
+    - pr_creation: pending (human-owned per S14)
+
+notes: |
+  Sprint successfully delivered complete-sprint MCP tool with 100% P0 completion.
+  All 13 critical path items complete. 7 P1 items (tests, documentation) deferred
+  with documented rationale.
+
+  Key deliverable: New MCP tool that automates sprint completion workflow per
+  Sprint Protocol §2.9. Tool validates required artifacts, updates status
+  atomically, and provides completion summaries.
+
+  Process deviation: Work performed on test/navta instead of isolated feature branch
+  (same issue as Sprint 6). All deliverables present and accounted for.
+
+  Next step: Dogfooding - use complete-sprint tool to complete Sprint 7 itself (BL-023).
+  This provides real-world integration test and validates tool behavior.
+
+  Deferred items tracked for future sprints:
+  - Unit test suite for complete-sprint tool
+  - Integration tests for MCP tool workflows
+  - JSDoc documentation
+  - Sprint status validation check (TODO in code)
+  - Git branch validation warning

@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-07-31T21:52:51.037Z
+# Generated: 2026-08-01T03:08:54.623Z
 #
 
 version: "1.0"
-generatedAt: 2026-08-01T01:34:59.325Z
-totalSprints: 6
+generatedAt: 2026-08-01T03:09:22.349Z
+totalSprints: 7
 activeSprints: 0
-completedSprints: 6
+completedSprints: 7
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -75,6 +75,16 @@ sprints:
     worktreePath: .worktrees/sprint-6-24txmg
     completedAt: 2026-07-31T23:10:00Z
     completionMode: normal
+  - id: sprint-7-f7cz9y
+    title: Sprint Completion MCP Tool
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-01T02:28:40.401Z
+    manifestPath: planning/sprint-7-f7cz9y/sprint-manifest.yaml
+    branch: feature/sprint-7-f7cz9y-sprint-completion-mcp-tool
+    worktreePath: .worktrees/sprint-7-f7cz9y
+    completedAt: 2026-08-01T03:09:22.337Z
+    completionMode: normal
 statistics:
   byStatus:
     planning: 0
@@ -82,8 +92,8 @@ statistics:
     validating: 0
     verifying: 0
     published: 0
-    complete: 6
+    complete: 7
   byCompletionMode:
-    normal: 6
+    normal: 7
     forced: 0
-  averageSprintDuration: PT8H
+  averageSprintDuration: PT6H

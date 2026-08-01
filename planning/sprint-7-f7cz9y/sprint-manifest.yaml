@@ -1,0 +1,12 @@
+id: sprint-7-f7cz9y
+title: Sprint Completion MCP Tool
+goal: Implement a sprint_complete MCP tool that automates sprint completion
+  workflow while maintaining protocol compliance and agent flexibility
+owner: christophernavta
+createdAt: 2026-08-01T02:28:40.401Z
+status: complete
+links:
+  branch: feature/sprint-7-f7cz9y-sprint-completion-mcp-tool
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-01T03:09:22.337Z
+completionMode: normal
