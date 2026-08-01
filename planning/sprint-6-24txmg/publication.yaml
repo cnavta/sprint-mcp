@@ -1,0 +1,131 @@
+# Sprint 6 Publication Metadata
+# Per Sprint Protocol §2.8 (Completion Handoff)
+
+branch:
+  planned: feature/sprint-6-24txmg-llm-powered-agents-md-compress
+  actual: test/navta
+  deviation: |
+    Sprint work was performed on test/navta instead of the planned feature branch.
+    Root cause: Sprint started on existing test/navta branch; proper feature branch
+    was created via worktree but work continued on test/navta.
+    Impact: All deliverables present, but not in isolated feature branch as intended.
+    Note: This is a process deviation from Sprint Protocol §2.2 requirement for
+    new feature branch creation at sprint start.
+
+commit:
+  sha: 33b47ef7ae11279dbc84d4ace0202d70944b16ac
+  short: 33b47ef
+  message: "Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
+  timestamp: 2026-07-31T23:00:00Z
+  files_changed: 18
+  insertions: 5296
+  deletions: 1
+
+push:
+  status: pending
+  remote: origin
+  target_branch: test/navta
+  note: |
+    Push pending human approval. Branch test/navta will be pushed to origin.
+    Once pushed, human can create PR from test/navta to main if desired.
+
+pull_request:
+  desired: true
+  policy: human-owned
+  status: not-planned
+  rationale: |
+    Per Sprint Protocol §2.8 (S14), LLM must not create PR without explicit
+    human assignment. Human will create PR after reviewing sprint deliverables.
+
+    Recommended PR title: "Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
+
+    Recommended PR body:
+    ```
+    ## Summary
+    - Implemented three-engine LLM-powered compression pipeline
+    - 100% semantic preservation validated
+    - Complete npm script automation
+    - Comprehensive sprint artifacts
+
+    ## Test Plan
+    - [x] TypeScript compilation successful
+    - [x] End-to-end compression pipeline tested on AGENTS-uncompressed.md
+    - [x] Validation shows 100% semantic preservation (50/50 checks)
+    - [ ] Unit tests deferred (P1 items: BL-010, BL-013, BL-016)
+    - [ ] Integration tests deferred (P1 items: BL-018, BL-019, BL-020)
+
+    ## Documentation
+    - Technical architecture: planning/sprint-6-24txmg/technical-architecture.md
+    - Execution plan: planning/sprint-6-24txmg/execution-plan.md
+    - Verification report: planning/sprint-6-24txmg/verification-report.md
+    - Retrospective: planning/sprint-6-24txmg/retro.md
+    - Key learnings: planning/sprint-6-24txmg/key-learnings.md
+
+    🤖 Generated with [Claude Code](https://claude.com/claude-code)
+    ```
+
+deliverables:
+  code:
+    - src/compression/types.ts
+    - src/compression/config.ts
+    - src/compression/cli.ts
+    - src/compression/semantic-extractor.ts
+    - src/compression/compression-engine.ts
+    - src/compression/validation-engine.ts
+    - config/compression-config.json
+    - .env.example
+
+  configuration:
+    - package.json (updated with dependencies and scripts)
+
+  sprint_artifacts:
+    - planning/sprint-6-24txmg/sprint-manifest.yaml
+    - planning/sprint-6-24txmg/technical-architecture.md
+    - planning/sprint-6-24txmg/execution-plan.md
+    - planning/sprint-6-24txmg/backlog.yaml
+    - planning/sprint-6-24txmg/validate_deliverable.sh
+    - planning/sprint-6-24txmg/verification-report.md
+    - planning/sprint-6-24txmg/retro.md
+    - planning/sprint-6-24txmg/key-learnings.md
+    - planning/sprint-6-24txmg/publication.yaml (this file)
+    - planning/sprint-6-24txmg/request-log.md
+
+  generated_outputs:
+    - semantic-invariants.json (test output)
+    - AGENTS-compressed-new.md (test output)
+    - compression-report.json (test output)
+    - validation-report.json (test output)
+    note: These are test artifacts, not committed to git
+
+completion:
+  status: ready-for-review
+  validation_script: planning/sprint-6-24txmg/validate_deliverable.sh
+  human_action_required: |
+    1. Review sprint deliverables and artifacts
+    2. Decide: Accept sprint completion or request changes
+    3. If accepting: Say "Sprint complete" to close sprint
+    4. If accepting: Optionally create PR from test/navta to main
+    5. If accepting: Optionally push test/navta to origin
+
+  sprint_protocol_compliance:
+    - planning_phase_approval: received (2026-07-31T22:00:00Z)
+    - backlog_contract: maintained (30 items with evidence)
+    - validation_script: created and executable
+    - verification_report: complete
+    - retrospective: complete
+    - key_learnings: complete (7 learnings)
+    - publication_metadata: complete (this file)
+    - branch_push: pending (awaiting human approval)
+    - pr_creation: not-planned (human-owned per S14)
+
+notes: |
+  Sprint successfully delivered LLM-powered compression system with 100% semantic
+  preservation. All P0 deliverables complete. P1 items (tests, documentation)
+  appropriately deferred with clear rationale.
+
+  Key finding: Compressed output 33.8% LARGER than current AGENTS.md baseline,
+  indicating need for compression tuning in future iteration. System validated
+  the concept but requires optimization to achieve token savings vs production baseline.
+
+  Process deviation: Work performed on test/navta instead of isolated feature branch.
+  All deliverables present and accounted for, but branch isolation not achieved.
