@@ -18,6 +18,7 @@
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "npm run build && node dist/index.js",
     "sprint:index:regenerate": "npm run build && node -e \"import('./dist/common/sprint-index-manager.js').then(m => m.regenerateSprintIndex().then(() => console.log('✅ Sprint index regenerated successfully')))\"",
+    "sprint:cleanup": "npm run build && node scripts/sprint-cleanup.js",
     "compress:extract": "npx tsx src/compression/cli.ts extract",
     "compress:agents": "npx tsx src/compression/cli.ts compress",
     "compress:validate": "npx tsx src/compression/cli.ts validate",

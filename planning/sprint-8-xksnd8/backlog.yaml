@@ -1,0 +1,611 @@
+sprint_id: sprint-8-xksnd8
+title: Sprint Cleanup Tool - Git Worktree and Artifact Management
+created_at: 2026-08-01T03:15:00Z
+last_updated: 2026-08-01T13:48:40.996Z
+items:
+  - id: BL-001
+    title: Create execution plan with tool design and workflow
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/execution-plan.md"
+      - Tool design documented with cleanup workflow diagram
+      - Dual interface design (npm script + MCP tool) specified
+      - Safety requirements clearly defined
+      - Open questions identified with recommendations (Q1-Q5)
+      - Ready for human approval
+    evidence:
+      - Created planning/sprint-8-xksnd8/execution-plan.md
+      - Executive summary with design principles
+      - Current state analysis of git worktree management
+      - Detailed tool design for npm script and MCP tool
+      - 5-phase implementation strategy
+      - Comprehensive acceptance criteria with safety requirements
+      - 5 open questions with recommendations
+      - "Timeline estimate: 3-4 hours"
+    updated_at: 2026-08-01T03:15:00Z
+    history:
+      - at: 2026-08-01T03:15:00Z
+        from: null
+        to: done
+        reason: Execution plan created with comprehensive tool design
+        turn_id: REQ-001
+  - id: BL-002
+    title: Create prioritized trackable backlog
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-001
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/backlog.yaml"
+      - "All backlog items have: id, title, priority, status, owner,
+        dependencies, acceptance, evidence, history"
+      - Items organized into logical phases
+      - P0 items clearly marked on critical path
+      - Dependencies properly tracked
+      - Follows Sprint Protocol §2.3.1 backlog contract
+    evidence:
+      - Created planning/sprint-8-xksnd8/backlog.yaml
+      - Backlog items organized into 6 phases
+      - All items have complete structure
+      - Dependencies tracked across phases
+      - P0 critical path defined
+    updated_at: 2026-08-01T03:15:00Z
+    history:
+      - at: 2026-08-01T03:15:00Z
+        from: null
+        to: done
+        reason: Backlog created with comprehensive task breakdown
+        turn_id: REQ-001
+  - id: BL-003
+    title: Create sprint-cleanup-utils.ts with CleanupCandidate interface
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-002
+    blocked_reason: null
+    acceptance:
+      - "File exists: src/common/sprint-cleanup-utils.ts"
+      - CleanupCandidate interface defined with all required fields
+      - CleanupResult interface defined
+      - CleanupOptions interface defined
+      - TypeScript compilation succeeds
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-004
+    title: Implement getCleanupCandidates() function
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-003
+    blocked_reason: null
+    acceptance:
+      - Function finds all completed sprints from sprint index
+      - Function checks if worktree exists for each sprint
+      - Function calculates disk usage for each worktree
+      - Function detects uncommitted changes in worktree
+      - Function can filter by specific sprintId if provided
+      - Returns array of CleanupCandidate objects
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-005
+    title: Implement calculateDiskUsage() function
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-003
+    blocked_reason: null
+    acceptance:
+      - Function calculates directory size in bytes
+      - Function handles permission errors gracefully
+      - Function uses du command or similar
+      - Returns disk usage as number (bytes)
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-006
+    title: Implement detectUncommittedChanges() function
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-003
+    blocked_reason: null
+    acceptance:
+      - Function checks git status in worktree
+      - Returns true if uncommitted changes exist
+      - Returns false if worktree is clean
+      - Handles non-git directories gracefully
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-007
+    title: Implement cleanupSprint() function
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-004
+      - BL-005
+      - BL-006
+    blocked_reason: null
+    acceptance:
+      - Function validates sprint is complete before cleanup
+      - Function checks worktree exists
+      - Function calls removeWorktree() from git-utils
+      - Function respects force flag for uncommitted changes
+      - Function preserves sprint planning directory
+      - Function returns CleanupResult with success/failure details
+      - Function logs all operations
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-008
+    title: Implement validateCleanupSafety() function
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-003
+    blocked_reason: null
+    acceptance:
+      - Function checks sprint status is 'complete'
+      - Function checks sprint is not active
+      - Function checks planning directory will be preserved
+      - Returns validation result with errors/warnings
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-009
+    title: Create sprint-cleanup.js CLI script skeleton
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-007
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - "File exists: scripts/sprint-cleanup.js"
+      - Script has proper shebang and node imports
+      - Script parses command-line arguments
+      - Script has main() function
+      - Script is executable
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-010
+    title: Implement CLI argument parsing
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - Supports --sprint=<id> flag (optional)
+      - Supports --force flag (optional)
+      - Supports --yes flag to skip confirmation (optional)
+      - Supports --help flag for usage instructions
+      - Uses commander or similar library for parsing
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-011
+    title: Implement interactive confirmation prompt
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - Shows list of sprints to be cleaned up
+      - Shows disk space to be freed
+      - Shows warnings about uncommitted changes
+      - Prompts 'Continue? (y/N):' before cleanup
+      - Skips prompt if --yes flag provided
+      - Uses readline or similar for interactive input
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-012
+    title: Implement pretty-printed output formatting
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - Uses colors for output (success=green, warning=yellow, error=red)
+      - Formats disk sizes in human-readable units (MB, GB)
+      - Shows progress indicators during cleanup
+      - Shows summary of what was cleaned up
+      - Uses chalk or similar library for colors
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-013
+    title: Add npm script to package.json
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-010
+      - BL-011
+      - BL-012
+    blocked_reason: null
+    acceptance:
+      - package.json has 'sprint:cleanup' script
+      - Script points to scripts/sprint-cleanup.js
+      - npm run sprint:cleanup executes without errors
+      - "Script can be run with arguments: npm run sprint:cleanup -- --sprint=X"
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-014
+    title: Create cleanup-sprint.ts MCP tool skeleton
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-007
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - "File exists: src/tools/cleanup-sprint.ts"
+      - Tool exports cleanupSprintTool function
+      - Function signature matches MCP tool pattern
+      - Imports necessary dependencies
+      - TypeScript compilation succeeds
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-015
+    title: Implement cleanup-sprint MCP tool logic
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-014
+    blocked_reason: null
+    acceptance:
+      - Tool validates required arguments (sprintId optional)
+      - Tool calls getCleanupCandidates() to find sprints
+      - Tool validates sprint is complete before cleanup
+      - Tool returns warnings about what will be deleted
+      - Tool calls cleanupSprint() to perform cleanup
+      - Tool returns structured result with cleanup summary
+      - Tool includes error handling with clear messages
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-016
+    title: Register cleanup-sprint tool in MCP server
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-015
+    blocked_reason: null
+    acceptance:
+      - src/index.ts imports cleanupSprintTool
+      - Tool added to ListToolsRequestSchema handler
+      - Tool added to CallToolRequestSchema handler
+      - Tool has proper input schema with optional parameters
+      - Tool description is clear and accurate
+      - TypeScript compilation succeeds
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-017
+    title: Create unit tests for sprint-cleanup-utils
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-007
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - "File exists: src/common/__tests__/sprint-cleanup-utils.test.ts"
+      - Tests for getCleanupCandidates()
+      - Tests for calculateDiskUsage()
+      - Tests for detectUncommittedChanges()
+      - Tests for cleanupSprint()
+      - Tests for validateCleanupSafety()
+      - All tests pass
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-018
+    title: Test npm script with --yes flag on real sprints
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-013
+    blocked_reason: null
+    acceptance:
+      - Run npm run sprint:cleanup -- --sprint=sprint-6-24txmg --yes
+      - Verify Sprint 6 worktree removed
+      - Verify Sprint 6 planning directory preserved
+      - Verify no errors during cleanup
+      - Run npm run sprint:cleanup -- --sprint=sprint-7-f7cz9y --yes
+      - Verify Sprint 7 worktree removed
+      - Verify Sprint 7 planning directory preserved
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-019
+    title: Test MCP tool via MCP interface
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-016
+    blocked_reason: null
+    acceptance:
+      - MCP server starts without errors
+      - cleanup-sprint tool appears in tool list
+      - Tool can be called with sprintId parameter
+      - Tool returns structured response
+      - Tool validates sprint is complete
+      - Tool performs cleanup correctly
+    evidence: []
+    updated_at: 2026-08-01T13:48:40.996Z
+    history:
+      - at: 2026-08-01T13:48:40.996Z
+        from: todo
+        to: done
+        reason: Implementation and testing complete
+        turn_id: REQ-002
+  - id: BL-020
+    title: Add JSDoc comments to all exported functions
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-007
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - All functions in sprint-cleanup-utils.ts have JSDoc
+      - cleanupSprintTool has JSDoc
+      - JSDoc includes @param, @returns, @throws tags
+      - JSDoc includes usage examples
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-021
+    title: Update README.md with sprint cleanup instructions
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-013
+      - BL-016
+    blocked_reason: null
+    acceptance:
+      - README.md has 'Sprint Cleanup' section
+      - Documents npm script usage with examples
+      - Documents MCP tool usage with examples
+      - "Documents flags: --sprint, --force, --yes"
+      - Includes warnings about what will be deleted
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-022
+    title: Create verification-report.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-018
+      - BL-019
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/verification-report.md"
+      - Backlog verification table with all items
+      - Deliverables summary
+      - Deferred items documented with rationale
+      - Protocol compliance checklist
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-023
+    title: Create retro.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-022
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/retro.md"
+      - What went well section
+      - What didn't go well section
+      - Surprises / learnings section
+      - Action items for future sprints
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-024
+    title: Create key-learnings.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-023
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/key-learnings.md"
+      - At least 5 transferable learnings documented
+      - Each learning has DO/DON'T guidance
+      - Learnings are specific and actionable
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-025
+    title: Create publication.yaml
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-024
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-8-xksnd8/publication.yaml"
+      - Branch information documented
+      - Commit information documented
+      - Push status documented
+      - Pull request status documented
+      - Deliverables list complete
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+  - id: BL-026
+    title: Test complete-sprint tool on Sprint 8 itself (dogfooding)
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-025
+    blocked_reason: null
+    acceptance:
+      - All 4 required completion artifacts exist
+      - Use complete-sprint MCP tool to complete Sprint 8
+      - Tool validates artifacts correctly
+      - "Tool updates manifest to status: complete"
+      - Tool updates sprint index
+      - Completion summary is accurate
+    evidence: []
+    updated_at: 2026-08-01T03:15:00Z
+    history: []
+summary:
+  total_items: 26
+  p0_items: 20
+  p1_items: 6
+  phases:
+    planning: 2
+    core_logic: 6
+    npm_script: 5
+    mcp_tool: 3
+    testing: 3
+    documentation: 2
+    sprint_completion: 5
+  critical_path: BL-001 → BL-002 → BL-003 → BL-004 → BL-007 → BL-008 → BL-009 →
+    BL-013 → BL-014 → BL-015 → BL-016 → BL-018 → BL-019 → BL-022 → BL-023 →
+    BL-024 → BL-025 → BL-026
