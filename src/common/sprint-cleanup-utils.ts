@@ -108,8 +108,14 @@ export function detectUncommittedChanges(worktreePath: string): boolean {
 /**
  * Validate that cleanup operation is safe to perform
  *
- * @param sprintId - Sprint ID to validate
- * @returns Validation result with errors and warnings
+ * Performs safety checks to ensure a sprint worktree can be safely removed:
+ * - Sprint exists in the sprint index
+ * - Sprint status is 'complete' (not in-progress or planning)
+ * - Planning directory exists (warning only, not blocking)
+ *
+ * @param sprintId - Sprint ID to validate (e.g., 'sprint-6-24txmg')
+ * @returns Promise resolving to validation result object with `valid` flag, `errors` array, and `warnings` array
+ * @throws Error if sprint index cannot be loaded
  */
 export async function validateCleanupSafety(
   sprintId: string
@@ -160,8 +166,25 @@ export async function validateCleanupSafety(
 /**
  * Get list of cleanup candidates (completed sprints with worktrees)
  *
- * @param sprintId - Optional: filter to specific sprint ID
- * @returns Array of cleanup candidates
+ * Scans the sprint index for completed sprints that have active worktrees.
+ * These worktrees can be safely removed while preserving planning artifacts.
+ *
+ * @param sprintId - Optional sprint ID to filter results. If omitted, returns all completed sprints with worktrees.
+ * @returns Promise resolving to array of cleanup candidates with disk usage and uncommitted change status
+ * @throws Error if sprint index cannot be loaded
+ *
+ * @example
+ * ```typescript
+ * // Get all cleanup candidates
+ * const candidates = await getCleanupCandidates();
+ * console.log(`Found ${candidates.length} sprints with worktrees`);
+ *
+ * // Get specific sprint
+ * const sprint6 = await getCleanupCandidates('sprint-6-24txmg');
+ * if (sprint6.length > 0) {
+ *   console.log(`Sprint 6 worktree uses ${sprint6[0].diskUsage} bytes`);
+ * }
+ * ```
  */
 export async function getCleanupCandidates(
   sprintId?: string
@@ -225,11 +248,45 @@ export async function getCleanupCandidates(
 /**
  * Clean up a completed sprint by removing its worktree
  *
- * Preserves the sprint planning directory in planning/sprint-X/
+ * Safely removes a sprint's git worktree while preserving planning artifacts.
+ * This frees disk space without losing sprint history or deliverables.
  *
- * @param sprintId - Sprint ID to clean up
- * @param options - Cleanup options (force, etc.)
- * @returns Cleanup result with success/failure details
+ * **Safety features:**
+ * - Only cleans completed sprints (validates status)
+ * - Preserves planning directory (planning/sprint-X/)
+ * - Warns about uncommitted changes
+ * - Requires explicit force flag to override uncommitted changes warning
+ *
+ * **What gets deleted:**
+ * - Worktree directory (.worktrees/sprint-X/)
+ * - Git working tree state
+ *
+ * **What gets preserved:**
+ * - Planning directory (planning/sprint-X/)
+ * - Sprint manifest, backlog, retro, key learnings
+ * - Sprint index entry
+ *
+ * @param sprintId - Sprint ID to clean up (e.g., 'sprint-6-24txmg')
+ * @param options - Cleanup options. Use `{force: true}` to remove worktree even with uncommitted changes (changes will be lost).
+ * @returns Promise resolving to cleanup result with success status, disk space freed, and any errors/warnings
+ * @throws Error if sprint index cannot be loaded or worktree removal fails unexpectedly
+ *
+ * @example
+ * ```typescript
+ * // Clean up a completed sprint
+ * const result = await cleanupSprint('sprint-6-24txmg');
+ * if (result.success) {
+ *   console.log(`Freed ${result.diskFreed} bytes`);
+ * } else {
+ *   console.error('Cleanup failed:', result.errors);
+ * }
+ *
+ * // Force cleanup even with uncommitted changes
+ * const forceResult = await cleanupSprint('sprint-7-f7cz9y', { force: true });
+ * if (forceResult.warnings.length > 0) {
+ *   console.warn('Warnings:', forceResult.warnings);
+ * }
+ * ```
  */
 export async function cleanupSprint(
   sprintId: string,

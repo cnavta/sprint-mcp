@@ -179,6 +179,166 @@ Atomically update sprint status in both manifest and index.
 - Validates index after update
 - Non-fatal if index update fails (can regenerate)
 
+### `complete-sprint`
+
+Complete a sprint by validating artifacts, updating status, and providing completion summary.
+
+**Parameters**:
+- `sprintId` (string, required): Sprint ID to complete (e.g., 'sprint-7-f7cz9y')
+- `completionMode` (string, required): `normal` or `forced`
+- `pr` (string, optional): Pull request URL if already created
+
+**Example** (Normal Mode):
+```json
+{
+  "sprintId": "sprint-7-f7cz9y",
+  "completionMode": "normal",
+  "pr": "https://github.com/owner/repo/pull/5"
+}
+```
+
+**Example** (Forced Mode):
+```json
+{
+  "sprintId": "sprint-7-f7cz9y",
+  "completionMode": "forced"
+}
+```
+
+**Behavior**:
+- Validates sprint manifest exists
+- Checks for required completion artifacts:
+  - `verification-report.md` (backlog reconciliation)
+  - `retro.md` (sprint retrospective)
+  - `key-learnings.md` (transferable insights)
+  - `publication.yaml` (PR and branch metadata)
+- Updates sprint status to 'complete'
+- Adds completion timestamp
+- Adds PR URL (if provided)
+- Returns completion summary with next steps
+
+**Completion Modes**:
+- **normal**: Strict mode requiring all 4 completion artifacts. Fails if any are missing.
+- **forced**: Permissive mode allowing completion despite missing artifacts. Issues warnings but proceeds.
+
+**When to Use**:
+- After completing all sprint deliverables
+- After creating PR and pushing changes
+- When ready to close sprint and move to next one
+
+**Output Example**:
+```
+✅ Sprint sprint-7-f7cz9y completed successfully!
+
+**Status Update**:
+- Sprint status: complete
+- Completion timestamp: 2026-08-01T12:00:00Z
+- Completion mode: normal
+- PR: https://github.com/owner/repo/pull/5
+
+**Artifact Validation**:
+✓ verification-report.md exists
+✓ retro.md exists
+✓ key-learnings.md exists
+✓ publication.yaml exists
+
+**Next Steps**:
+1. Review sprint artifacts
+2. Merge PR when approved
+3. Cleanup sprint worktree with cleanup-sprint tool
+```
+
+### `cleanup-sprint`
+
+Safely remove git worktrees for completed sprints while preserving planning artifacts.
+
+**Dual Interface**: Available as both MCP tool (for agents) and npm script (for humans).
+
+**Parameters** (MCP tool):
+- `sprintId` (string, optional): Sprint ID to cleanup. If omitted, shows all candidates.
+- `force` (boolean, optional): Force removal even if uncommitted changes exist
+
+**Example** (MCP tool - list all candidates):
+```json
+{}
+```
+
+**Example** (MCP tool - cleanup specific sprint):
+```json
+{
+  "sprintId": "sprint-6-24txmg",
+  "force": false
+}
+```
+
+**Example** (npm script - interactive):
+```bash
+# List all cleanup candidates (interactive mode)
+npm run sprint:cleanup
+
+# Cleanup specific sprint (interactive confirmation)
+npm run sprint:cleanup -- --sprint=sprint-6-24txmg
+
+# Auto-confirm for scripts
+npm run sprint:cleanup -- --sprint=sprint-6-24txmg --yes
+
+# Force cleanup (ignores uncommitted changes)
+npm run sprint:cleanup -- --sprint=sprint-6-24txmg --force --yes
+
+# Show help
+npm run sprint:cleanup -- --help
+```
+
+**Safety Features**:
+- Only cleans up completed sprints (status check)
+- Never deletes planning directories
+- Warns about uncommitted changes
+- Requires explicit confirmation (interactive mode)
+- Shows disk space to be freed
+
+**What Gets Deleted**:
+- ✗ Worktree directory: `.worktrees/sprint-<id>/`
+- ✗ Git working tree state
+
+**What Gets Preserved**:
+- ✓ Planning directory: `planning/sprint-<id>/`
+- ✓ Sprint manifest, backlog, execution plan
+- ✓ Retrospective and key learnings
+- ✓ Verification report and publication metadata
+- ✓ Sprint index entry
+
+**When to Use**:
+- After sprint PR is merged
+- When disk space is needed
+- When cleaning up orphaned worktrees from completed sprints
+
+**Output Example** (npm script):
+```
+🧹 Sprint Cleanup Tool
+
+Found 2 cleanup candidate(s):
+
+1. sprint-6-24txmg
+   Path: .worktrees/sprint-6-24txmg
+   Branch: feature/sprint-6-24txmg-llm-compress
+   Size: ~50.0 MB
+   Status: complete
+
+2. sprint-7-f7cz9y
+   Path: .worktrees/sprint-7-f7cz9y
+   Branch: feature/sprint-7-f7cz9y-complete-sprint
+   Size: ~48.5 MB
+   Status: complete
+   ⚠️  Has uncommitted changes
+
+Total disk space to free: ~98.5 MB
+
+⚠️  WARNING: This will permanently delete worktree directories.
+✓ Planning directories will be preserved.
+
+Proceed with cleanup? (y/N):
+```
+
 ## Sprint Index
 
 The sprint index (`planning/sprint-index.yaml`) is a centralized cache of sprint metadata that provides fast access to sprint information without scanning the filesystem.

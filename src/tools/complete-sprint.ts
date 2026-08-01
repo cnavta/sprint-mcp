@@ -44,6 +44,11 @@ interface ValidationResult {
 
 /**
  * Validate completion mode value
+ *
+ * Type guard to ensure completion mode is one of the valid values.
+ *
+ * @param mode - Completion mode string to validate
+ * @returns true if mode is 'normal' or 'forced', false otherwise
  */
 function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
   return mode === 'normal' || mode === 'forced';
@@ -94,9 +99,16 @@ async function checkRequiredArtifacts(
 /**
  * Validate sprint completion prerequisites
  *
- * @param sprintId Sprint identifier
- * @param completionMode Completion mode (normal or forced)
- * @returns Validation result with errors and warnings
+ * Performs validation checks required before completing a sprint:
+ * - Sprint manifest exists
+ * - Required completion artifacts exist (or warnings in forced mode)
+ *
+ * In normal mode, missing artifacts result in validation errors.
+ * In forced mode, missing artifacts result in warnings but validation passes.
+ *
+ * @param sprintId - Sprint identifier (e.g., 'sprint-7-f7cz9y')
+ * @param completionMode - Completion mode affecting validation strictness
+ * @returns Promise resolving to validation result with success flag, errors, warnings, and artifact check details
  */
 async function validateSprintCompletion(
   sprintId: string,
@@ -177,8 +189,54 @@ async function validateSprintCompletion(
 /**
  * Complete sprint MCP tool handler
  *
- * @param args Tool arguments containing sprintId, completionMode, and optional pr URL
- * @returns Result with completion summary or validation errors
+ * Automates the sprint completion workflow by validating required artifacts,
+ * updating sprint status to 'complete', and providing a completion summary.
+ * Implements Sprint Protocol §2.9 completion requirements.
+ *
+ * **Completion Modes:**
+ * - **normal**: Strict mode requiring all 4 completion artifacts (verification-report.md,
+ *   retro.md, key-learnings.md, publication.yaml). Fails if any are missing.
+ * - **forced**: Permissive mode allowing completion despite missing artifacts or
+ *   validation failures. Issues warnings but proceeds with status update.
+ *
+ * **Required Artifacts (normal mode):**
+ * 1. verification-report.md - Backlog reconciliation
+ * 2. retro.md - Sprint retrospective
+ * 3. key-learnings.md - Transferable insights
+ * 4. publication.yaml - PR and branch metadata
+ *
+ * **What this tool does:**
+ * - Validates sprint manifest exists
+ * - Checks for required completion artifacts
+ * - Updates sprint status to 'complete'
+ * - Adds completion timestamp
+ * - Adds PR URL (if provided)
+ * - Returns completion summary with next steps
+ *
+ * @param args - Tool arguments object from MCP client
+ * @param args.sprintId - Sprint ID to complete (e.g., 'sprint-7-f7cz9y')
+ * @param args.completionMode - Completion mode: 'normal' (strict) or 'forced' (permissive)
+ * @param args.pr - Optional PR URL to record in sprint manifest
+ * @returns Promise resolving to MCP result with completion summary or validation errors
+ * @throws Error if required arguments (sprintId, completionMode) are missing
+ *
+ * @example
+ * ```typescript
+ * // Normal completion (requires all artifacts)
+ * const result = await completeSprintTool({
+ *   sprintId: 'sprint-7-f7cz9y',
+ *   completionMode: 'normal',
+ *   pr: 'https://github.com/owner/repo/pull/5'
+ * });
+ * // Returns success if all artifacts exist, error if any are missing
+ *
+ * // Forced completion (allows missing artifacts)
+ * const result = await completeSprintTool({
+ *   sprintId: 'sprint-7-f7cz9y',
+ *   completionMode: 'forced'
+ * });
+ * // Always succeeds, issues warnings for missing artifacts
+ * ```
  */
 export async function completeSprintTool(
   args?: Record<string, unknown>

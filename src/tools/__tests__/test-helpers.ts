@@ -104,3 +104,65 @@ export function extractResponseText(response: { content: Array<{ type: string; t
 export function isErrorResponse(response: { isError?: boolean }): boolean {
   return response.isError === true;
 }
+
+/**
+ * Create a mock CleanupCandidate for testing cleanup functionality
+ */
+export function createMockCleanupCandidate(overrides: {
+  sprintId?: string;
+  status?: 'complete' | 'in-progress' | 'planning';
+  worktreeExists?: boolean;
+  hasUncommittedChanges?: boolean;
+  diskUsage?: number;
+} = {}) {
+  return {
+    sprintId: overrides.sprintId || 'sprint-6-test123',
+    status: overrides.status || 'complete',
+    worktreePath: `.worktrees/${overrides.sprintId || 'sprint-6-test123'}`,
+    worktreeExists: overrides.worktreeExists !== undefined ? overrides.worktreeExists : true,
+    branch: `feature/${overrides.sprintId || 'sprint-6-test123'}-test-feature`,
+    diskUsage: overrides.diskUsage !== undefined ? overrides.diskUsage : 52428800, // 50 MB default
+    hasUncommittedChanges: overrides.hasUncommittedChanges || false,
+  };
+}
+
+/**
+ * Create a mock sprint index for testing
+ */
+export function createMockSprintIndex(sprints: SprintManifest[] = []) {
+  const completedSprints = sprints.filter(s => s.status === 'complete').length;
+  const activeSprints = sprints.filter(s => s.status !== 'complete').length;
+
+  return {
+    version: '1.0',
+    generatedAt: '2026-08-01T12:00:00Z',
+    totalSprints: sprints.length,
+    activeSprints,
+    completedSprints,
+    sprints: sprints.map(s => ({
+      id: s.id,
+      title: s.title,
+      status: s.status,
+      owner: s.owner,
+      createdAt: s.createdAt,
+      manifestPath: `planning/${s.id}/sprint-manifest.yaml`,
+      branch: s.links?.branch || `feature/${s.id}`,
+      ...(s.status === 'complete' && { completedAt: '2026-08-01T12:00:00Z', completionMode: 'normal' as const }),
+    })),
+    statistics: {
+      byStatus: {
+        planning: sprints.filter(s => s.status === 'planning').length,
+        'in-progress': sprints.filter(s => s.status === 'in-progress').length,
+        validating: 0,
+        verifying: 0,
+        published: 0,
+        complete: completedSprints,
+      },
+      byCompletionMode: {
+        normal: completedSprints,
+        forced: 0,
+      },
+      averageSprintDuration: 'PT6H',
+    },
+  };
+}
