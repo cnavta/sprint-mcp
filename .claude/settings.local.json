@@ -18,7 +18,9 @@
       "Bash(gh pr create:*)",
       "Bash(npm test:*)",
       "Bash(git worktree:*)",
-      "Bash(npm run test:coverage:*)"
+      "Bash(npm run test:coverage:*)",
+      "Bash(cat:*)",
+      "mcp__sprint-mcp__update-sprint-status"
     ],
     "deny": [],
     "ask": []
