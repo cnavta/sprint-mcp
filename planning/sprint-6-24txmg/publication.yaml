@@ -38,37 +38,15 @@ push:
 pull_request:
   desired: true
   policy: human-owned
-  status: not-planned
-  rationale: |
-    Per Sprint Protocol §2.8 (S14), LLM must not create PR without explicit
-    human assignment. Human will create PR after reviewing sprint deliverables.
-
-    Recommended PR title: "Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
-
-    Recommended PR body:
-    ```
-    ## Summary
-    - Implemented three-engine LLM-powered compression pipeline
-    - 100% semantic preservation validated
-    - Complete npm script automation
-    - Comprehensive sprint artifacts
-
-    ## Test Plan
-    - [x] TypeScript compilation successful
-    - [x] End-to-end compression pipeline tested on AGENTS-uncompressed.md
-    - [x] Validation shows 100% semantic preservation (50/50 checks)
-    - [ ] Unit tests deferred (P1 items: BL-010, BL-013, BL-016)
-    - [ ] Integration tests deferred (P1 items: BL-018, BL-019, BL-020)
-
-    ## Documentation
-    - Technical architecture: planning/sprint-6-24txmg/technical-architecture.md
-    - Execution plan: planning/sprint-6-24txmg/execution-plan.md
-    - Verification report: planning/sprint-6-24txmg/verification-report.md
-    - Retrospective: planning/sprint-6-24txmg/retro.md
-    - Key learnings: planning/sprint-6-24txmg/key-learnings.md
-
-    🤖 Generated with [Claude Code](https://claude.com/claude-code)
-    ```
+  status: created
+  url: https://github.com/cnavta/sprint-mcp/pull/5
+  number: 5
+  title: "Sprint 6 Deliverables – LLM-Powered AGENTS.md Compression System"
+  created_at: 2026-07-31T23:15:00Z
+  created_by: llm
+  assignment: |
+    Human explicitly assigned PR creation with command: "Create the PR for me"
+    Per Sprint Protocol §2.8 (S14), this explicit assignment allows LLM to create PR.
 
 deliverables:
   code:
