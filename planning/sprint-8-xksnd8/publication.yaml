@@ -13,13 +13,13 @@ branch:
     new feature branch creation at sprint start. Same issue as Sprints 6 and 7.
 
 commit:
-  sha: null  # Pending - will be updated after final commit
-  short: null
+  sha: c65da240fab7af19364c39d7b924227685450774
+  short: c65da24
   message: "Sprint 8 Deliverables – Sprint Cleanup Tool (npm + MCP)"
-  timestamp: null
-  files_changed: null
-  insertions: null
-  deletions: null
+  timestamp: 2026-08-01T14:03:39Z
+  files_changed: 16
+  insertions: 3235
+  deletions: 17
 
 push:
   status: pending
