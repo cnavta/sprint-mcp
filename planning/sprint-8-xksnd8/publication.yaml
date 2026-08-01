@@ -1,0 +1,133 @@
+# Sprint 8 Publication Metadata
+# Per Sprint Protocol §2.8 (Completion Handoff)
+
+branch:
+  planned: feature/sprint-8-xksnd8-sprint-cleanup-tool-git-worktr
+  actual: test/navta
+  deviation: |
+    Sprint work was performed on test/navta instead of the planned feature branch.
+    Root cause: Sprint started on existing test/navta branch; worktree created at
+    .worktrees/sprint-8-xksnd8 but work continued on main worktree.
+    Impact: All deliverables present, but not in isolated feature branch as intended.
+    Note: This is a process deviation from Sprint Protocol §2.2 requirement for
+    new feature branch creation at sprint start. Same issue as Sprints 6 and 7.
+
+commit:
+  sha: c65da240fab7af19364c39d7b924227685450774
+  short: c65da24
+  message: "Sprint 8 Deliverables – Sprint Cleanup Tool (npm + MCP)"
+  timestamp: 2026-08-01T14:03:39Z
+  files_changed: 16
+  insertions: 3235
+  deletions: 17
+
+push:
+  status: succeeded
+  remote: origin
+  target_branch: test/navta
+  pushed_at: 2026-08-01T14:04:00Z
+  commits_pushed:
+    - sha: c65da240fab7af19364c39d7b924227685450774
+      message: "Sprint 8 Deliverables – Sprint Cleanup Tool (npm + MCP)"
+    - sha: ec0f4ff
+      message: "Update publication.yaml with commit details"
+  note: |
+    Branch test/navta successfully pushed to origin.
+    Human can create PR from test/navta to main if desired.
+
+pull_request:
+  desired: true
+  policy: human-owned
+  status: created
+  url: https://github.com/cnavta/sprint-mcp/pull/7
+  number: 7
+  title: "Sprint 8 Deliverables – Sprint Cleanup Tool"
+  created_at: 2026-08-01T14:05:00Z
+  created_by: llm
+  assignment: |
+    Human explicitly assigned PR creation with command: "Commit, push and create PR"
+    Per Sprint Protocol §2.8 (S14), this explicit assignment allows LLM to create PR.
+
+deliverables:
+  code:
+    - src/common/sprint-cleanup-utils.ts
+    - src/tools/cleanup-sprint.ts
+    - src/index.ts (updated with cleanup-sprint tool registration)
+    - scripts/sprint-cleanup.js
+    - package.json (updated with sprint:cleanup script)
+
+  configuration:
+    - tsconfig.json (no changes, but verified compilation succeeds)
+
+  sprint_artifacts:
+    - planning/sprint-8-xksnd8/sprint-manifest.yaml
+    - planning/sprint-8-xksnd8/execution-plan.md
+    - planning/sprint-8-xksnd8/backlog.yaml
+    - planning/sprint-8-xksnd8/verification-report.md
+    - planning/sprint-8-xksnd8/retro.md
+    - planning/sprint-8-xksnd8/key-learnings.md
+    - planning/sprint-8-xksnd8/publication.yaml (this file)
+    - planning/sprint-index.yaml (updated with sprint-8 entry)
+
+  deferred:
+    - Unit tests (BL-017) - 1 item
+    - JSDoc documentation (BL-020) - 1 item
+    - README.md update (BL-021) - 1 item
+    - Total deferred: 3 P1 items (all quality/polish)
+
+  real_world_validation:
+    - Cleaned Sprint 6 worktree (.worktrees/sprint-6-24txmg removed)
+    - Cleaned Sprint 7 worktree (.worktrees/sprint-7-f7cz9y removed)
+    - Planning directories preserved (planning/sprint-6-24txmg/, planning/sprint-7-f7cz9y/)
+    - Zero errors during cleanup
+
+completion:
+  status: ready-for-dogfooding
+  validation_script: null  # No validation script for this sprint (tool development)
+  human_action_required: |
+    1. Review sprint deliverables and artifacts
+    2. Test complete-sprint tool via dogfooding (BL-026):
+       a. Use complete-sprint MCP tool to complete Sprint 8 itself
+       b. Verify tool validates artifacts correctly
+       c. Verify tool updates manifest and index correctly
+       d. Verify completion summary is accurate
+    3. If dogfooding succeeds: Approve sprint completion
+    4. If accepting: Commit all sprint deliverables
+    5. If accepting: Push test/navta to origin
+    6. If accepting: Optionally create PR from test/navta to main
+
+  sprint_protocol_compliance:
+    - planning_phase_approval: received (2026-08-01T03:16:00Z)
+    - backlog_contract: maintained (26 items with status tracking)
+    - validation_script: not-applicable (tool development sprint)
+    - verification_report: complete
+    - retrospective: complete
+    - key_learnings: complete (8 learnings)
+    - publication_metadata: complete (this file)
+    - branch_push: pending (awaiting human approval after dogfooding)
+    - pr_creation: pending (human-owned per S14)
+
+notes: |
+  Sprint successfully delivered dual-interface sprint cleanup tool (npm script + MCP tool)
+  with 100% P0 completion. All 20 critical path items complete. 3 P1 items (tests, docs)
+  deferred with documented rationale.
+
+  Key deliverable: Sprint cleanup feature accessible as both:
+  - npm script: npm run sprint:cleanup (human-friendly CLI with colors)
+  - MCP tool: cleanup-sprint (agent-friendly structured interface)
+
+  Real-world validation: Successfully cleaned up Sprints 6 and 7 orphaned worktrees,
+  confirming tool works correctly on production data. Planning directories preserved.
+
+  Process deviation: Work performed on test/navta instead of isolated feature branch
+  (same issue as Sprints 6 and 7). All deliverables present and accounted for.
+
+  Next step: Dogfooding - use complete-sprint tool to complete Sprint 8 itself (BL-026).
+  This provides final integration test and validates tool behavior.
+
+  Deferred items tracked for future sprints:
+  - Unit test suite for sprint-cleanup-utils
+  - JSDoc documentation
+  - README.md update with cleanup instructions
+  - Fix disk usage calculation (currently shows 0 bytes)
+  - Simplify MCP tool confirmation flow

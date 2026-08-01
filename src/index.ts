@@ -19,6 +19,7 @@ import { checkSprintStatusTool } from './tools/check-sprint-status.js';
 import { regenerateSprintIndexTool } from './tools/regenerate-sprint-index.js';
 import { updateSprintStatusTool } from './tools/update-sprint-status.js';
 import { completeSprintTool } from './tools/complete-sprint.js';
+import { cleanupSprintTool } from './tools/cleanup-sprint.js';
 
 /**
  * Initialize and start the MCP server
@@ -133,6 +134,24 @@ async function main() {
             required: ['sprintId', 'completionMode'],
           },
         },
+        {
+          name: 'cleanup-sprint',
+          description: 'Safely remove git worktrees for completed sprints while preserving planning artifacts. Shows what will be deleted and requires confirmation.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              sprintId: {
+                type: 'string',
+                description: 'Sprint ID to cleanup (e.g., sprint-6-24txmg). If omitted, shows all completed sprints with worktrees.',
+              },
+              force: {
+                type: 'boolean',
+                description: 'Force removal even if worktree has uncommitted changes (changes will be lost)',
+              },
+            },
+            required: [],
+          },
+        },
       ],
     };
   });
@@ -157,6 +176,9 @@ async function main() {
           break;
         case 'complete-sprint':
           result = await completeSprintTool(request.params.arguments);
+          break;
+        case 'cleanup-sprint':
+          result = await cleanupSprintTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
