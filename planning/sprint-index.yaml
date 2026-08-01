@@ -11,10 +11,10 @@
 #
 
 version: "1.0"
-generatedAt: 2026-08-01T14:03:09.536Z
-totalSprints: 8
+generatedAt: 2026-08-01T15:06:55.030Z
+totalSprints: 9
 activeSprints: 0
-completedSprints: 8
+completedSprints: 9
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -95,6 +95,16 @@ sprints:
     worktreePath: .worktrees/sprint-8-xksnd8
     completedAt: 2026-08-01T14:03:09.533Z
     completionMode: normal
+  - id: sprint-9-qpzk5e
+    title: Test Coverage, Documentation, and README Updates
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-01T14:28:31.768Z
+    manifestPath: planning/sprint-9-qpzk5e/sprint-manifest.yaml
+    branch: feature/sprint-9-qpzk5e-test-coverage-documentation-an
+    worktreePath: .worktrees/sprint-9-qpzk5e
+    completedAt: 2026-08-01T15:06:55.028Z
+    completionMode: normal
 statistics:
   byStatus:
     planning: 0
@@ -102,8 +112,8 @@ statistics:
     validating: 0
     verifying: 0
     published: 0
-    complete: 8
+    complete: 9
   byCompletionMode:
-    normal: 8
+    normal: 9
     forced: 0
   averageSprintDuration: PT7H

@@ -60,10 +60,29 @@ function formatCandidates(candidates: CleanupCandidate[]): string {
 }
 
 /**
- * Cleanup sprint MCP tool handler
+ * Cleanup sprint MCP tool handler (preview mode)
  *
- * @param args Tool arguments containing optional sprintId and force flag
- * @returns Result with cleanup summary or validation errors
+ * Shows what will be cleaned up without actually removing anything. Lists all completed
+ * sprints with active worktrees, along with disk space usage and uncommitted change warnings.
+ *
+ * This is the "preview" mode - it identifies cleanup candidates and shows warnings but doesn't
+ * execute the cleanup. Use the actual cleanup via npm script or explicit confirmation.
+ *
+ * @param args - Tool arguments object from MCP client
+ * @param args.sprintId - Optional sprint ID to filter to a specific sprint. If omitted, shows all cleanup candidates.
+ * @param args.force - Optional flag to indicate force cleanup (shown in preview, not executed here)
+ * @returns Promise resolving to MCP result with formatted candidate list and warnings, or error if lookup fails
+ *
+ * @example
+ * ```typescript
+ * // List all cleanup candidates (MCP tool call)
+ * const result = await cleanupSprintTool({});
+ * // Returns formatted list of all completed sprints with worktrees
+ *
+ * // Check specific sprint
+ * const result = await cleanupSprintTool({ sprintId: 'sprint-6-24txmg' });
+ * // Returns details for sprint-6 if it has a worktree
+ * ```
  */
 export async function cleanupSprintTool(
   args?: Record<string, unknown>
