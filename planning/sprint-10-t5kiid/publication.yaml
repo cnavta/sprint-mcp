@@ -1,0 +1,67 @@
+# Publication Metadata – Sprint 10
+
+sprint_id: sprint-10-t5kiid
+title: "Sprint 10 Deliverables – Integration Testing for Cleanup and Completion Modules"
+branch: test/navta
+base_branch: main
+pr: null  # Will be updated after PR creation
+
+# Summary
+summary: |
+  Sprint 10 resolved deferred testing issues from Sprint 9 by creating comprehensive
+  integration tests for sprint cleanup and completion modules. Achieved 66.02% overall
+  coverage (up from 47.58%) with all 3 target modules exceeding 75% coverage.
+
+# Key Deliverables
+deliverables:
+  - src/common/__tests__/sprint-cleanup-utils.test.ts (14 tests, 86% coverage)
+  - src/tools/__tests__/complete-sprint.test.ts (8 tests, 87.8% coverage)
+  - src/tools/__tests__/cleanup-sprint.test.ts (7 tests, 78% coverage)
+  - verification-report.md
+  - retro.md
+  - key-learnings.md
+  - publication.yaml (this file)
+
+# Metrics
+metrics:
+  tests_created: 29
+  tests_passing: 168
+  coverage_before: 47.58%
+  coverage_after: 66.02%
+  coverage_improvement: +18.44 percentage points
+  target_modules_tested: 3
+  backlog_items_completed: 33/38
+
+# Sprint Protocol Compliance
+protocol_version: "2.4"
+artifacts:
+  sprint_manifest: ✅ planning/sprint-10-t5kiid/sprint-manifest.yaml
+  execution_plan: ✅ planning/sprint-10-t5kiid/execution-plan.md
+  backlog: ✅ planning/sprint-10-t5kiid/backlog.yaml
+  request_log: ✅ planning/sprint-10-t5kiid/request-log.md
+  validation_script: ✅ planning/sprint-10-t5kiid/validate_deliverable.sh
+  verification_report: ✅ planning/sprint-10-t5kiid/verification-report.md
+  retro: ✅ planning/sprint-10-t5kiid/retro.md
+  key_learnings: ✅ planning/sprint-10-t5kiid/key-learnings.md
+  publication: ✅ planning/sprint-10-t5kiid/publication.yaml
+
+# Validation Status
+validation:
+  script_passes: true
+  tests_pass: true
+  builds: true
+  all_artifacts_present: true
+
+# Notes
+notes: |
+  Overall coverage target (80%) was not reached due to out-of-scope modules
+  (compression modules at 0%, deferred as P1 from Sprint 9). All 3 target
+  modules exceeded 75% coverage, which was the practical goal per user guidance
+  emphasizing simplicity over exhaustive testing.
+
+  Sprint successfully applied all Sprint 9 learnings:
+  - Validation spike first (Learning #1)
+  - Integration tests over mocked unit tests (Learning #4)
+  - Simple, focused tests per user guidance
+
+  Ready for completion in normal mode.
