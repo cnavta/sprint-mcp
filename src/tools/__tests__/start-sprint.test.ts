@@ -595,6 +595,10 @@ describe('startSprintTool - Integration Tests', () => {
       const manifest1 = parseYaml(manifest1Content) as SprintManifest;
       manifest1.status = 'complete';
       await writeFile(manifestPath1, stringifyYaml(manifest1), 'utf-8');
+
+      // Update index to reflect the status change
+      const { updateSprintInIndex } = await import('../../common/sprint-index-manager.js');
+      await updateSprintInIndex(sprintId1, { status: 'complete' });
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Create second sprint

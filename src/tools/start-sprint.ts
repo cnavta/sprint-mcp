@@ -95,7 +95,7 @@ export async function startSprintTool(
   const statusResult = await checkSprintStatusTool({});
   const statusText = statusResult.content[0].text;
 
-  if (statusText.includes('active sprint')) {
+  if (statusText.includes('active sprint(s):')) {
     logger.warn('Cannot start sprint: active sprint already exists');
     return {
       content: [
