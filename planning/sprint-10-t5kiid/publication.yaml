@@ -2,9 +2,9 @@
 
 sprint_id: sprint-10-t5kiid
 title: "Sprint 10 Deliverables – Integration Testing for Cleanup and Completion Modules"
-branch: test/navta
+branch: feature/sprint-10-t5kiid-testing-infrastructure-and-cov
 base_branch: main
-pr: null  # Will be updated after PR creation
+pr: https://github.com/cnavta/sprint-mcp/pull/10
 
 # Summary
 summary: |
