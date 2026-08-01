@@ -1,0 +1,24 @@
+{
+  "targetTokenReduction": 0.6,
+  "preserveStructure": true,
+  "templateReferencePatterns": [
+    {
+      "pattern": "detailed inline example",
+      "replacement": "Before implementing, read the referenced template"
+    },
+    {
+      "pattern": "Required contents:",
+      "replacement": "Before creating, read"
+    }
+  ],
+  "sectionOmissionRules": {
+    "allowOmission": [],
+    "reason": []
+  },
+  "llmOptimizations": {
+    "preferActiveVoice": true,
+    "preferImperativeMood": true,
+    "avoidPassiveConstructions": true,
+    "maxConsecutiveParagraphs": 3
+  }
+}

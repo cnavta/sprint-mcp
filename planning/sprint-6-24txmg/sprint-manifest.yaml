@@ -1,0 +1,18 @@
+id: sprint-6-24txmg
+title: LLM-Powered AGENTS.md Compression System
+goal: Create an automated npm script using Vercel AI SDK and LLM to compress
+  AGENTS-uncompressed.md into an optimized AGENTS.md while preserving semantic
+  intent through LLM-validated success criteria
+owner: christophernavta
+createdAt: 2026-07-31T21:53:26.571Z
+startedAt: 2026-07-31T22:00:00Z
+status: in-progress
+links:
+  branch: feature/sprint-6-24txmg-llm-powered-agents-md-compress
+notes: |
+  Sprint initialized via MCP start-sprint tool.
+
+  Execution plan and backlog approved 2026-07-31T22:00:00Z.
+  Approved decisions: Q1-Q5 recommendations accepted.
+
+  Sprint transitioned from planning to in-progress.
