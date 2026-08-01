@@ -36,3 +36,11 @@ tmp/
 temp/
 *.tmp
 /.secrets
+
+# Git worktrees (local working directories)
+.worktrees/
+
+# Compression tool outputs
+compression-report.json
+semantic-invariants.json
+validation-report.json
