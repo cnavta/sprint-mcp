@@ -18,6 +18,7 @@ import { startSprintTool } from './tools/start-sprint.js';
 import { checkSprintStatusTool } from './tools/check-sprint-status.js';
 import { regenerateSprintIndexTool } from './tools/regenerate-sprint-index.js';
 import { updateSprintStatusTool } from './tools/update-sprint-status.js';
+import { completeSprintTool } from './tools/complete-sprint.js';
 
 /**
  * Initialize and start the MCP server
@@ -110,6 +111,28 @@ async function main() {
             required: ['sprintId'],
           },
         },
+        {
+          name: 'complete-sprint',
+          description: 'Complete a sprint by validating artifacts, updating status, and providing completion summary. Automates Sprint Protocol §2.9 completion workflow.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              sprintId: {
+                type: 'string',
+                description: 'Sprint ID (e.g., sprint-7-f7cz9y)',
+              },
+              completionMode: {
+                type: 'string',
+                description: 'Completion mode: "normal" (requires all artifacts) or "forced" (allows completion despite missing artifacts)',
+              },
+              pr: {
+                type: 'string',
+                description: 'GitHub Pull Request URL if already created (optional)',
+              },
+            },
+            required: ['sprintId', 'completionMode'],
+          },
+        },
       ],
     };
   });
@@ -131,6 +154,9 @@ async function main() {
           break;
         case 'update-sprint-status':
           result = await updateSprintStatusTool(request.params.arguments);
+          break;
+        case 'complete-sprint':
+          result = await completeSprintTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);

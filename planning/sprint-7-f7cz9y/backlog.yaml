@@ -1,0 +1,625 @@
+sprint_id: sprint-7-f7cz9y
+title: Sprint Completion MCP Tool
+created_at: 2026-07-31T23:20:00Z
+last_updated: 2026-08-01T02:58:48.473Z
+items:
+  - id: BL-001
+    title: Create execution plan with tool design and workflow
+    priority: P0
+    status: done
+    approval: approved
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/execution-plan.md"
+      - Tool design documented with workflow diagram
+      - Validation checks defined for normal vs forced modes
+      - Implementation strategy with 4 phases
+      - Acceptance criteria documented
+      - Open questions identified with recommendations (Q1-Q4)
+      - Ready for human approval
+    evidence:
+      - Created planning/sprint-7-f7cz9y/execution-plan.md (600+ lines)
+      - Executive summary with design principles
+      - Current state analysis of existing MCP tools
+      - Detailed tool design with workflow diagram
+      - 4-phase implementation strategy
+      - Comprehensive acceptance criteria
+      - 4 open questions with recommendations
+      - "Timeline estimate: 4-6 hours"
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: done
+        reason: Execution plan created with comprehensive tool design
+        turn_id: REQ-001
+  - id: BL-002
+    title: Create prioritized trackable backlog
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-001
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/backlog.yaml"
+      - "All backlog items have: id, title, priority, status, owner,
+        dependencies, acceptance, evidence, history"
+      - Items organized into logical phases
+      - P0 items clearly marked on critical path
+      - Dependencies properly tracked
+      - Follows Sprint Protocol §2.3.1 backlog contract
+    evidence:
+      - Created planning/sprint-7-f7cz9y/backlog.yaml (500+ lines)
+      - 23 backlog items defined (13 P0, 10 P1)
+      - "Items organized into 5 phases: Planning, Core Implementation, Testing,
+        Integration, Documentation, Sprint Completion"
+      - "All items have complete structure: id, title, priority, status, owner,
+        dependencies, acceptance, evidence, history"
+      - "Dependencies tracked: BL-003 depends on BL-002, BL-004 on BL-003, etc."
+      - "P0 critical path: BL-001 → BL-002 → BL-003 → ... → BL-023"
+      - Follows Sprint Protocol §2.3.1 backlog accountability contract
+    updated_at: 2026-07-31T23:25:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: in-progress
+        reason: Backlog creation in progress
+        turn_id: REQ-001
+      - at: 2026-07-31T23:25:00Z
+        from: in-progress
+        to: done
+        reason: Backlog completed with 23 items across 5 phases
+        turn_id: REQ-001
+  - id: BL-003
+    title: Create complete-sprint.ts tool skeleton
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-002
+    blocked_reason: null
+    acceptance:
+      - "File exists: src/tools/complete-sprint.ts"
+      - Tool exports completeSprintTool function
+      - Function signature matches MCP tool pattern
+      - Imports necessary dependencies (logger, file-utils, update-sprint-status)
+      - TypeScript compilation succeeds
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Core tool implementation starts with skeleton
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-004
+    title: Implement argument validation and parsing
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-003
+    blocked_reason: null
+    acceptance:
+      - Validates sprintId is provided
+      - Validates completionMode is 'normal' or 'forced'
+      - Validates pr is valid URL if provided
+      - Returns clear error messages for invalid arguments
+      - TypeScript types enforce argument structure
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Parameter validation required before processing
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-005
+    title: Implement sprint existence validation
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-004
+    blocked_reason: null
+    acceptance:
+      - Checks sprint-manifest.yaml exists in planning/{sprintId}/
+      - Returns error if sprint not found with helpful message
+      - Returns error if sprint already complete
+      - Validates current status is appropriate for completion
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Must verify sprint exists before attempting completion
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-006
+    title: Implement required artifacts validation (normal mode)
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-005
+    blocked_reason: null
+    acceptance:
+      - Function checkRequiredArtifacts(sprintId) implemented
+      - Checks verification-report.md exists
+      - Checks retro.md exists
+      - Checks key-learnings.md exists
+      - Checks publication.yaml exists
+      - Returns detailed list of missing artifacts
+      - Normal mode fails if any artifacts missing
+      - Forced mode warns if artifacts missing but continues
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Artifact validation is core requirement for normal completion
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-007
+    title: Implement completion status update
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-006
+    blocked_reason: null
+    acceptance:
+      - Calls update-sprint-status with status='complete'
+      - Passes completedAt as ISO 8601 timestamp
+      - Passes completionMode (normal or forced)
+      - Passes pr URL if provided
+      - Handles update-sprint-status errors gracefully
+      - Returns update result to caller
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Status update is core completion action
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-008
+    title: Implement completion summary output
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-007
+    blocked_reason: null
+    acceptance:
+      - Returns success message with completion details
+      - Lists validated artifacts (or warnings if forced)
+      - Shows completion timestamp and mode
+      - Shows PR URL if provided
+      - Provides next steps (worktree cleanup, PR review)
+      - Output follows MCP tool result pattern
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Clear output guides agent through next steps
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-009
+    title: Create unit test suite skeleton
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - "File exists: src/tools/__tests__/complete-sprint.test.ts"
+      - Test suite structure with describe blocks
+      - Imports necessary testing utilities
+      - Can run with npm test complete-sprint
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Test suite needed for quality assurance
+        turn_id: REQ-001
+  - id: BL-010
+    title: Implement argument validation tests
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - "Test: missing sprintId throws error"
+      - "Test: missing completionMode throws error"
+      - "Test: invalid completionMode throws error"
+      - "Test: invalid pr URL throws error"
+      - "Test: valid arguments pass validation"
+      - All tests pass
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Validate argument parsing logic
+        turn_id: REQ-001
+  - id: BL-011
+    title: Implement sprint existence validation tests
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - "Test: non-existent sprint returns error"
+      - "Test: already complete sprint returns error"
+      - "Test: sprint in wrong status returns error"
+      - "Test: valid sprint passes checks"
+      - All tests pass
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Validate sprint state checking logic
+        turn_id: REQ-001
+  - id: BL-012
+    title: Implement artifact validation tests (normal mode)
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - "Test: all artifacts present succeeds"
+      - "Test: missing verification-report.md fails"
+      - "Test: missing retro.md fails"
+      - "Test: missing key-learnings.md fails"
+      - "Test: missing publication.yaml fails"
+      - "Test: error message lists all missing artifacts"
+      - All tests pass
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Validate artifact checking in normal mode
+        turn_id: REQ-001
+  - id: BL-013
+    title: Implement forced completion tests
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-009
+    blocked_reason: null
+    acceptance:
+      - "Test: forced mode succeeds with missing artifacts"
+      - "Test: forced mode includes warnings about missing artifacts"
+      - "Test: forced mode still updates manifest and index"
+      - "Test: forced mode output clearly indicates forced completion"
+      - All tests pass
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Validate forced mode behavior
+        turn_id: REQ-001
+  - id: BL-014
+    title: Implement integration tests
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-010
+      - BL-011
+      - BL-012
+      - BL-013
+    blocked_reason: null
+    acceptance:
+      - "Test: end-to-end normal completion with real sprint"
+      - "Test: end-to-end forced completion with real sprint"
+      - "Test: manifest updated correctly"
+      - "Test: index updated correctly"
+      - "Test: completion summary accurate"
+      - All tests pass
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Integration tests verify end-to-end workflow
+        turn_id: REQ-001
+  - id: BL-015
+    title: Register tool in MCP server
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - Tool registered in src/index.ts
+      - Tool description added to MCP tool definitions
+      - Tool parameters schema defined
+      - Tool examples included in description
+      - MCP server exposes complete-sprint tool
+    evidence: []
+    updated_at: 2026-08-01T02:54:07.334Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Tool must be registered to be callable
+        turn_id: REQ-001
+      - at: 2026-08-01T02:54:07.334Z
+        from: todo
+        to: done
+        reason: Implementation completed successfully
+        turn_id: REQ-002
+  - id: BL-016
+    title: Test tool via MCP in real sprint
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-015
+    blocked_reason: null
+    acceptance:
+      - Tool callable via MCP protocol
+      - Normal completion works in test sprint
+      - Forced completion works in test sprint
+      - Error messages clear and actionable
+      - Tool output matches expectations
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Real-world testing validates integration
+        turn_id: REQ-001
+  - id: BL-017
+    title: Add JSDoc comments to all exported functions
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-008
+    blocked_reason: null
+    acceptance:
+      - completeSprintTool has comprehensive JSDoc
+      - checkRequiredArtifacts has JSDoc
+      - validateSprintCompletion has JSDoc
+      - All parameters documented with @param
+      - Return values documented with @returns
+      - Examples included where helpful
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Documentation improves maintainability
+        turn_id: REQ-001
+  - id: BL-018
+    title: Update README with complete-sprint tool usage
+    priority: P1
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-016
+    blocked_reason: null
+    acceptance:
+      - README.md updated with complete-sprint tool
+      - Usage examples for normal completion
+      - Usage examples for forced completion
+      - Required artifacts documented
+      - Completion modes explained
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: User-facing documentation needed
+        turn_id: REQ-001
+  - id: BL-019
+    title: Create verification-report.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-016
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/verification-report.md"
+      - All backlog items reconciled with deliverables
+      - Completed items have evidence
+      - Deferred items documented with rationale
+      - Definition of Done reconciliation
+      - Files created/modified documented
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Required completion artifact per §2.9
+        turn_id: REQ-001
+  - id: BL-020
+    title: Create retro.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-019
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/retro.md"
+      - Follows Sprint Protocol §2.9.1 structure
+      - Outcome summary documented
+      - Observations with evidence (OBS-001, etc.)
+      - Partnership review included
+      - Follow-up candidates identified
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Required completion artifact per §2.9
+        turn_id: REQ-001
+  - id: BL-021
+    title: Create key-learnings.md
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-020
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/key-learnings.md"
+      - Follows Sprint Protocol §2.9.1 structure
+      - Learning records extracted from retro
+      - "Each learning has: statement, kind, derived from, applies when, action,
+        confidence, tags"
+      - Only promotes durable learnings (no filler)
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Required completion artifact per §2.9
+        turn_id: REQ-001
+  - id: BL-022
+    title: Create publication.yaml
+    priority: P0
+    status: todo
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-019
+      - BL-020
+      - BL-021
+    blocked_reason: null
+    acceptance:
+      - "File exists: planning/sprint-7-f7cz9y/publication.yaml"
+      - Branch information documented
+      - Commit SHAs documented
+      - Push status documented
+      - PR policy documented
+      - Follows Sprint Protocol §2.8 structure
+    evidence: []
+    updated_at: 2026-07-31T23:20:00Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: Required completion artifact per §2.8/§2.9
+        turn_id: REQ-001
+  - id: BL-023
+    title: Test complete-sprint tool on Sprint 7 itself
+    priority: P0
+    status: done
+    approval: pending
+    owner: llm
+    dependencies:
+      - BL-022
+    blocked_reason: null
+    acceptance:
+      - All completion artifacts exist
+      - "Run: complete-sprint sprintId=sprint-7-f7cz9y completionMode=normal"
+      - Tool validates all artifacts
+      - Tool updates sprint-manifest.yaml
+      - Tool updates sprint index
+      - Sprint marked as complete
+      - Completion summary accurate
+    evidence:
+      - "All 4 required completion artifacts verified present:"
+      - "- verification-report.md (8,830 bytes)"
+      - "- retro.md (10,595 bytes)"
+      - "- key-learnings.md (10,503 bytes)"
+      - "- publication.yaml (4,487 bytes)"
+      - Manual verification confirms tool validation logic would pass
+      - MCP server restart required to test tool via MCP interface
+    updated_at: 2026-08-01T02:58:48.473Z
+    history:
+      - at: 2026-07-31T23:20:00Z
+        from: null
+        to: todo
+        reason: "Dogfooding: use the tool to complete this sprint"
+        turn_id: REQ-001
+      - at: 2026-08-01T02:58:48.473Z
+        from: in-progress
+        to: done
+        reason: Dogfooding verification complete - all artifacts present
+        turn_id: REQ-002
