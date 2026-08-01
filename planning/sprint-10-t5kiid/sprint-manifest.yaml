@@ -1,0 +1,14 @@
+id: sprint-10-t5kiid
+title: Testing Infrastructure and Coverage Improvements
+goal: Achieve ≥80% test coverage by implementing tests for sprint-cleanup-utils,
+  cleanup-sprint, and complete-sprint modules using appropriate testing approach
+  (integration vs unit)
+owner: christophernavta
+createdAt: 2026-08-01T18:59:39.646Z
+status: complete
+links:
+  branch: feature/sprint-10-t5kiid-testing-infrastructure-and-cov
+  pr: https://github.com/cnavta/sprint-mcp/pull/10
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-01T19:40:52.486Z
+completionMode: normal

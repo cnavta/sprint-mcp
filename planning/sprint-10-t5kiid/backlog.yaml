@@ -1,0 +1,976 @@
+# Sprint 10 Backlog
+#
+# Testing Infrastructure and Coverage Improvements
+#
+# Sprint Protocol §2.3.1: This backlog serves as the accountability contract
+# between the human and the LLM agent. All planned work is tracked here with
+# status updates as work progresses.
+
+sprint:
+  id: sprint-10-t5kiid
+  title: Testing Infrastructure and Coverage Improvements
+  goal: Achieve ≥80% test coverage by implementing tests for sprint-cleanup-utils, cleanup-sprint, and complete-sprint modules using appropriate testing approach (integration vs unit)
+  owner: christophernavta
+  created_at: 2026-08-01T19:30:00Z
+
+backlog_version: 1.0
+last_updated: 2026-08-01T19:30:00Z
+
+# Priority Levels:
+# P0: Critical path - must complete for sprint success
+# P1: Quality/polish - defer if time-constrained with documented rationale
+
+items:
+  # ========================================
+  # PHASE 0: VALIDATION SPIKE
+  # ========================================
+
+  - id: BL-001
+    title: Validation spike - Integration test approach for cleanup-utils
+    description: |
+      Create proof-of-concept test file to validate that integration test approach
+      (real file operations, temp directories, real git) works for cleanup/complete-sprint
+      modules without Jest ES module mocking issues.
+
+      Per Sprint 9 Learning #1: "Validate risky approaches with POC first"
+
+      Success criteria:
+      - Single test file created with 1-2 simple tests
+      - Tests run and pass
+      - Integration approach validated (mkdtemp, real git, no mocks)
+      - Decision made: proceed with integration tests or pivot
+    priority: P0
+    phase: 0-validation
+    estimated_effort: 30min
+    dependencies: []
+    acceptance_criteria:
+      - Created src/common/__tests__/sprint-cleanup-utils.test.ts
+      - Wrote 2 POC tests (calculateDiskUsage, detectUncommittedChanges)
+      - Both tests pass
+      - No Jest ES module mocking errors
+      - Decision: proceed with integration approach
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  # ========================================
+  # PHASE 1: TEST sprint-cleanup-utils.ts
+  # ========================================
+
+  - id: BL-002
+    title: Test calculateDiskUsage() - happy path
+    description: |
+      Test that calculateDiskUsage() correctly calculates disk usage for an existing
+      directory using real file operations and du command.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 10min
+    dependencies:
+      - BL-001
+    acceptance_criteria:
+      - Test creates real directory with files
+      - Calls calculateDiskUsage() on directory
+      - Returns non-zero byte count
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-003
+    title: Test calculateDiskUsage() - non-existent path
+    description: |
+      Test that calculateDiskUsage() returns 0 for non-existent paths without
+      throwing errors.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 10min
+    dependencies:
+      - BL-002
+    acceptance_criteria:
+      - Test calls calculateDiskUsage() with non-existent path
+      - Returns 0 bytes
+      - No errors thrown
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-004
+    title: Test detectUncommittedChanges() - clean worktree
+    description: |
+      Test that detectUncommittedChanges() returns false for a clean git worktree
+      with no uncommitted changes.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-003
+    acceptance_criteria:
+      - Test creates git repo with committed files
+      - Calls detectUncommittedChanges() on worktree
+      - Returns false (no changes)
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-005
+    title: Test detectUncommittedChanges() - with uncommitted changes
+    description: |
+      Test that detectUncommittedChanges() returns true for a worktree with
+      uncommitted changes (new file or modified file).
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-004
+    acceptance_criteria:
+      - Test creates git repo
+      - Adds new uncommitted file
+      - Calls detectUncommittedChanges()
+      - Returns true (has changes)
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-006
+    title: Test getCleanupCandidates() - find completed sprints with worktrees
+    description: |
+      Test that getCleanupCandidates() finds completed sprints that have worktrees
+      by creating sprint index with completed sprint and matching worktree.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 20min
+    dependencies:
+      - BL-005
+    acceptance_criteria:
+      - Test creates sprint index with completed sprint
+      - Creates matching worktree directory
+      - Calls getCleanupCandidates()
+      - Returns array with 1 candidate
+      - Candidate has correct sprintId, path, diskUsage
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-007
+    title: Test getCleanupCandidates() - filter by sprintId
+    description: |
+      Test that getCleanupCandidates(sprintId) filters results to specific sprint.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-006
+    acceptance_criteria:
+      - Test creates sprint index with 2 completed sprints
+      - Creates worktrees for both
+      - Calls getCleanupCandidates('sprint-1')
+      - Returns only sprint-1 candidate
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-008
+    title: Test getCleanupCandidates() - no candidates
+    description: |
+      Test that getCleanupCandidates() returns empty array when no completed sprints
+      have worktrees (all worktrees cleaned up).
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 10min
+    dependencies:
+      - BL-007
+    acceptance_criteria:
+      - Test creates sprint index with completed sprint
+      - Does NOT create worktree
+      - Calls getCleanupCandidates()
+      - Returns empty array
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-009
+    title: Test validateCleanupSafety() - valid completed sprint
+    description: |
+      Test that validateCleanupSafety() returns valid=true for a completed sprint
+      that is safe to cleanup.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-008
+    acceptance_criteria:
+      - Test creates sprint index with completed sprint
+      - Creates planning directory
+      - Calls validateCleanupSafety(sprintId)
+      - Returns { valid: true, errors: [], warnings: [] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-010
+    title: Test validateCleanupSafety() - sprint not found
+    description: |
+      Test that validateCleanupSafety() returns error when sprint doesn't exist
+      in sprint index.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 10min
+    dependencies:
+      - BL-009
+    acceptance_criteria:
+      - Test creates empty sprint index
+      - Calls validateCleanupSafety('non-existent-sprint')
+      - Returns { valid: false, errors: ['Sprint not found'], warnings: [] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-011
+    title: Test validateCleanupSafety() - sprint not complete
+    description: |
+      Test that validateCleanupSafety() returns error when sprint is not complete
+      (status: in-progress or planning).
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 10min
+    dependencies:
+      - BL-010
+    acceptance_criteria:
+      - Test creates sprint index with in-progress sprint
+      - Calls validateCleanupSafety(sprintId)
+      - Returns { valid: false, errors: ['Sprint not complete'], warnings: [] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-012
+    title: Test cleanupSprint() - successful cleanup
+    description: |
+      Test that cleanupSprint() successfully removes worktree for a valid
+      completed sprint.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 20min
+    dependencies:
+      - BL-011
+    acceptance_criteria:
+      - Test creates completed sprint with worktree (real git worktree)
+      - Calls cleanupSprint(sprintId, {})
+      - Returns { success: true, worktreeRemoved: true, diskFreed > 0 }
+      - Worktree directory no longer exists
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-013
+    title: Test cleanupSprint() - validation failure blocks cleanup
+    description: |
+      Test that cleanupSprint() does not remove worktree when validation fails
+      (e.g., sprint not complete).
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-012
+    acceptance_criteria:
+      - Test creates in-progress sprint with worktree
+      - Calls cleanupSprint(sprintId, {})
+      - Returns { success: false, errors: [...validation errors] }
+      - Worktree directory still exists
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-014
+    title: Test cleanupSprint() - uncommitted changes blocks cleanup
+    description: |
+      Test that cleanupSprint() blocks cleanup when worktree has uncommitted changes
+      and force=false.
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-013
+    acceptance_criteria:
+      - Test creates completed sprint with worktree
+      - Adds uncommitted file to worktree
+      - Calls cleanupSprint(sprintId, { force: false })
+      - Returns { success: false, errors: ['uncommitted changes'] }
+      - Worktree directory still exists
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-015
+    title: Test cleanupSprint() - force flag overrides uncommitted changes
+    description: |
+      Test that cleanupSprint() allows cleanup when force=true even with
+      uncommitted changes (issues warning but proceeds).
+    priority: P0
+    phase: 1-cleanup-utils
+    estimated_effort: 15min
+    dependencies:
+      - BL-014
+    acceptance_criteria:
+      - Test creates completed sprint with worktree
+      - Adds uncommitted file to worktree
+      - Calls cleanupSprint(sprintId, { force: true })
+      - Returns { success: true, warnings: ['uncommitted changes'] }
+      - Worktree directory removed
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  # ========================================
+  # PHASE 2: TEST complete-sprint.ts
+  # ========================================
+
+  - id: BL-016
+    title: Test isValidCompletionMode() - valid modes
+    description: |
+      Test that isValidCompletionMode() returns true for 'normal' and 'forced'.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 10min
+    dependencies:
+      - BL-015
+    acceptance_criteria:
+      - Test calls isValidCompletionMode('normal') → true
+      - Test calls isValidCompletionMode('forced') → true
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-017
+    title: Test isValidCompletionMode() - invalid modes
+    description: |
+      Test that isValidCompletionMode() returns false for invalid modes.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 10min
+    dependencies:
+      - BL-016
+    acceptance_criteria:
+      - Test calls isValidCompletionMode('invalid') → false
+      - Test calls isValidCompletionMode('') → false
+      - Test calls isValidCompletionMode(undefined) → false
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-018
+    title: Test validateSprintCompletion() - normal mode with all artifacts
+    description: |
+      Test that validateSprintCompletion() returns valid=true when all required
+      artifacts exist for normal mode completion.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 20min
+    dependencies:
+      - BL-017
+    acceptance_criteria:
+      - Test creates sprint directory with all 4 artifacts
+      - Calls validateSprintCompletion(sprintId, 'normal')
+      - Returns { valid: true, errors: [], warnings: [] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-019
+    title: Test validateSprintCompletion() - normal mode missing artifact
+    description: |
+      Test that validateSprintCompletion() returns error when artifact is missing
+      in normal mode.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-018
+    acceptance_criteria:
+      - Test creates sprint directory missing verification-report.md
+      - Calls validateSprintCompletion(sprintId, 'normal')
+      - Returns { valid: false, errors: ['verification-report.md not found'] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-020
+    title: Test validateSprintCompletion() - forced mode allows missing artifacts
+    description: |
+      Test that validateSprintCompletion() returns valid=true in forced mode even
+      with missing artifacts (warnings only).
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-019
+    acceptance_criteria:
+      - Test creates sprint directory missing 2 artifacts
+      - Calls validateSprintCompletion(sprintId, 'forced')
+      - Returns { valid: true, errors: [], warnings: [...] }
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-021
+    title: Test completeSprintTool() - successful normal mode completion
+    description: |
+      Test that completeSprintTool() successfully completes sprint in normal mode
+      with all artifacts present.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 20min
+    dependencies:
+      - BL-020
+    acceptance_criteria:
+      - Test creates sprint with all artifacts and sprint index
+      - Calls completeSprintTool({ sprintId, completionMode: 'normal' })
+      - Returns MCP response with success message
+      - isErrorResponse(result) → false
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-022
+    title: Test completeSprintTool() - normal mode fails if artifact missing
+    description: |
+      Test that completeSprintTool() returns error in normal mode if any
+      required artifact is missing.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-021
+    acceptance_criteria:
+      - Test creates sprint missing retro.md
+      - Calls completeSprintTool({ sprintId, completionMode: 'normal' })
+      - isErrorResponse(result) → true
+      - Response contains error about missing artifact
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-023
+    title: Test completeSprintTool() - forced mode succeeds despite missing artifacts
+    description: |
+      Test that completeSprintTool() succeeds in forced mode even with missing
+      artifacts (issues warnings).
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-022
+    acceptance_criteria:
+      - Test creates sprint missing 2 artifacts
+      - Calls completeSprintTool({ sprintId, completionMode: 'forced' })
+      - isErrorResponse(result) → false
+      - Response contains warnings about missing artifacts
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-024
+    title: Test completeSprintTool() - missing required args
+    description: |
+      Test that completeSprintTool() returns error when required arguments
+      (sprintId, completionMode) are missing.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 10min
+    dependencies:
+      - BL-023
+    acceptance_criteria:
+      - Test calls completeSprintTool({}) → error (missing sprintId)
+      - Test calls completeSprintTool({ sprintId }) → error (missing completionMode)
+      - isErrorResponse(result) → true for both
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-025
+    title: Test completeSprintTool() - includes PR URL in result
+    description: |
+      Test that completeSprintTool() includes PR URL in response when provided.
+    priority: P0
+    phase: 2-complete-sprint
+    estimated_effort: 10min
+    dependencies:
+      - BL-024
+    acceptance_criteria:
+      - Test creates sprint with all artifacts
+      - Calls completeSprintTool({ sprintId, completionMode: 'normal', pr: 'https://...' })
+      - Response text contains PR URL
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  # ========================================
+  # PHASE 3: TEST cleanup-sprint.ts
+  # ========================================
+
+  - id: BL-026
+    title: Test cleanupSprintTool() - list all cleanup candidates
+    description: |
+      Test that cleanupSprintTool() (preview mode) lists all completed sprints
+      with worktrees when no sprintId filter provided.
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 20min
+    dependencies:
+      - BL-025
+    acceptance_criteria:
+      - Test creates sprint index with 2 completed sprints with worktrees
+      - Calls cleanupSprintTool({})
+      - Returns MCP response listing both sprints
+      - Response shows disk usage for each
+      - isErrorResponse(result) → false
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-027
+    title: Test cleanupSprintTool() - filter to specific sprintId
+    description: |
+      Test that cleanupSprintTool() filters results to specific sprint when
+      sprintId provided.
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-026
+    acceptance_criteria:
+      - Test creates sprint index with 2 completed sprints
+      - Calls cleanupSprintTool({ sprintId: 'sprint-1' })
+      - Returns MCP response with only sprint-1
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-028
+    title: Test cleanupSprintTool() - no candidates found
+    description: |
+      Test that cleanupSprintTool() returns appropriate message when no cleanup
+      candidates exist (all sprints already cleaned up).
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 10min
+    dependencies:
+      - BL-027
+    acceptance_criteria:
+      - Test creates sprint index with completed sprints but no worktrees
+      - Calls cleanupSprintTool({})
+      - Returns MCP response with "no worktrees found" message
+      - isErrorResponse(result) → false
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-029
+    title: Test cleanupSprintTool() - uncommitted changes warning
+    description: |
+      Test that cleanupSprintTool() shows warning when worktree has uncommitted
+      changes and force=false (preview mode, doesn't execute cleanup).
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-028
+    acceptance_criteria:
+      - Test creates completed sprint with worktree
+      - Adds uncommitted file to worktree
+      - Calls cleanupSprintTool({ sprintId, force: false })
+      - Returns MCP response with uncommitted changes warning
+      - Suggests using force or committing changes
+      - isErrorResponse(result) → true (blocked)
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-030
+    title: Test executeCleanupSprintTool() - successful cleanup execution
+    description: |
+      Test that executeCleanupSprintTool() successfully executes cleanup and
+      returns summary.
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 20min
+    dependencies:
+      - BL-029
+    acceptance_criteria:
+      - Test creates completed sprint with worktree (real git worktree)
+      - Calls executeCleanupSprintTool({ sprintId })
+      - Returns MCP response with success summary
+      - Shows disk space freed
+      - Worktree no longer exists
+      - isErrorResponse(result) → false
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-031
+    title: Test executeCleanupSprintTool() - cleanup failure handling
+    description: |
+      Test that executeCleanupSprintTool() handles cleanup failures gracefully
+      and reports errors in summary.
+    priority: P0
+    phase: 3-cleanup-sprint
+    estimated_effort: 15min
+    dependencies:
+      - BL-030
+    acceptance_criteria:
+      - Test creates in-progress sprint (validation will fail)
+      - Calls executeCleanupSprintTool({ sprintId })
+      - Returns MCP response with error summary
+      - Shows failed count
+      - isErrorResponse(result) → true
+      - Test passes
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  # ========================================
+  # PHASE 4: COVERAGE VALIDATION
+  # ========================================
+
+  - id: BL-032
+    title: Run coverage report and verify ≥80% overall coverage
+    description: |
+      Run npm run test:coverage to generate full coverage report and verify
+      that overall coverage is ≥80% statements.
+
+      If coverage < 80%, identify critical uncovered lines and add 2-3
+      targeted tests to reach target.
+    priority: P0
+    phase: 4-validation
+    estimated_effort: 30min
+    dependencies:
+      - BL-031
+    acceptance_criteria:
+      - Ran npm run test:coverage
+      - Overall statement coverage ≥80%
+      - Overall branch coverage ≥70%
+      - Overall function coverage ≥80%
+      - Overall line coverage ≥80%
+      - Coverage report saved/documented
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-033
+    title: Verify all tests pass and build succeeds
+    description: |
+      Run full test suite and build to verify all tests pass and no
+      regressions introduced.
+    priority: P0
+    phase: 4-validation
+    estimated_effort: 10min
+    dependencies:
+      - BL-032
+    acceptance_criteria:
+      - Ran npm test → all tests pass
+      - Ran npm run build → build succeeds
+      - No linting errors
+      - No test flakiness (ran tests 2-3 times)
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  # ========================================
+  # PHASE 5: SPRINT COMPLETION ARTIFACTS
+  # ========================================
+
+  - id: BL-034
+    title: Create verification-report.md
+    description: |
+      Create verification report documenting:
+      - Backlog reconciliation (completed/deferred items)
+      - Coverage metrics (before/after)
+      - Test statistics (# of test files, # of tests, execution time)
+      - Deliverables checklist
+    priority: P0
+    phase: 5-completion
+    estimated_effort: 15min
+    dependencies:
+      - BL-033
+    acceptance_criteria:
+      - File created: planning/sprint-10-t5kiid/verification-report.md
+      - Contains backlog reconciliation table
+      - Documents coverage improvement (47.58% → ≥80%)
+      - Lists all 3 new test files created
+      - All sections complete
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-035
+    title: Create retro.md
+    description: |
+      Create sprint retrospective documenting:
+      - What went well (validation spike success, integration tests work)
+      - What didn't go well (any issues encountered)
+      - Action items for future sprints
+      - Metrics (duration, completion rate)
+    priority: P0
+    phase: 5-completion
+    estimated_effort: 10min
+    dependencies:
+      - BL-034
+    acceptance_criteria:
+      - File created: planning/sprint-10-t5kiid/retro.md
+      - Contains "What went well" section (3+ items)
+      - Contains "What didn't go well" section
+      - Contains action items (2+ items)
+      - Contains metrics summary
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-036
+    title: Create key-learnings.md
+    description: |
+      Create key learnings document with transferable insights:
+      - Integration tests work well for MCP server (validate early)
+      - Simple tests > complex tests for simple code
+      - Coverage improvement strategies
+      - Any technical insights discovered during implementation
+    priority: P0
+    phase: 5-completion
+    estimated_effort: 10min
+    dependencies:
+      - BL-035
+    acceptance_criteria:
+      - File created: planning/sprint-10-t5kiid/key-learnings.md
+      - Contains 3-5 transferable learnings
+      - Each learning has: observation, why it matters, application to future
+      - Insights are actionable and specific
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-037
+    title: Create publication.yaml and PR
+    description: |
+      Create publication metadata file and GitHub pull request:
+      - Commit all changes to feature branch
+      - Push to remote
+      - Create PR using gh pr create
+      - Update publication.yaml with PR URL and commit details
+    priority: P0
+    phase: 5-completion
+    estimated_effort: 15min
+    dependencies:
+      - BL-036
+    acceptance_criteria:
+      - File created: planning/sprint-10-t5kiid/publication.yaml
+      - Contains commit SHA, files changed, insertions/deletions
+      - Contains PR URL
+      - PR created successfully
+      - All changes pushed to remote
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+  - id: BL-038
+    title: Complete sprint using complete-sprint tool
+    description: |
+      Use the complete-sprint MCP tool to finalize sprint completion:
+      - Verify all 4 completion artifacts exist
+      - Call complete-sprint tool with normal mode
+      - Update sprint status to 'complete'
+      - Generate completion summary
+    priority: P0
+    phase: 5-completion
+    estimated_effort: 5min
+    dependencies:
+      - BL-037
+    acceptance_criteria:
+      - Called complete-sprint tool successfully
+      - Sprint status updated to 'complete'
+      - Completion timestamp added
+      - Sprint index updated
+    status: pending
+    evidence: null
+    history:
+      - timestamp: 2026-08-01T19:30:00Z
+        status: created
+        note: Backlog item created
+
+# ========================================
+# SUMMARY STATISTICS
+# ========================================
+
+summary:
+  total_items: 38
+  by_priority:
+    P0: 38
+    P1: 0
+  by_phase:
+    0-validation: 1
+    1-cleanup-utils: 14
+    2-complete-sprint: 10
+    3-cleanup-sprint: 6
+    4-validation: 2
+    5-completion: 5
+  estimated_effort:
+    P0_total: 5h 35min
+    P0_by_phase:
+      0-validation: 30min
+      1-cleanup-utils: 2h 5min
+      2-complete-sprint: 2h 0min
+      3-cleanup-sprint: 1h 35min
+      4-validation: 40min
+      5-completion: 55min
+
+notes: |
+  This sprint addresses the 16 P0 testing items deferred from Sprint 9 (BL-003 to BL-018).
+
+  Key improvements from Sprint 9:
+  1. Validation spike first (BL-001) - validate integration approach before full implementation
+  2. Integration tests only - no Jest ES module mocking complexity
+  3. Simple, focused tests - critical paths only, skip low-value edge cases
+  4. Strategic 80% coverage - test the 3 untested modules bringing them from 0% to ≥85%
+
+  Sprint 9 items still deferred (P1):
+  - BL-024: npm scripts reference table (documentation)
+  - BL-025 to BL-029: Compression module tests (5 items)
+
+  These remain deferred to future sprints as they are P1 (quality/polish) items.
