@@ -1,0 +1,663 @@
+# Sprint 11 Backlog – Comprehensive Test Expansion
+# Sprint ID: sprint-11-giiaka
+# Total Items: 62 (52 P0, 10 P1)
+# Priority: P0 = Must Complete, P1 = Should Complete, P2 = Nice to Have
+
+sprint:
+  id: sprint-11-giiaka
+  goal: Expand test coverage by testing compression modules and improving near-threshold modules
+  target_coverage:
+    overall: 75%
+    compression_modules: 75%
+    near_threshold_modules: 80%
+
+# ============================================================================
+# PHASE 0: Validation Spike (Learning #1 Applied)
+# ============================================================================
+# Goal: Validate integration test approach works for compression modules
+# Success: 4-5 POC tests passing, approach confirmed viable
+
+phase_0_validation_spike:
+  - id: BL-001
+    task: Read compression-engine.ts to understand public API
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: low
+    acceptance: Public API functions identified and documented
+
+  - id: BL-002
+    task: Read semantic-extractor.ts to understand dependencies
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: low
+    acceptance: Dependencies mapped, no unexpected blockers
+
+  - id: BL-003
+    task: Create src/compression/__tests__/validation-spike.test.ts
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: low
+    acceptance: File created with test structure
+
+  - id: BL-004
+    task: Write POC test for compress() with simple input
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: medium
+    acceptance: Test passes, compression works with integration test pattern
+
+  - id: BL-005
+    task: Write POC test for decompress() round-trip
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: medium
+    acceptance: Test passes, round-trip compression validated
+
+  - id: BL-006
+    task: Document spike results in implementation-plan.md
+    priority: P0
+    phase: 0
+    status: pending
+    estimated_effort: low
+    acceptance: Spike results section updated with findings and confidence assessment
+
+# ============================================================================
+# PHASE 1: Compression Engine Testing
+# ============================================================================
+# Goal: Achieve 75%+ coverage for compression-engine.ts
+# Success: All tests passing, integration pattern followed
+
+phase_1_compression_engine:
+  - id: BL-007
+    task: Map all exported functions from compression-engine.ts
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: low
+    acceptance: List of public API functions documented
+
+  - id: BL-008
+    task: Create src/compression/__tests__/compression-engine.test.ts
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: low
+    acceptance: Test file created with beforeEach/afterEach setup
+
+  - id: BL-009
+    task: Create helper functions for compression test setup
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: medium
+    acceptance: Helpers like createTestDocument(), setupCompressionEnv() created
+
+  - id: BL-010
+    task: Test compression workflow (full round-trip)
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: medium
+    acceptance: Test passes, validates compress/decompress cycle
+
+  - id: BL-011
+    task: Test configuration handling in compression engine
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: medium
+    acceptance: Test passes, config loading validated
+
+  - id: BL-012
+    task: Test error cases (invalid input, missing files)
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: medium
+    acceptance: Error handling tests pass
+
+  - id: BL-013
+    task: Run coverage for compression-engine.ts
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage report generated
+
+  - id: BL-014
+    task: Verify compression-engine.ts coverage ≥75%
+    priority: P0
+    phase: 1
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥75% or additional tests added
+
+# ============================================================================
+# PHASE 2: Semantic Extractor Testing
+# ============================================================================
+# Goal: Achieve 75%+ coverage for semantic-extractor.ts
+# Success: Real markdown parsing tested, all tests passing
+
+phase_2_semantic_extractor:
+  - id: BL-015
+    task: Read semantic-extractor.ts to understand public API
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: low
+    acceptance: Public functions identified, extraction logic understood
+
+  - id: BL-016
+    task: Create src/compression/__tests__/semantic-extractor.test.ts
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: low
+    acceptance: Test file created with setup
+
+  - id: BL-017
+    task: Create test markdown samples (headings, code blocks, lists)
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: medium
+    acceptance: Realistic markdown samples created for testing
+
+  - id: BL-018
+    task: Test extracting headings from markdown
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: medium
+    acceptance: Heading extraction tests pass
+
+  - id: BL-019
+    task: Test extracting code blocks
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: medium
+    acceptance: Code block extraction tests pass
+
+  - id: BL-020
+    task: Test handling malformed markdown
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: medium
+    acceptance: Edge case tests pass
+
+  - id: BL-021
+    task: Verify semantic-extractor.ts coverage ≥75%
+    priority: P0
+    phase: 2
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥75% or additional tests added
+
+# ============================================================================
+# PHASE 3: Validation Engine Testing
+# ============================================================================
+# Goal: Achieve 75%+ coverage for validation-engine.ts
+# Success: Semantic validation logic tested
+
+phase_3_validation_engine:
+  - id: BL-022
+    task: Read validation-engine.ts to understand public API
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: low
+    acceptance: Validation functions identified
+
+  - id: BL-023
+    task: Create src/compression/__tests__/validation-engine.test.ts
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: low
+    acceptance: Test file created
+
+  - id: BL-024
+    task: Test validating semantic equivalence
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: medium
+    acceptance: Semantic equivalence tests pass
+
+  - id: BL-025
+    task: Test detecting semantic drift
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: medium
+    acceptance: Drift detection tests pass
+
+  - id: BL-026
+    task: Test edge cases (empty input, identical input)
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: medium
+    acceptance: Edge case tests pass
+
+  - id: BL-027
+    task: Verify validation-engine.ts coverage ≥75%
+    priority: P0
+    phase: 3
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥75% or additional tests added
+
+# ============================================================================
+# PHASE 4: Config and CLI Testing
+# ============================================================================
+# Goal: Achieve 75%+ coverage for config.ts and cli.ts
+# Success: Configuration and CLI tested (or CLI deferred with documentation)
+
+phase_4_config_and_cli:
+  - id: BL-028
+    task: Create src/compression/__tests__/config.test.ts
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: low
+    acceptance: Test file created
+
+  - id: BL-029
+    task: Test configuration loading and validation
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: medium
+    acceptance: Config loading tests pass
+
+  - id: BL-030
+    task: Test default configuration values
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: low
+    acceptance: Default config tests pass
+
+  - id: BL-031
+    task: Verify config.ts coverage ≥75%
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥75% or additional tests added
+
+  - id: BL-032
+    task: Assess CLI testing complexity (cli.ts)
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: low
+    acceptance: Decision made on whether to test CLI or defer
+
+  - id: BL-033
+    task: Test CLI or document deferral rationale
+    priority: P0
+    phase: 4
+    status: pending
+    estimated_effort: medium
+    acceptance: CLI tested ≥75% OR deferral documented in verification-report
+
+# ============================================================================
+# PHASE 5: Near-Threshold Module Coverage Improvements
+# ============================================================================
+# Goal: Improve 3 modules from ~70-78% to 80%+
+# Success: All 3 modules reach 80%+ coverage
+
+phase_5_near_threshold:
+  - id: BL-034
+    task: Review file-utils.ts uncovered lines (currently 62.85%)
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Uncovered lines identified (17-18, 34-35, 48-49, 69-76)
+
+  - id: BL-035
+    task: Create additional tests for file-utils.ts edge cases
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: medium
+    acceptance: New tests created targeting uncovered lines
+
+  - id: BL-036
+    task: Verify file-utils.ts coverage ≥80%
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥80% or gap documented
+
+  - id: BL-037
+    task: Review cleanup-sprint.ts uncovered lines (currently 78.02%)
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Uncovered branches identified
+
+  - id: BL-038
+    task: Add tests for cleanup-sprint.ts uncovered branches
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: medium
+    acceptance: New tests created, branches covered
+
+  - id: BL-039
+    task: Verify cleanup-sprint.ts coverage ≥80%
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥80% or gap documented
+
+  - id: BL-040
+    task: Review regenerate-sprint-index.ts uncovered lines (currently 78.57%)
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Uncovered lines identified
+
+  - id: BL-041
+    task: Add tests for regenerate-sprint-index.ts edge cases
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: medium
+    acceptance: New tests created
+
+  - id: BL-042
+    task: Verify regenerate-sprint-index.ts coverage ≥80%
+    priority: P1
+    phase: 5
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage ≥80% or gap documented
+
+# ============================================================================
+# PHASE 6: Coverage Validation and Gap Analysis
+# ============================================================================
+# Goal: Verify all coverage targets met, document gaps
+# Success: Overall coverage ≥75%, all module targets met
+
+phase_6_coverage_validation:
+  - id: BL-043
+    task: Run full coverage report (npm run test:coverage)
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Coverage report generated
+
+  - id: BL-044
+    task: Verify compression-engine.ts coverage ≥75%
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Target met or gap documented
+
+  - id: BL-045
+    task: Verify semantic-extractor.ts coverage ≥75%
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Target met or gap documented
+
+  - id: BL-046
+    task: Verify validation-engine.ts coverage ≥75%
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Target met or gap documented
+
+  - id: BL-047
+    task: Verify config.ts coverage ≥75%
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Target met or gap documented
+
+  - id: BL-048
+    task: Verify overall coverage ≥75%
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: low
+    acceptance: Target met or gap documented with rationale
+
+  - id: BL-049
+    task: Document coverage improvements and gaps in verification-report.md
+    priority: P0
+    phase: 6
+    status: pending
+    estimated_effort: medium
+    acceptance: Coverage analysis section completed
+
+# ============================================================================
+# PHASE 7: Testing Documentation (Sprint 10 Action Item)
+# ============================================================================
+# Goal: Create testing patterns guide for future reference
+# Success: Guide created with examples, helper functions documented
+
+phase_7_testing_documentation:
+  - id: BL-050
+    task: Create docs/testing-guide.md (or determine appropriate location)
+    priority: P1
+    phase: 7
+    status: pending
+    estimated_effort: low
+    acceptance: File created with structure
+
+  - id: BL-051
+    task: Document integration test pattern with examples
+    priority: P1
+    phase: 7
+    status: pending
+    estimated_effort: medium
+    acceptance: Pattern documented with beforeEach/afterEach example
+
+  - id: BL-052
+    task: Document helper function patterns (createSprint, createWorktree, etc.)
+    priority: P1
+    phase: 7
+    status: pending
+    estimated_effort: medium
+    acceptance: Helper patterns catalogued with usage examples
+
+  - id: BL-053
+    task: Document when to use integration vs unit tests
+    priority: P1
+    phase: 7
+    status: pending
+    estimated_effort: low
+    acceptance: Decision criteria documented
+
+  - id: BL-054
+    task: Include validation spike pattern guidance
+    priority: P1
+    phase: 7
+    status: pending
+    estimated_effort: low
+    acceptance: Spike pattern documented with examples from Sprint 10/11
+
+# ============================================================================
+# PHASE 8: Sprint Completion
+# ============================================================================
+# Goal: Complete all sprint artifacts and create PR
+# Success: All artifacts created, PR published, sprint complete
+
+phase_8_sprint_completion:
+  - id: BL-055
+    task: Create verification-report.md with backlog reconciliation
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: medium
+    acceptance: All 62 backlog items reconciled with status
+
+  - id: BL-056
+    task: Create verification-report.md coverage analysis section
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: medium
+    acceptance: Coverage metrics documented, gaps explained
+
+  - id: BL-057
+    task: Create retro.md with what went well / what didn't
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: medium
+    acceptance: Retrospective completed per Sprint Protocol template
+
+  - id: BL-058
+    task: Create key-learnings.md with transferable insights
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: medium
+    acceptance: Key learnings documented with evidence and patterns
+
+  - id: BL-059
+    task: Update request-log.md with final entries
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: low
+    acceptance: All significant actions logged
+
+  - id: BL-060
+    task: Create publication.yaml with PR URL
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: low
+    acceptance: PR URL and metadata logged
+
+  - id: BL-061
+    task: Create GitHub Pull Request
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: low
+    acceptance: PR created successfully with proper title/body
+
+  - id: BL-062
+    task: Execute complete-sprint MCP tool
+    priority: P0
+    phase: 8
+    status: pending
+    estimated_effort: low
+    acceptance: Sprint marked complete in sprint-manifest.yaml and sprint-index.yaml
+
+# ============================================================================
+# Summary Statistics
+# ============================================================================
+
+summary:
+  total_items: 62
+  by_priority:
+    P0: 52  # Must complete
+    P1: 10  # Should complete
+    P2: 0   # Deferred
+  by_phase:
+    phase_0: 6   # Validation Spike
+    phase_1: 8   # Compression Engine
+    phase_2: 7   # Semantic Extractor
+    phase_3: 6   # Validation Engine
+    phase_4: 6   # Config & CLI
+    phase_5: 9   # Near-Threshold Improvements
+    phase_6: 7   # Coverage Validation
+    phase_7: 5   # Testing Documentation
+    phase_8: 8   # Sprint Completion
+  estimated_complexity: medium
+  estimated_duration: 1-2 sessions
+
+# ============================================================================
+# Coverage Targets
+# ============================================================================
+
+coverage_targets:
+  compression_modules:
+    compression-engine.ts: 75%
+    semantic-extractor.ts: 75%
+    validation-engine.ts: 75%
+    config.ts: 75%
+    cli.ts: 75% or documented deferral
+  near_threshold_modules:
+    file-utils.ts: 80%
+    cleanup-sprint.ts: 80%
+    regenerate-sprint-index.ts: 80%
+  overall:
+    statements: 75%
+    branches: 65%
+    functions: 75%
+    lines: 75%
+
+# ============================================================================
+# Deferred Items (Out of Scope for Sprint 11)
+# ============================================================================
+
+deferred:
+  - item: index.ts (MCP entry point) testing
+    rationale: Requires MCP runtime, deferred as P3 from Sprint 10
+    priority: P3
+    future_sprint: TBD
+
+  - item: types.ts testing
+    rationale: Type definition files don't require tests
+    priority: P2
+    future_sprint: N/A
+
+  - item: Extract test helpers into shared utilities module
+    rationale: Focus on testing first, refactor later
+    priority: P2
+    future_sprint: TBD
+
+# ============================================================================
+# Risk Mitigation
+# ============================================================================
+
+risks:
+  high:
+    - risk: Compression modules too complex for integration tests
+      mitigation: Phase 0 validation spike identifies issues early
+      fallback: Reduce coverage target to 70% or defer CLI
+
+    - risk: Require large test data corpus
+      mitigation: Start with synthetic examples
+      fallback: Use simple test cases rather than real corpus
+
+  medium:
+    - risk: Coverage target (75% overall) too ambitious
+      mitigation: Module-specific targets as primary success
+      fallback: Accept 72-73% if all module targets met
+
+    - risk: Sprint takes longer than expected
+      mitigation: Phased approach allows partial completion
+      fallback: Defer P1 items if P0 takes longer
+
+  low:
+    - risk: Integration test pattern doesn't work
+      mitigation: Phase 0 spike validates approach
+      confidence: High based on Sprint 10 success

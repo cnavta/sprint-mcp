@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-08-01T03:08:54.623Z
+# Generated: 2026-08-01T19:51:18.616Z
 #
 
 version: "1.0"
-generatedAt: 2026-08-01T19:12:38.252Z
-totalSprints: 10
+generatedAt: 2026-08-01T20:56:59.312Z
+totalSprints: 11
 activeSprints: 1
-completedSprints: 9
+completedSprints: 10
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -107,21 +107,32 @@ sprints:
     completionMode: normal
   - id: sprint-10-t5kiid
     title: Testing Infrastructure and Coverage Improvements
-    status: in-progress
+    status: complete
     owner: christophernavta
     createdAt: 2026-08-01T18:59:39.646Z
     manifestPath: planning/sprint-10-t5kiid/sprint-manifest.yaml
     branch: feature/sprint-10-t5kiid-testing-infrastructure-and-cov
     worktreePath: .worktrees/sprint-10-t5kiid
+    completedAt: 2026-08-01T19:40:52.486Z
+    completionMode: normal
+    pr: https://github.com/cnavta/sprint-mcp/pull/10
+  - id: sprint-11-giiaka
+    title: Comprehensive Test Expansion - Compression Modules and Coverage Improvements
+    status: planning
+    owner: Lead Implementor (Claude Code)
+    createdAt: 2026-08-01T20:56:59.306Z
+    manifestPath: planning/sprint-11-giiaka/sprint-manifest.yaml
+    branch: feature/sprint-11-giiaka-comprehensive-test-expansion-c
+    worktreePath: .worktrees/sprint-11-giiaka
 statistics:
   byStatus:
-    planning: 0
-    in-progress: 1
+    planning: 1
+    in-progress: 0
     validating: 0
     verifying: 0
     published: 0
-    complete: 9
+    complete: 10
   byCompletionMode:
-    normal: 9
+    normal: 10
     forced: 0
-  averageSprintDuration: PT6H
+  averageSprintDuration: PT5H

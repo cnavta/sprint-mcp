@@ -1,0 +1,11 @@
+id: sprint-11-giiaka
+title: Comprehensive Test Expansion - Compression Modules and Coverage Improvements
+goal: Expand test coverage by testing the compression modules (P1 deferred from
+  Sprint 9) and improving coverage for modules just below 80% threshold, aiming
+  for 75%+ overall coverage
+owner: Lead Implementor (Claude Code)
+createdAt: 2026-08-01T20:56:59.306Z
+status: in-progress
+links:
+  branch: feature/sprint-11-giiaka-comprehensive-test-expansion-c
+notes: Sprint initialized via MCP start-sprint tool
