@@ -18,6 +18,10 @@
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "npm run build && node dist/index.js",
     "sprint:index:regenerate": "npm run build && node -e \"import('./dist/common/sprint-index-manager.js').then(m => m.regenerateSprintIndex().then(() => console.log('✅ Sprint index regenerated successfully')))\"",
+    "compress:extract": "npx tsx src/compression/cli.ts extract",
+    "compress:agents": "npx tsx src/compression/cli.ts compress",
+    "compress:validate": "npx tsx src/compression/cli.ts validate",
+    "compress:all": "npm run compress:extract && npm run compress:agents && npm run compress:validate",
     "release": "node scripts/release.js",
     "release:dry": "node scripts/release.js --dry-run"
   },
@@ -32,8 +36,13 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.27",
     "@modelcontextprotocol/sdk": "^1.0.4",
-    "yaml": "^2.3.4"
+    "ai": "^7.0.47",
+    "commander": "^15.0.0",
+    "js-yaml": "^5.2.2",
+    "yaml": "^2.3.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
