@@ -11,7 +11,7 @@
 #
 
 version: "1.0"
-generatedAt: 2026-08-02T16:17:23.352Z
+generatedAt: 2026-08-02T16:35:17.764Z
 totalSprints: 12
 activeSprints: 1
 completedSprints: 11
@@ -129,7 +129,7 @@ sprints:
     pr: https://github.com/cnavta/sprint-mcp/pull/11
   - id: sprint-12-sdwpw0
     title: Sprint Manifest Repair and Recovery Tool
-    status: planning
+    status: in-progress
     owner: Christopher Navta
     createdAt: 2026-08-02T16:17:23.349Z
     manifestPath: planning/sprint-12-sdwpw0/sprint-manifest.yaml
@@ -137,8 +137,8 @@ sprints:
     worktreePath: .worktrees/sprint-12-sdwpw0
 statistics:
   byStatus:
-    planning: 1
-    in-progress: 0
+    planning: 0
+    in-progress: 1
     validating: 0
     verifying: 0
     published: 0
