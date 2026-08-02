@@ -1,0 +1,13 @@
+id: sprint-12-sdwpw0
+title: Sprint Manifest Repair and Recovery Tool
+goal: Add --repair flag to sprint index regeneration to automatically detect and
+  repair missing or invalid sprint manifests by analyzing sprint directory
+  contents and optionally using LLM inference
+owner: Christopher Navta
+createdAt: 2026-08-02T16:17:23.349Z
+status: complete
+links:
+  branch: feature/sprint-12-sdwpw0-sprint-manifest-repair-and-rec
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-02T22:28:49.073Z
+completionMode: forced

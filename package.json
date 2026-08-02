@@ -34,8 +34,23 @@
     "development-workflow",
     "agent-tooling"
   ],
-  "author": "",
+  "author": "Christopher Navta",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cnavta/sprint-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cnavta/sprint-mcp/issues"
+  },
+  "homepage": "https://github.com/cnavta/sprint-mcp#readme",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "AGENTS.md"
+  ],
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.27",
     "@modelcontextprotocol/sdk": "^1.0.4",

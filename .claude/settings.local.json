@@ -20,7 +20,22 @@
       "Bash(git worktree:*)",
       "Bash(npm run test:coverage:*)",
       "Bash(cat:*)",
-      "mcp__sprint-mcp__update-sprint-status"
+      "mcp__sprint-mcp__update-sprint-status",
+      "mcp__sprint-mcp__complete-sprint",
+      "Bash(test:*)",
+      "Bash(npm pack)",
+      "Bash(tar -tzf:*)",
+      "Bash(while read dir)",
+      "Bash(do manifest=\"$dir/sprint-manifest.yaml\")",
+      "Bash(if [ ! -f \"$manifest\" ])",
+      "Bash(then echo \"Missing: $dir\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(for dir in /Users/christophernavta/IdeaProjects/BitBratPlatform/planning/sprint-{132,201,357,362}-*/)",
+      "Bash(do echo '=== $(basename $dir) ===')",
+      "Bash(ls:*)",
+      "Bash(for dir in /Users/christophernavta/IdeaProjects/BitBratPlatform/planning/sprint-*)",
+      "Bash(do if [ ! -f \"$dir/sprint-manifest.yaml\" ])"
     ],
     "deny": [],
     "ask": []

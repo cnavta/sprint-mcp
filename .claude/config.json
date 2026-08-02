@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "sprint-mcp-local": {
+      "command": "node",
+      "args": ["${workspaceFolder}/dist/index.js"],
+      "env": {
+        "SPRINT_ROOT": "${workspaceFolder}",
+        "LOG_LEVEL": "debug",
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}

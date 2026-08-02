@@ -11,10 +11,10 @@
 #
 
 version: "1.0"
-generatedAt: 2026-08-01T20:56:59.312Z
-totalSprints: 11
+generatedAt: 2026-08-02T16:35:17.764Z
+totalSprints: 12
 activeSprints: 1
-completedSprints: 10
+completedSprints: 11
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -118,21 +118,32 @@ sprints:
     pr: https://github.com/cnavta/sprint-mcp/pull/10
   - id: sprint-11-giiaka
     title: Comprehensive Test Expansion - Compression Modules and Coverage Improvements
-    status: planning
+    status: complete
     owner: Lead Implementor (Claude Code)
     createdAt: 2026-08-01T20:56:59.306Z
     manifestPath: planning/sprint-11-giiaka/sprint-manifest.yaml
     branch: feature/sprint-11-giiaka-comprehensive-test-expansion-c
     worktreePath: .worktrees/sprint-11-giiaka
+    completedAt: 2026-08-01T22:17:25.878Z
+    completionMode: normal
+    pr: https://github.com/cnavta/sprint-mcp/pull/11
+  - id: sprint-12-sdwpw0
+    title: Sprint Manifest Repair and Recovery Tool
+    status: in-progress
+    owner: Christopher Navta
+    createdAt: 2026-08-02T16:17:23.349Z
+    manifestPath: planning/sprint-12-sdwpw0/sprint-manifest.yaml
+    branch: feature/sprint-12-sdwpw0-sprint-manifest-repair-and-rec
+    worktreePath: .worktrees/sprint-12-sdwpw0
 statistics:
   byStatus:
-    planning: 1
-    in-progress: 0
+    planning: 0
+    in-progress: 1
     validating: 0
     verifying: 0
     published: 0
-    complete: 10
+    complete: 11
   byCompletionMode:
-    normal: 10
+    normal: 11
     forced: 0
   averageSprintDuration: PT5H

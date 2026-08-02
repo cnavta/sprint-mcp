@@ -28,12 +28,12 @@ Model Context Protocol enables Claude Desktop to interact with external tools an
 
 ## Features
 
-- **Sprint Lifecycle Management** - Start, update, complete, and track sprints
-- **Git Worktree Integration** - Isolated development environments per sprint
-- **Artifact Generation** - Automated creation of plans, reports, retrospectives
-- **Sprint Index Management** - Track all sprints across your projects
-- **Cleanup Tools** - Remove completed sprint worktrees safely
-- **Validation & Verification** - Quality gates and artifact validation
+- ✅ **Sprint Lifecycle Management** - Start, update, complete, and track sprints
+- ✅ **Git Worktree Integration** - Isolated development environments per sprint
+- ✅ **Artifact Generation** - Automated creation of plans, reports, retrospectives
+- ✅ **Sprint Index Management** - Track all sprints across your projects
+- ✅ **Cleanup Tools** - Remove completed sprint worktrees safely
+- ✅ **Validation & Verification** - Quality gates and artifact validation
 
 ---
 
@@ -401,3 +401,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 - **Documentation**: See [installation guide](https://github.com/cnavta/sprint-mcp/blob/main/documentation/claude-desktop-installation-guide.md)
 - **Issues**: [GitHub Issues](https://github.com/cnavta/sprint-mcp/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/cnavta/sprint-mcp/discussions)
+
+---
+
+**Made with ❤️ for LLM-powered development workflows**

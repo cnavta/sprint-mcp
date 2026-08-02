@@ -271,7 +271,8 @@ async function validateManifestFiles(
   }
 
   for (const entry of index.sprints) {
-    if (!entry.manifestPath) {
+    // Skip if manifestPath is missing, null, undefined, or empty string
+    if (!entry.manifestPath || typeof entry.manifestPath !== 'string') {
       continue; // Already reported in validateEntries
     }
 
@@ -303,7 +304,8 @@ async function validateDataConsistency(
   }
 
   for (const entry of index.sprints) {
-    if (!entry.manifestPath) {
+    // Skip if manifestPath is missing, null, undefined, or empty string
+    if (!entry.manifestPath || typeof entry.manifestPath !== 'string') {
       continue;
     }
 

@@ -53,9 +53,7 @@ describe('regenerate-sprint-index tool', () => {
 
       const text = result.content[0].text;
       expect(text).toContain('✅ Sprint index regenerated successfully');
-      expect(text).toContain('Total sprints: 0');
-      expect(text).toContain('Active sprints: 0');
-      expect(text).toContain('Completed sprints: 0');
+      expect(text).toContain('0 total (0 active, 0 completed)');
     });
   });
 
@@ -122,9 +120,7 @@ describe('regenerate-sprint-index tool', () => {
       expect(result.isError).toBeUndefined();
 
       const text = result.content[0].text;
-      expect(text).toContain('Total sprints: 1');
-      expect(text).toContain('Active sprints: 1');
-      expect(text).toContain('Completed sprints: 0');
+      expect(text).toContain('1 total (1 active, 0 completed)');
       expect(text).toContain('sprint-2-def456');
       expect(text).toContain('in-progress');
     });
@@ -403,7 +399,7 @@ describe('regenerate-sprint-index tool', () => {
       expect(result.isError).toBeUndefined();
 
       const text = result.content[0].text;
-      expect(text).toContain('Validation:');
+      // Concise output for clean regeneration - just check for success indicator
       expect(text).toContain('✅');
     });
 
