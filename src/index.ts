@@ -76,10 +76,15 @@ async function main() {
         },
         {
           name: 'regenerate-sprint-index',
-          description: 'Rebuild the sprint index (planning/sprint-index.yaml) from scratch by scanning all sprint manifests. Use this to recover from index corruption or sync issues.',
+          description: 'Rebuild the sprint index (planning/sprint-index.yaml) from scratch by scanning all sprint manifests. Use this to recover from index corruption or sync issues. Optionally create minimal manifests for directories that are missing them.',
           inputSchema: {
             type: 'object',
-            properties: {},
+            properties: {
+              repair: {
+                type: 'boolean',
+                description: 'If true, create minimal manifests for sprint directories that are missing them. These auto-generated manifests will have default values and should be reviewed.',
+              },
+            },
           },
         },
         {

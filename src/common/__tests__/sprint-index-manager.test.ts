@@ -11,10 +11,11 @@ import {
   updateSprintInIndex,
   regenerateSprintIndex,
 } from '../sprint-index-manager.js';
+import { fileExists, readFile } from '../file-utils.js';
 import { mkdtemp, rm, mkdir, writeFile as fsWriteFile } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { stringify as stringifyYaml } from 'yaml';
+import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
 import type { SprintIndex, SprintIndexEntry } from '../../types/sprint-index.js';
 
 describe('sprint-index-manager', () => {
@@ -402,10 +403,12 @@ describe('sprint-index-manager', () => {
 
   describe('regenerateSprintIndex', () => {
     it('should regenerate index from zero manifests', async () => {
-      const index = await regenerateSprintIndex();
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex();
 
       expect(index.totalSprints).toBe(0);
       expect(index.sprints).toEqual([]);
+      expect(skippedDirectories).toBe(0);
+      expect(repairedDirectories).toBe(0);
     });
 
     it('should regenerate index from single manifest', async () => {
@@ -432,11 +435,13 @@ describe('sprint-index-manager', () => {
         'utf-8'
       );
 
-      const index = await regenerateSprintIndex();
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex();
 
       expect(index.totalSprints).toBe(1);
       expect(index.sprints[0].id).toBe('sprint-1-abc123');
       expect(index.sprints[0].pr).toBe('https://github.com/test/repo/pull/1');
+      expect(skippedDirectories).toBe(0);
+      expect(repairedDirectories).toBe(0);
     });
 
     it('should regenerate index from multiple manifests and sort by number', async () => {
@@ -491,11 +496,13 @@ describe('sprint-index-manager', () => {
         'utf-8'
       );
 
-      const index = await regenerateSprintIndex();
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex();
 
       expect(index.totalSprints).toBe(3);
       expect(index.activeSprints).toBe(1);
       expect(index.completedSprints).toBe(2);
+      expect(skippedDirectories).toBe(0);
+      expect(repairedDirectories).toBe(0);
 
       // Should be sorted by sprint number
       expect(index.sprints[0].id).toBe('sprint-1-abc123');
@@ -530,11 +537,80 @@ describe('sprint-index-manager', () => {
         'utf-8'
       );
 
-      const index = await regenerateSprintIndex();
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex();
 
       // Should only include the valid sprint
       expect(index.totalSprints).toBe(1);
       expect(index.sprints[0].id).toBe('sprint-1-abc123');
+      expect(skippedDirectories).toBe(0);
+      expect(repairedDirectories).toBe(0);
+    });
+
+    it('should repair sprint directories with missing manifests when repair=true', async () => {
+      // Create valid sprint with manifest
+      const sprint1Dir = join(planningDir, 'sprint-1-abc123');
+      await mkdir(sprint1Dir, { recursive: true });
+      await fsWriteFile(
+        join(sprint1Dir, 'sprint-manifest.yaml'),
+        stringifyYaml({
+          id: 'sprint-1-abc123',
+          title: 'Sprint 1',
+          goal: 'Goal 1',
+          owner: 'Owner 1',
+          createdAt: '2026-07-30T10:00:00Z',
+          status: 'complete',
+          links: { branch: 'feature/sprint-1-abc123' },
+        }),
+        'utf-8'
+      );
+
+      // Create sprint directory without manifest but with files
+      const sprint2Dir = join(planningDir, 'sprint-2-def456');
+      await mkdir(sprint2Dir, { recursive: true });
+      await fsWriteFile(join(sprint2Dir, 'request-log.md'), '# Request Log\n', 'utf-8');
+
+      // Create empty sprint directory (should be skipped)
+      const sprint3Dir = join(planningDir, 'sprint-3-empty');
+      await mkdir(sprint3Dir, { recursive: true });
+
+      // Regenerate with repair enabled
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex({ repair: true });
+
+      // Should include both valid and repaired sprints
+      expect(index.totalSprints).toBe(2);
+      expect(repairedDirectories).toBe(1);
+      expect(skippedDirectories).toBe(1); // Empty directory
+
+      // Check the repaired manifest was created
+      const manifestExists = await fileExists(join(sprint2Dir, 'sprint-manifest.yaml'));
+      expect(manifestExists).toBe(true);
+
+      // Verify repaired manifest content
+      const repairedContent = await readFile(join(sprint2Dir, 'sprint-manifest.yaml'));
+      const repairedManifest = parseYaml(repairedContent);
+      expect(repairedManifest.id).toBe('sprint-2-def456');
+      expect(repairedManifest.title).toContain('Sprint 2');
+      expect(repairedManifest.title).toContain('Auto-generated');
+      expect(repairedManifest.status).toBe('complete');
+      expect(repairedManifest.owner).toBe('Unknown');
+    });
+
+    it('should skip directories without manifests when repair=false', async () => {
+      // Create sprint directory without manifest
+      const sprintDir = join(planningDir, 'sprint-1-abc123');
+      await mkdir(sprintDir, { recursive: true });
+      await fsWriteFile(join(sprintDir, 'request-log.md'), '# Request Log\n', 'utf-8');
+
+      // Regenerate without repair
+      const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex({ repair: false });
+
+      expect(index.totalSprints).toBe(0);
+      expect(skippedDirectories).toBe(1);
+      expect(repairedDirectories).toBe(0);
+
+      // Manifest should not have been created
+      const manifestExists = await fileExists(join(sprintDir, 'sprint-manifest.yaml'));
+      expect(manifestExists).toBe(false);
     });
   });
 });

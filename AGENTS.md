@@ -1,4 +1,4 @@
-# AGENTS.md — Human–LLM Sprint Protocol v3.0
+# AGENTS.md — Human–LLM Sprint Protocol v3.1
 
 ## 🧱 0. Precedence & Scope
 

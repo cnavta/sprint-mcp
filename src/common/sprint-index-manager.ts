@@ -21,6 +21,7 @@ import {
   readFile,
   writeFile,
   listDirectories,
+  listFiles,
 } from './file-utils.js';
 import type {
   SprintIndex,
@@ -185,8 +186,8 @@ export async function addSprintToIndex(
 
   // Sort sprints by number (extracted from id: sprint-N-hash)
   index.sprints.sort((a, b) => {
-    const numA = parseInt(a.id.match(/sprint-(\d+)-/)?.[1] || '0');
-    const numB = parseInt(b.id.match(/sprint-(\d+)-/)?.[1] || '0');
+    const numA = parseInt(a.id?.match(/sprint-(\d+)-/)?.[1] || '0');
+    const numB = parseInt(b.id?.match(/sprint-(\d+)-/)?.[1] || '0');
     return numA - numB;
   });
 
@@ -228,10 +229,15 @@ export async function updateSprintInIndex(
     throw new Error(`Sprint ${sprintId} not found in index`);
   }
 
+  // Filter out undefined values from updates to avoid overwriting existing fields
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([_, value]) => value !== undefined)
+  );
+
   // Merge updates into existing entry
   index.sprints[sprintIndex] = {
     ...index.sprints[sprintIndex],
-    ...updates,
+    ...cleanUpdates,
   };
 
   // Recompute statistics
@@ -249,20 +255,97 @@ export async function updateSprintInIndex(
 }
 
 /**
+ * Result of sprint index regeneration including diagnostics
+ */
+export interface RegenerateResult {
+  index: SprintIndex;
+  skippedDirectories: number;
+  repairedDirectories: number;
+}
+
+/**
+ * Options for sprint index regeneration
+ */
+export interface RegenerateOptions {
+  /** Create minimal manifests for directories missing them */
+  repair?: boolean;
+}
+
+/**
+ * Create a minimal sprint manifest for a directory without one
+ *
+ * @param dirName Sprint directory name (e.g., "sprint-123-abc456")
+ * @param sprintDir Full path to sprint directory
+ * @returns Promise<SprintManifest | null> The created manifest or null if unable
+ */
+async function createMinimalManifest(
+  dirName: string,
+  sprintDir: string
+): Promise<SprintManifest | null> {
+  logger.info(`Creating minimal manifest for ${dirName}`);
+
+  // Extract sprint number from directory name (sprint-123-abc or sprint-123)
+  const match = dirName.match(/^sprint-(\d+)(?:-(.+))?$/);
+  if (!match) {
+    logger.warn(`Cannot parse sprint ID from directory name: ${dirName}`);
+    return null;
+  }
+
+  const sprintNumber = match[1];
+  const sprintHash = match[2] || 'unknown';
+  const sprintId = `sprint-${sprintNumber}-${sprintHash}`;
+
+  // Check if directory has any files (don't create manifests for empty dirs)
+  const files = await listFiles(sprintDir);
+  if (files.length === 0) {
+    logger.warn(`Directory ${dirName} is empty, skipping manifest creation`);
+    return null;
+  }
+
+  // Try to get directory creation/modification time
+  let createdAt: string;
+  try {
+    const stats = await fs.stat(sprintDir);
+    createdAt = stats.birthtime.toISOString();
+  } catch {
+    createdAt = new Date().toISOString();
+  }
+
+  const manifest: SprintManifest = {
+    id: sprintId,
+    title: `Sprint ${sprintNumber} (Auto-generated)`,
+    goal: 'No goal specified - manifest was auto-generated during repair',
+    owner: 'Unknown',
+    createdAt,
+    status: 'complete', // Existing directories are likely completed sprints
+    links: {
+      branch: `feature/${sprintId}`,
+    },
+  };
+
+  return manifest;
+}
+
+/**
  * Regenerate the entire sprint index from manifests
  *
  * Scans the planning directory for all sprint manifests, extracts metadata,
  * and rebuilds the index from scratch. This is the recovery mechanism if
  * the index becomes corrupted or out of sync.
  *
- * @returns Promise<SprintIndex> The regenerated index
+ * @param options Regeneration options
+ * @returns Promise<RegenerateResult> The regenerated index and diagnostics
  */
-export async function regenerateSprintIndex(): Promise<SprintIndex> {
+export async function regenerateSprintIndex(
+  options: RegenerateOptions = {}
+): Promise<RegenerateResult> {
   logger.info('Regenerating sprint index from manifests');
 
   const planningDir = getPlanningDir();
   const sprintDirs = await listDirectories(planningDir);
   const entries: SprintIndexEntry[] = [];
+  let skippedCount = 0;
+  let repairedCount = 0;
 
   for (const sprintDir of sprintDirs) {
     // Skip non-sprint directories (e.g., planning/sprint-index.yaml)
@@ -273,10 +356,48 @@ export async function regenerateSprintIndex(): Promise<SprintIndex> {
 
     const manifestPath = join(sprintDir, 'sprint-manifest.yaml');
 
-    if (await fileExists(manifestPath)) {
-      try {
+    if (!(await fileExists(manifestPath))) {
+      // Repair mode: try to create minimal manifest
+      if (options.repair) {
+        logger.info(`Attempting to repair ${dirName} by creating minimal manifest`);
+        const minimalManifest = await createMinimalManifest(dirName, sprintDir);
+
+        if (minimalManifest) {
+          try {
+            const manifestContent = stringifyYaml(minimalManifest, {
+              lineWidth: 0,
+              indent: 2,
+            });
+            await writeFile(manifestPath, manifestContent);
+            logger.info(`Created minimal manifest for ${dirName}`);
+            repairedCount++;
+            // Continue to process this manifest below
+          } catch (error) {
+            logger.error(`Failed to write manifest for ${dirName}`, error);
+            skippedCount++;
+            continue;
+          }
+        } else {
+          logger.warn(`Could not create minimal manifest for ${dirName}, skipping`);
+          skippedCount++;
+          continue;
+        }
+      } else {
+        logger.warn(`Sprint directory ${dirName} has no sprint-manifest.yaml, skipping`);
+        skippedCount++;
+        continue;
+      }
+    }
+
+    try {
         const manifestContent = await readFile(manifestPath);
         const manifest = parseYaml(manifestContent) as SprintManifest;
+
+        // Skip manifests without required id field
+        if (!manifest.id) {
+          logger.warn(`Manifest at ${manifestPath} missing required 'id' field, skipping`);
+          continue;
+        }
 
         // Extract worktree path if it exists
         const worktreePath = join('.worktrees', dirName);
@@ -316,13 +437,12 @@ export async function regenerateSprintIndex(): Promise<SprintIndex> {
         logger.warn(`Failed to parse manifest at ${manifestPath}`, error);
         // Continue processing other manifests
       }
-    }
   }
 
   // Sort sprints by number
   entries.sort((a, b) => {
-    const numA = parseInt(a.id.match(/sprint-(\d+)-/)?.[1] || '0');
-    const numB = parseInt(b.id.match(/sprint-(\d+)-/)?.[1] || '0');
+    const numA = parseInt(a.id?.match(/sprint-(\d+)-/)?.[1] || '0');
+    const numB = parseInt(b.id?.match(/sprint-(\d+)-/)?.[1] || '0');
     return numA - numB;
   });
 
@@ -339,11 +459,21 @@ export async function regenerateSprintIndex(): Promise<SprintIndex> {
 
   await saveSprintIndex(index);
 
-  logger.info(
-    `Successfully regenerated index with ${index.totalSprints} sprints`
-  );
+  let logMessage = `Successfully regenerated index with ${index.totalSprints} sprints`;
+  if (repairedCount > 0) {
+    logMessage += ` (${repairedCount} manifests created)`;
+  }
+  if (skippedCount > 0) {
+    logMessage += ` (${skippedCount} directories skipped)`;
+  }
 
-  return index;
+  if (repairedCount > 0 || skippedCount > 0) {
+    logger.warn(logMessage);
+  } else {
+    logger.info(logMessage);
+  }
+
+  return { index, skippedDirectories: skippedCount, repairedDirectories: repairedCount };
 }
 
 /**
