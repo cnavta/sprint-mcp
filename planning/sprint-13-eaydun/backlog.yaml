@@ -35,7 +35,7 @@ phases:
   - id: phase-1
     name: "Phase 1: Archive Directory Structure & Migration"
     priority: P0
-    status: in-progress
+    status: completed
     dependencies: [phase-0]
     description: "Create archive structure and migrate 13 existing sprints"
     duration: "1-1.5 days"
@@ -384,7 +384,7 @@ tasks:
     title: "Execute Migration on sprint-mcp"
     description: "Run migration script on sprint-mcp's 13 sprints"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 0.5
     dependencies: ["13-101", "13-102", "13-103", "13-104", "13-105"]
     acceptance_criteria:

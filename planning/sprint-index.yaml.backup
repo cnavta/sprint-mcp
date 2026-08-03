@@ -7,143 +7,23 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-08-01T19:51:18.616Z
+# Generated: 2026-08-03T14:14:13.087Z
 #
 
 version: "1.0"
-generatedAt: 2026-08-02T16:35:17.764Z
-totalSprints: 12
-activeSprints: 1
-completedSprints: 11
-sprints:
-  - id: sprint-1-a9f3c2
-    title: Human-LLM Sprint Protocol revision
-    status: complete
-    owner: Christopher Navta
-    createdAt: 2026-07-23T00:02:03Z
-    manifestPath: planning/sprint-1-a9f3c2/sprint-manifest.yaml
-    branch: feature/sprint-1-a9f3c2-human-llm-protocol
-    completionMode: normal
-  - id: sprint-2-b7e4d1
-    title: Resolve Git Baseline and Remote Configuration
-    status: complete
-    owner: Christopher Navta
-    createdAt: 2026-07-30T00:00:00Z
-    manifestPath: planning/sprint-2-b7e4d1/sprint-manifest.yaml
-    branch: feature/sprint-2-b7e4d1-git-baseline-remote
-    completionMode: normal
-  - id: sprint-3-c8f2a9
-    title: Git Worktrees Integration and MCP Testing Infrastructure
-    status: complete
-    owner: Christopher Navta
-    createdAt: 2026-07-30T14:00:00Z
-    manifestPath: planning/sprint-3-c8f2a9/sprint-manifest.yaml
-    branch: feature/sprint-3-c8f2a9-worktrees-and-testing
-    completedAt: 2026-07-30T19:40:00Z
-    completionMode: normal
-    pr: https://github.com/cnavta/sprint-mcp/pull/2
-  - id: sprint-4-d9e2f1
-    title: Sprint Index System Implementation
-    status: complete
-    owner: Christopher Navta
-    createdAt: 2026-07-30T20:00:00Z
-    manifestPath: planning/sprint-4-d9e2f1/sprint-manifest.yaml
-    branch: feature/sprint-4-d9e2f1-sprint-index
-    startedAt: 2026-07-31T12:35:00Z
-    completedAt: 2026-07-31T19:15:00Z
-    completionMode: normal
-    pr: https://github.com/cnavta/sprint-mcp/pull/3
-    worktreePath: .worktrees/sprint-4-d9e2f1
-  - id: sprint-5-f38572
-    title: Complete Sprint 4 Deferred Work
-    status: complete
-    owner: Christopher Navta
-    createdAt: 2026-07-31T20:00:00Z
-    manifestPath: planning/sprint-5-f38572/sprint-manifest.yaml
-    branch: feature/sprint-5-f38572-deferred-work
-    startedAt: 2026-07-31T20:00:00Z
-    completedAt: 2026-07-31T20:50:51.926Z
-    completionMode: normal
-    pr: https://github.com/cnavta/sprint-mcp/pull/4
-  - id: sprint-6-24txmg
-    title: LLM-Powered AGENTS.md Compression System
-    status: complete
-    owner: christophernavta
-    createdAt: 2026-07-31T21:53:26.571Z
-    manifestPath: planning/sprint-6-24txmg/sprint-manifest.yaml
-    branch: feature/sprint-6-24txmg-llm-powered-agents-md-compress
-    worktreePath: .worktrees/sprint-6-24txmg
-    completedAt: 2026-07-31T23:10:00Z
-    completionMode: normal
-  - id: sprint-7-f7cz9y
-    title: Sprint Completion MCP Tool
-    status: complete
-    owner: christophernavta
-    createdAt: 2026-08-01T02:28:40.401Z
-    manifestPath: planning/sprint-7-f7cz9y/sprint-manifest.yaml
-    branch: feature/sprint-7-f7cz9y-sprint-completion-mcp-tool
-    worktreePath: .worktrees/sprint-7-f7cz9y
-    completedAt: 2026-08-01T03:09:22.337Z
-    completionMode: normal
-  - id: sprint-8-xksnd8
-    title: Sprint Cleanup Tool - Git Worktree and Artifact Management
-    status: complete
-    owner: christophernavta
-    createdAt: 2026-08-01T03:55:03.224Z
-    manifestPath: planning/sprint-8-xksnd8/sprint-manifest.yaml
-    branch: feature/sprint-8-xksnd8-sprint-cleanup-tool-git-worktr
-    worktreePath: .worktrees/sprint-8-xksnd8
-    completedAt: 2026-08-01T14:03:09.533Z
-    completionMode: normal
-  - id: sprint-9-qpzk5e
-    title: Test Coverage, Documentation, and README Updates
-    status: complete
-    owner: christophernavta
-    createdAt: 2026-08-01T14:28:31.768Z
-    manifestPath: planning/sprint-9-qpzk5e/sprint-manifest.yaml
-    branch: feature/sprint-9-qpzk5e-test-coverage-documentation-an
-    worktreePath: .worktrees/sprint-9-qpzk5e
-    completedAt: 2026-08-01T15:06:55.028Z
-    completionMode: normal
-  - id: sprint-10-t5kiid
-    title: Testing Infrastructure and Coverage Improvements
-    status: complete
-    owner: christophernavta
-    createdAt: 2026-08-01T18:59:39.646Z
-    manifestPath: planning/sprint-10-t5kiid/sprint-manifest.yaml
-    branch: feature/sprint-10-t5kiid-testing-infrastructure-and-cov
-    worktreePath: .worktrees/sprint-10-t5kiid
-    completedAt: 2026-08-01T19:40:52.486Z
-    completionMode: normal
-    pr: https://github.com/cnavta/sprint-mcp/pull/10
-  - id: sprint-11-giiaka
-    title: Comprehensive Test Expansion - Compression Modules and Coverage Improvements
-    status: complete
-    owner: Lead Implementor (Claude Code)
-    createdAt: 2026-08-01T20:56:59.306Z
-    manifestPath: planning/sprint-11-giiaka/sprint-manifest.yaml
-    branch: feature/sprint-11-giiaka-comprehensive-test-expansion-c
-    worktreePath: .worktrees/sprint-11-giiaka
-    completedAt: 2026-08-01T22:17:25.878Z
-    completionMode: normal
-    pr: https://github.com/cnavta/sprint-mcp/pull/11
-  - id: sprint-12-sdwpw0
-    title: Sprint Manifest Repair and Recovery Tool
-    status: in-progress
-    owner: Christopher Navta
-    createdAt: 2026-08-02T16:17:23.349Z
-    manifestPath: planning/sprint-12-sdwpw0/sprint-manifest.yaml
-    branch: feature/sprint-12-sdwpw0-sprint-manifest-repair-and-rec
-    worktreePath: .worktrees/sprint-12-sdwpw0
+generatedAt: 2026-08-03T14:14:13.112Z
+totalSprints: 0
+activeSprints: 0
+completedSprints: 0
+sprints: []
 statistics:
   byStatus:
     planning: 0
-    in-progress: 1
+    in-progress: 0
     validating: 0
     verifying: 0
     published: 0
-    complete: 11
+    complete: 0
   byCompletionMode:
-    normal: 11
+    normal: 0
     forced: 0
-  averageSprintDuration: PT5H
