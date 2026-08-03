@@ -35,7 +35,7 @@ phases:
   - id: phase-1
     name: "Phase 1: Archive Directory Structure & Migration"
     priority: P0
-    status: pending
+    status: in-progress
     dependencies: [phase-0]
     description: "Create archive structure and migrate 13 existing sprints"
     duration: "1-1.5 days"
@@ -281,7 +281,7 @@ tasks:
     title: "Create Archive Configuration Schema"
     description: "Define TypeScript interfaces for archive configuration"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 1
     dependencies: ["13-012"]
     files:
