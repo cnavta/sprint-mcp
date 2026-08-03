@@ -10,6 +10,7 @@
 
 import { join } from 'path';
 import { logger } from '../common/logger.js';
+import { getPlanningDir } from '../common/path-utils.js';
 import { fileExists } from '../common/file-utils.js';
 import { updateSprintStatusTool } from './update-sprint-status.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
@@ -66,7 +67,7 @@ function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
 async function checkRequiredArtifacts(
   sprintId: string
 ): Promise<ArtifactCheck[]> {
-  const sprintDir = join(process.cwd(), 'planning', sprintId);
+  const sprintDir = join(getPlanningDir(), sprintId);
 
   const requiredArtifacts = [
     'verification-report.md',
@@ -123,8 +124,7 @@ async function validateSprintCompletion(
 
   // Check 1: Sprint manifest exists
   const manifestPath = join(
-    process.cwd(),
-    'planning',
+    getPlanningDir(),
     sprintId,
     'sprint-manifest.yaml'
   );

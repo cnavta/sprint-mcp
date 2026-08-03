@@ -8,6 +8,7 @@
 import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
+import { getPlanningDir } from '../common/path-utils.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
 import { updateSprintInIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
@@ -93,8 +94,7 @@ export async function updateSprintStatusTool(
 
   // Step 1: Load and update manifest (authoritative source)
   const manifestPath = join(
-    process.cwd(),
-    'planning',
+    getPlanningDir(),
     sprintId,
     'sprint-manifest.yaml'
   );

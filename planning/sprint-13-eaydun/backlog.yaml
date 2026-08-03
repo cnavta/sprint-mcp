@@ -1,0 +1,926 @@
+# Sprint 13 Trackable Backlog
+# Sprint Archive System with Knowledge Capture
+
+sprint:
+  id: sprint-13-eaydun
+  title: Sprint Archive System with Knowledge Capture
+  owner: Christopher Navta
+  status: in-progress
+  created: 2026-08-02T23:12:33.918Z
+  started: 2026-08-03T00:00:00.000Z
+
+# Priority Levels:
+# P0 - Critical blocker, must complete
+# P1 - High priority, core deliverable
+# P2 - Medium priority, important but can defer
+# P3 - Low priority, nice to have
+
+# Status Values:
+# pending - Not started
+# in-progress - Currently working
+# completed - Done
+# deferred - Postponed to future sprint
+# blocked - Waiting on dependency
+
+phases:
+  - id: phase-0
+    name: "Phase 0: Critical Path Resolution Fix"
+    priority: P0
+    status: completed
+    blocker: true
+    description: "Fix SPRINT_ROOT path resolution to enable multi-repository support"
+    duration: "0.5-1 day"
+    effort_hours: "8-10"
+
+  - id: phase-1
+    name: "Phase 1: Archive Directory Structure & Migration"
+    priority: P0
+    status: pending
+    dependencies: [phase-0]
+    description: "Create archive structure and migrate 13 existing sprints"
+    duration: "1-1.5 days"
+    effort_hours: "10-12"
+
+  - id: phase-2
+    name: "Phase 2: Archive Sprint Tool"
+    priority: P0
+    status: pending
+    dependencies: [phase-1]
+    description: "Implement archive-sprint MCP tool"
+    duration: "1-1.5 days"
+    effort_hours: "10-12"
+
+  - id: phase-3
+    name: "Phase 3: Knowledge Extraction System"
+    priority: P1
+    status: pending
+    dependencies: [phase-2]
+    description: "Implement flexible knowledge extraction with deduplication"
+    duration: "2-2.5 days"
+    effort_hours: "18-20"
+
+  - id: phase-4
+    name: "Phase 4: Auto-Archive and Polish"
+    priority: P2
+    status: pending
+    dependencies: [phase-3]
+    description: "Optional auto-archive tool and documentation"
+    duration: "0.5-1 day"
+    effort_hours: "6-8"
+
+tasks:
+  # ============================================================================
+  # PHASE 0: CRITICAL PATH RESOLUTION FIX (BLOCKER)
+  # ============================================================================
+
+  - id: "13-000"
+    phase: phase-0
+    title: "Create Path Utilities Module"
+    description: "Create src/common/path-utils.ts with getProjectRoot(), getPlanningDir(), getWorktreeDir()"
+    priority: P0
+    status: completed
+    effort_hours: 1-2
+    dependencies: []
+    files:
+      - src/common/path-utils.ts
+    acceptance_criteria:
+      - Module exports 3 functions
+      - Respects SPRINT_ROOT when set
+      - Falls back to process.cwd() when not set
+      - Includes JSDoc comments
+      - Comprehensive inline documentation
+
+  - id: "13-001"
+    phase: phase-0
+    title: "Refactor Git Utilities for Path Resolution"
+    description: "Update git-utils.ts to use getProjectRoot() instead of process.cwd()"
+    priority: P0
+    status: completed
+    effort_hours: 0.5
+    dependencies: ["13-000"]
+    files:
+      - src/common/git-utils.ts
+    acceptance_criteria:
+      - getWorktreePath() uses getProjectRoot()
+      - No direct process.cwd() usage
+      - All git operations use correct project root
+
+  - id: "13-002"
+    phase: phase-0
+    title: "Refactor Sprint Index Manager for Path Resolution"
+    description: "Update sprint-index-manager.ts to use getPlanningDir()"
+    priority: P0
+    status: completed
+    effort_hours: 0.5
+    dependencies: ["13-000"]
+    files:
+      - src/common/sprint-index-manager.ts
+    acceptance_criteria:
+      - All path construction uses getPlanningDir()
+      - No direct join(process.cwd(), 'planning') usage
+      - Functions work across repositories
+
+  - id: "13-003"
+    phase: phase-0
+    title: "Refactor start-sprint Tool"
+    description: "Update start-sprint.ts to use path utilities"
+    priority: P0
+    status: completed
+    effort_hours: 0.5
+    dependencies: ["13-000"]
+    files:
+      - src/tools/start-sprint.ts
+    acceptance_criteria:
+      - Uses getPlanningDir() for planning path
+      - Uses getWorktreeDir() for worktree path
+      - Sprint created in correct repository
+
+  - id: "13-004"
+    phase: phase-0
+    title: "Refactor check-sprint-status Tool"
+    description: "Update check-sprint-status.ts to use getPlanningDir()"
+    priority: P0
+    status: completed
+    effort_hours: 0.25
+    dependencies: ["13-000"]
+    files:
+      - src/tools/check-sprint-status.ts
+    acceptance_criteria:
+      - Scans correct planning directory
+      - Works across repositories
+
+  - id: "13-005"
+    phase: phase-0
+    title: "Refactor regenerate-sprint-index Tool"
+    description: "Update regenerate-sprint-index.ts to use getPlanningDir()"
+    priority: P0
+    status: completed
+    effort_hours: 0.25
+    notes: "No changes needed - already uses sprint-index-manager which was refactored"
+    dependencies: ["13-000"]
+    files:
+      - src/tools/regenerate-sprint-index.ts
+    acceptance_criteria:
+      - Scans correct planning directory
+      - Generates index in correct location
+
+  - id: "13-006"
+    phase: phase-0
+    title: "Refactor complete-sprint Tool"
+    description: "Update complete-sprint.ts to use path utilities"
+    priority: P0
+    status: completed
+    effort_hours: 0.25
+    dependencies: ["13-000"]
+    files:
+      - src/tools/complete-sprint.ts
+    acceptance_criteria:
+      - Validates artifacts in correct location
+      - Updates index in correct repository
+
+  - id: "13-007"
+    phase: phase-0
+    title: "Refactor cleanup-sprint Tool"
+    description: "Update cleanup-sprint.ts to use getProjectRoot()"
+    priority: P0
+    status: completed
+    effort_hours: 0.25
+    notes: "No changes needed - already uses git-utils which was refactored"
+    dependencies: ["13-000"]
+    files:
+      - src/tools/cleanup-sprint.ts
+    acceptance_criteria:
+      - Removes worktrees from correct repository
+      - Works across repositories
+
+  - id: "13-008"
+    phase: phase-0
+    title: "Refactor update-sprint-status Tool"
+    description: "Update update-sprint-status.ts to use getPlanningDir()"
+    priority: P0
+    status: completed
+    effort_hours: 0.25
+    dependencies: ["13-000"]
+    files:
+      - src/tools/update-sprint-status.ts
+    acceptance_criteria:
+      - Updates manifests in correct location
+      - Updates index in correct repository
+
+  - id: "13-009"
+    phase: phase-0
+    title: "Unit Tests for Path Utilities"
+    description: "Create comprehensive unit tests for path-utils.ts"
+    priority: P0
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-000"]
+    files:
+      - src/common/__tests__/path-utils.test.ts
+    acceptance_criteria:
+      - Tests getProjectRoot() with SPRINT_ROOT set
+      - Tests getProjectRoot() with fallback to cwd
+      - Tests getPlanningDir() path construction
+      - Tests getWorktreeDir() with sprint ID
+      - 100% code coverage
+
+  - id: "13-010"
+    phase: phase-0
+    title: "Integration Test for Multi-Repository Support"
+    description: "Create integration test verifying multi-repo functionality"
+    priority: P0
+    status: pending
+    effort_hours: 1-2
+    dependencies: ["13-003"]
+    files:
+      - src/__tests__/integration/multi-repo.test.ts
+    acceptance_criteria:
+      - Creates two temp repositories
+      - Switches SPRINT_ROOT between them
+      - Verifies sprints created in correct repo
+      - All operations work across repos
+
+  - id: "13-011"
+    phase: phase-0
+    title: "Update Documentation for Multi-Repo Setup"
+    description: "Add multi-repository configuration guide to CLAUDE.md and README.md"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: []
+    files:
+      - CLAUDE.md
+      - README.md
+    acceptance_criteria:
+      - Example MCP server configuration
+      - Instructions for multiple repositories
+      - Tool prefix usage explained
+      - Clear and concise
+
+  - id: "13-012"
+    phase: phase-0
+    title: "Build and Verify in BitBratPlatform"
+    description: "Build project and verify path fix works in BitBratPlatform"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-000", "13-001", "13-002", "13-003", "13-004", "13-005", "13-006", "13-007", "13-008"]
+    acceptance_criteria:
+      - npm run build succeeds
+      - Can start sprint in BitBratPlatform
+      - Sprint created in correct location
+      - No path-related errors
+      - All existing tests pass
+
+  # ============================================================================
+  # PHASE 1: ARCHIVE DIRECTORY STRUCTURE & MIGRATION
+  # ============================================================================
+
+  - id: "13-100"
+    phase: phase-1
+    title: "Create Archive Configuration Schema"
+    description: "Define TypeScript interfaces for archive configuration"
+    priority: P0
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-012"]
+    files:
+      - src/types/archive-config.ts
+      - src/types/index.ts
+    acceptance_criteria:
+      - ArchiveConfig interface defined
+      - Matches architecture design
+      - Exported from types/index.ts
+      - JSDoc comments included
+
+  - id: "13-101"
+    phase: phase-1
+    title: "Implement Migration Script"
+    description: "Create script to migrate flat structure to active/archive hierarchy"
+    priority: P0
+    status: pending
+    effort_hours: 3-4
+    dependencies: ["13-100"]
+    files:
+      - src/scripts/migrate-to-archive-structure.ts
+      - package.json (add script)
+    acceptance_criteria:
+      - Validates current state
+      - Creates backup of sprint-index.yaml
+      - Creates archive directories
+      - Moves sprints to active/ or archive/
+      - Regenerates index with new paths
+      - Creates archive-config.yaml
+      - Supports dry-run mode
+      - Atomic operations with rollback
+      - Comprehensive logging
+
+  - id: "13-102"
+    phase: phase-1
+    title: "Migration Tests"
+    description: "Comprehensive unit tests for migration script"
+    priority: P0
+    status: pending
+    effort_hours: 2
+    dependencies: ["13-101"]
+    files:
+      - src/scripts/__tests__/migrate-archive.test.ts
+    acceptance_criteria:
+      - Tests directory creation
+      - Tests sprint movement
+      - Tests index path updates
+      - Tests data preservation
+      - Tests rollback functionality
+      - Tests dry-run mode
+
+  - id: "13-103"
+    phase: phase-1
+    title: "Update Regenerate Index for Archive Scanning"
+    description: "Update sprint-index-manager.ts to scan both active/ and archive/"
+    priority: P0
+    status: pending
+    effort_hours: 2
+    dependencies: ["13-101"]
+    files:
+      - src/common/sprint-index-manager.ts
+    acceptance_criteria:
+      - Scans planning/active/
+      - Scans planning/archive/{year}/
+      - Combines results correctly
+      - Preserves sprint order
+
+  - id: "13-104"
+    phase: phase-1
+    title: "Update Check Status for Active-Only Scanning"
+    description: "Update check-sprint-status.ts to scan only active/"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-101"]
+    files:
+      - src/tools/check-sprint-status.ts
+    acceptance_criteria:
+      - Scans only planning/active/
+      - Archived sprints not considered active
+      - Returns correct active sprint count
+
+  - id: "13-105"
+    phase: phase-1
+    title: "Update Start Sprint for Active Directory"
+    description: "Update start-sprint.ts to create sprints in planning/active/"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-101"]
+    files:
+      - src/tools/start-sprint.ts
+    acceptance_criteria:
+      - Creates sprints in planning/active/
+      - Ensures active/ directory exists
+      - Sprint manifests reference correct paths
+
+  - id: "13-106"
+    phase: phase-1
+    title: "Execute Migration on sprint-mcp"
+    description: "Run migration script on sprint-mcp's 13 sprints"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-101", "13-102", "13-103", "13-104", "13-105"]
+    acceptance_criteria:
+      - Backup created successfully
+      - Migration completes without errors
+      - planning/active/ has sprint-12, sprint-13
+      - planning/archive/2026/ has sprint-1 through sprint-11
+      - sprint-index.yaml has updated paths
+      - All tests pass after migration
+      - Index regenerates correctly
+
+  - id: "13-107"
+    phase: phase-1
+    title: "Create Rollback Documentation"
+    description: "Document rollback procedure for migration"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-101"]
+    files:
+      - planning/MIGRATION_ROLLBACK.md
+    acceptance_criteria:
+      - Step-by-step rollback instructions
+      - Backup restoration procedure
+      - Sprint movement commands
+      - Validation steps
+
+  # ============================================================================
+  # PHASE 2: ARCHIVE SPRINT TOOL
+  # ============================================================================
+
+  - id: "13-200"
+    phase: phase-2
+    title: "Define Archive Sprint Types"
+    description: "Create TypeScript interfaces for archive-sprint tool"
+    priority: P0
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-106"]
+    files:
+      - src/types/archive.ts
+      - src/types/index.ts
+    acceptance_criteria:
+      - ArchiveSprintArgs interface defined
+      - ArchiveSprintResult interface defined
+      - Exported from types/index.ts
+      - JSDoc comments
+
+  - id: "13-201"
+    phase: phase-2
+    title: "Implement Archive Sprint Tool"
+    description: "Create archive-sprint MCP tool for manual archival"
+    priority: P0
+    status: pending
+    effort_hours: 4-5
+    dependencies: ["13-200"]
+    files:
+      - src/tools/archive-sprint.ts
+    acceptance_criteria:
+      - Validates sprint is completed
+      - Determines archive year from manifest
+      - Creates archive/{year}/ if needed
+      - Moves sprint directory
+      - Updates sprint-index.yaml paths
+      - Integrates with knowledge extraction
+      - Supports dry-run mode
+      - Comprehensive error handling
+      - Logging at each step
+
+  - id: "13-202"
+    phase: phase-2
+    title: "Archive Sprint Tests"
+    description: "Unit tests for archive-sprint tool"
+    priority: P0
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-201"]
+    files:
+      - src/tools/__tests__/archive-sprint.test.ts
+    acceptance_criteria:
+      - Tests successful archival
+      - Tests year determination
+      - Tests createdAt fallback
+      - Tests index path updates
+      - Tests directory creation
+      - Tests validation failures
+      - Tests dry-run mode
+      - Tests knowledge extraction integration
+
+  - id: "13-203"
+    phase: phase-2
+    title: "Archive Lifecycle Integration Test"
+    description: "End-to-end test of start → complete → archive workflow"
+    priority: P0
+    status: pending
+    effort_hours: 2
+    dependencies: ["13-201"]
+    files:
+      - src/__tests__/integration/archive-lifecycle.test.ts
+    acceptance_criteria:
+      - Start sprint in active/
+      - Complete sprint
+      - Archive sprint to archive/2026/
+      - Regenerate index
+      - Verify paths correct
+      - Check status excludes archived
+
+  - id: "13-204"
+    phase: phase-2
+    title: "Register Archive Tool in MCP Server"
+    description: "Add archive-sprint to MCP tool registry"
+    priority: P0
+    status: pending
+    effort_hours: 0.25
+    dependencies: ["13-201"]
+    files:
+      - src/index.ts
+    acceptance_criteria:
+      - Tool registered with correct name
+      - Input schema defined
+      - Tool callable via MCP
+      - Shows in tool list
+
+  # ============================================================================
+  # PHASE 3: KNOWLEDGE EXTRACTION SYSTEM
+  # ============================================================================
+
+  - id: "13-300"
+    phase: phase-3
+    title: "Define Knowledge Schemas"
+    description: "Create TypeScript interfaces for knowledge base"
+    priority: P1
+    status: pending
+    effort_hours: 1-2
+    dependencies: ["13-204"]
+    files:
+      - src/types/knowledge.ts
+      - src/types/index.ts
+    acceptance_criteria:
+      - Lesson interface defined
+      - Pattern interface defined
+      - AntiPattern interface defined
+      - KnowledgeBase interface defined
+      - SprintMetrics interface defined
+      - KnowledgeArtifacts interface defined
+      - Exported from types/index.ts
+
+  - id: "13-301"
+    phase: phase-3
+    title: "Implement Artifact Discovery"
+    description: "Pattern-based discovery of knowledge artifacts"
+    priority: P1
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-300"]
+    files:
+      - src/common/knowledge/artifact-discovery.ts
+    acceptance_criteria:
+      - Finds key-learnings.md
+      - Finds lessons-learned.md
+      - Finds custom named files (*learn*.md)
+      - Finds retro.md
+      - Finds SPRINT_COMPLETE.md
+      - Finds completion-summary.md
+      - Finds all *-summary.md files
+      - Pattern matching case-insensitive
+      - Returns categorized artifacts
+
+  - id: "13-302"
+    phase: phase-3
+    title: "Implement Markdown Parsers"
+    description: "Parse various markdown formats for knowledge extraction"
+    priority: P1
+    status: pending
+    effort_hours: 3-4
+    dependencies: ["13-300"]
+    files:
+      - src/common/knowledge/markdown-parser.ts
+    acceptance_criteria:
+      - parseMarkdownSections() splits by headers
+      - parseKeyLearningsMarkdown() extracts lessons
+      - parseRetroMarkdown() extracts retrospective
+      - extractFromSummary() handles SPRINT_COMPLETE.md
+      - detectCategories() identifies Technical/Process/etc
+      - Handles markdown variations
+      - Robust error handling
+
+  - id: "13-303"
+    phase: phase-3
+    title: "Implement Knowledge Extractor"
+    description: "Main extraction logic with priority fallback"
+    priority: P1
+    status: pending
+    effort_hours: 4-5
+    dependencies: ["13-301", "13-302"]
+    files:
+      - src/common/knowledge/extractor.ts
+    acceptance_criteria:
+      - Tries explicit learning files first
+      - Falls back to retro files
+      - Falls back to summary files
+      - Falls back to verification-report
+      - Logs extraction source
+      - Handles missing artifacts gracefully
+      - Computes sprint metrics
+      - Returns structured knowledge
+
+  - id: "13-304"
+    phase: phase-3
+    title: "Implement Deduplication Logic"
+    description: "Fuzzy matching and frequency tracking for lessons"
+    priority: P1
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-300"]
+    files:
+      - src/common/knowledge/deduplication.ts
+    acceptance_criteria:
+      - findSimilarLesson() uses similarity scoring
+      - Similarity threshold tunable (default 0.7-0.8)
+      - Increments frequency on duplicates
+      - Adds sprint to sources
+      - aggregateKnowledge() merges new lessons
+      - Saves updated knowledge base
+
+  - id: "13-305"
+    phase: phase-3
+    title: "Implement Extract Knowledge Tool"
+    description: "MCP tool for knowledge extraction"
+    priority: P1
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-303", "13-304"]
+    files:
+      - src/tools/extract-knowledge.ts
+    acceptance_criteria:
+      - Extracts from single sprint
+      - Extracts from all sprints (regenerate mode)
+      - Integrates with deduplication
+      - Returns extraction statistics
+      - Supports dry-run mode
+      - Registers as MCP tool
+
+  - id: "13-306"
+    phase: phase-3
+    title: "Knowledge Extraction Tests"
+    description: "Comprehensive tests for extraction system"
+    priority: P1
+    status: pending
+    effort_hours: 3-4
+    dependencies: ["13-305"]
+    files:
+      - src/common/knowledge/__tests__/artifact-discovery.test.ts
+      - src/common/knowledge/__tests__/markdown-parser.test.ts
+      - src/common/knowledge/__tests__/extractor.test.ts
+      - src/common/knowledge/__tests__/deduplication.test.ts
+    acceptance_criteria:
+      - Tests all artifact discovery patterns
+      - Tests markdown parsing variations
+      - Tests extraction priority fallback
+      - Tests category detection
+      - Tests deduplication
+      - Tests frequency tracking
+      - Tests graceful degradation
+      - High code coverage (>80%)
+
+  - id: "13-307"
+    phase: phase-3
+    title: "Initialize Knowledge Base Structure"
+    description: "Create planning/knowledge/ directory with initial files"
+    priority: P1
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-300"]
+    files:
+      - planning/knowledge/lessons-learned.yaml
+      - planning/knowledge/patterns.yaml
+      - planning/knowledge/anti-patterns.yaml
+      - planning/knowledge/metrics.yaml
+      - planning/knowledge/README.md
+    acceptance_criteria:
+      - Directory created
+      - YAML files have correct schema structure
+      - README explains knowledge base
+      - All files valid YAML
+
+  - id: "13-308"
+    phase: phase-3
+    title: "Verify Extraction from BitBratPlatform"
+    description: "Test knowledge extraction on real BitBratPlatform sprints"
+    priority: P1
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-305", "13-307"]
+    acceptance_criteria:
+      - Extract from sprint-348 (SPRINT_COMPLETE.md)
+      - Extract from sprint-200 (completion-summary.md)
+      - Extract from sprint-250 (key-learnings.md)
+      - Extract from sprint-359 (lessons-learned.md variation)
+      - All formats parse correctly
+      - Deduplication works across formats
+      - Knowledge base populated
+      - No errors or warnings
+
+  # ============================================================================
+  # PHASE 4: AUTO-ARCHIVE AND POLISH
+  # ============================================================================
+
+  - id: "13-400"
+    phase: phase-4
+    title: "Implement Auto-Archive Tool (Optional)"
+    description: "Tool to automatically archive eligible sprints"
+    priority: P2
+    status: pending
+    effort_hours: 3-4
+    dependencies: ["13-308"]
+    files:
+      - src/tools/auto-archive-sprints.ts
+    acceptance_criteria:
+      - Finds eligible sprints by criteria
+      - Supports age-based criteria
+      - Supports count-based criteria
+      - Supports hybrid criteria
+      - Archives multiple sprints
+      - Extracts knowledge from each
+      - Returns summary
+      - Dry-run mode
+    notes: "Can be deferred to v1.1 if time constrained"
+
+  - id: "13-401"
+    phase: phase-4
+    title: "Update CLAUDE.md Documentation"
+    description: "Add archive system documentation to CLAUDE.md"
+    priority: P1
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-308"]
+    files:
+      - CLAUDE.md
+    acceptance_criteria:
+      - Archive system overview
+      - When to archive sprints
+      - Knowledge base usage
+      - Common workflows
+      - Examples
+
+  - id: "13-402"
+    phase: phase-4
+    title: "Update README.md"
+    description: "Add feature documentation to README"
+    priority: P1
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-308"]
+    files:
+      - README.md
+    acceptance_criteria:
+      - Feature list updated
+      - Installation for multiple repos
+      - Quick start guide
+      - MCP tool catalog
+      - Knowledge base section
+
+  - id: "13-403"
+    phase: phase-4
+    title: "Create Validation Script"
+    description: "Script to validate archive system integrity"
+    priority: P1
+    status: pending
+    effort_hours: 1-2
+    dependencies: ["13-308"]
+    files:
+      - scripts/validate-archive-system.sh
+      - package.json (add script)
+    acceptance_criteria:
+      - Checks directory structure
+      - Validates all sprints found
+      - Checks for orphaned directories
+      - Validates knowledge base YAML
+      - Validates sprint index
+      - Checks for duplicates
+      - Returns exit code 0 on success
+
+  - id: "13-404"
+    phase: phase-4
+    title: "Create Manual Testing Checklist"
+    description: "Checklist for manual validation"
+    priority: P1
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-308"]
+    files:
+      - planning/sprint-13-eaydun/MANUAL_TEST_CHECKLIST.md
+    acceptance_criteria:
+      - Comprehensive test scenarios
+      - Checkbox format
+      - Covers all major workflows
+      - Includes rollback testing
+
+  - id: "13-405"
+    phase: phase-4
+    title: "Final Integration Testing"
+    description: "Execute full lifecycle test across all features"
+    priority: P1
+    status: pending
+    effort_hours: 2-3
+    dependencies: ["13-401", "13-402", "13-403", "13-404"]
+    acceptance_criteria:
+      - Migration successful
+      - Start sprint works
+      - Complete sprint works
+      - Archive sprint works
+      - Knowledge extraction works
+      - All artifacts correct
+      - Knowledge base populated
+      - Validation script passes
+      - Manual checklist complete
+
+  # ============================================================================
+  # SPRINT COMPLETION TASKS
+  # ============================================================================
+
+  - id: "13-900"
+    phase: completion
+    title: "Create Verification Report"
+    description: "Document completed/partial/deferred items"
+    priority: P0
+    status: pending
+    effort_hours: 1
+    dependencies: ["13-405"]
+    files:
+      - planning/sprint-13-eaydun/verification-report.md
+    acceptance_criteria:
+      - Lists all completed deliverables
+      - Documents partial completions
+      - Lists deferred items with justification
+      - Aligns with Sprint Protocol requirements
+
+  - id: "13-901"
+    phase: completion
+    title: "Create Retrospective"
+    description: "Document what worked and what didn't"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-405"]
+    files:
+      - planning/sprint-13-eaydun/retro.md
+    acceptance_criteria:
+      - What worked section
+      - What didn't work section
+      - Changes made section
+      - Action items for future sprints
+
+  - id: "13-902"
+    phase: completion
+    title: "Create Key Learnings"
+    description: "Document lessons learned from sprint"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-405"]
+    files:
+      - planning/sprint-13-eaydun/key-learnings.md
+    acceptance_criteria:
+      - Technical learnings
+      - Process learnings
+      - Categorized by type
+      - Actionable insights
+
+  - id: "13-903"
+    phase: completion
+    title: "Create Pull Request"
+    description: "Create GitHub PR for sprint deliverables"
+    priority: P0
+    status: pending
+    effort_hours: 0.5
+    dependencies: ["13-900", "13-901", "13-902"]
+    files:
+      - planning/sprint-13-eaydun/publication.yaml
+    acceptance_criteria:
+      - PR created successfully
+      - PR URL in publication.yaml
+      - PR description references sprint
+      - All changes included
+
+summary:
+  total_tasks: 52
+  phases: 5
+  estimated_duration: "5-6 days"
+  estimated_effort_hours: "52-62 hours"
+
+  by_priority:
+    P0: 32
+    P1: 18
+    P2: 2
+
+  by_phase:
+    phase-0: 13
+    phase-1: 8
+    phase-2: 5
+    phase-3: 9
+    phase-4: 6
+    completion: 4
+
+critical_path:
+  - phase-0
+  - phase-1
+  - phase-2
+  - phase-3
+  - phase-4
+  - completion
+
+blockers:
+  - id: "13-012"
+    description: "Phase 0 must complete before Phase 1 can start"
+    blocking: ["13-100", "13-101", "13-102", "13-103", "13-104", "13-105"]
+  - id: "13-106"
+    description: "Migration must complete before archive tool can be implemented"
+    blocking: ["13-200", "13-201"]
+
+deferred_candidates:
+  - id: "13-400"
+    reason: "Auto-archive is optional, can ship without it in v1.0"
+    sprint: "v1.1"
+
+notes:
+  - "Phase 0 is critical blocker - must complete before proceeding"
+  - "Test on BitBratPlatform frequently to validate real-world usage"
+  - "Knowledge extraction is most complex phase - budget extra time"
+  - "Auto-archive (13-400) can be deferred if time constrained"
+  - "Maintain daily progress updates in this file"
+
+tracking:
+  last_updated: "2026-08-02T23:00:00Z"
+  tasks_completed: 0
+  tasks_in_progress: 0
+  tasks_pending: 52
+  completion_percentage: 0

@@ -8,6 +8,7 @@
 import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
+import { getPlanningDir } from '../common/path-utils.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
 import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
@@ -25,7 +26,7 @@ export async function checkSprintStatusTool(
 ): Promise<CheckSprintStatusResult> {
   logger.info('Checking sprint status...');
 
-  const planningDir = join(process.cwd(), 'planning');
+  const planningDir = getPlanningDir();
   const sprintDirs = await listDirectories(planningDir);
 
   if (sprintDirs.length === 0) {

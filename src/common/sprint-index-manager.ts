@@ -16,6 +16,7 @@ import { join } from 'path';
 import { promises as fs } from 'fs';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from './logger.js';
+import { getPlanningDir } from './path-utils.js';
 import {
   fileExists,
   readFile,
@@ -32,18 +33,10 @@ import type { SprintManifest } from '../types/sprint.js';
 
 /**
  * Get the path to the sprint index file
- * Computed dynamically to support test isolation via process.chdir()
+ * Computed dynamically to support multi-repository and test isolation
  */
 function getSprintIndexPath(): string {
-  return join(process.cwd(), 'planning', 'sprint-index.yaml');
-}
-
-/**
- * Get the path to the planning directory containing sprint manifests
- * Computed dynamically to support test isolation via process.chdir()
- */
-function getPlanningDir(): string {
-  return join(process.cwd(), 'planning');
+  return join(getPlanningDir(), 'sprint-index.yaml');
 }
 
 /**
