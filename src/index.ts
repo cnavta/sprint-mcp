@@ -21,6 +21,7 @@ import { updateSprintStatusTool } from './tools/update-sprint-status.js';
 import { completeSprintTool } from './tools/complete-sprint.js';
 import { cleanupSprintTool } from './tools/cleanup-sprint.js';
 import { archiveSprintTool } from './tools/archive-sprint.js';
+import { autoArchiveSprintsTool } from './tools/auto-archive-sprints.js';
 
 /**
  * Initialize and start the MCP server
@@ -176,6 +177,33 @@ async function main() {
             required: ['sprintId'],
           },
         },
+        {
+          name: 'auto-archive-sprints',
+          description: 'Automatically archive completed sprints based on configurable criteria (age, count, or hybrid). Supports dry-run mode for preview.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              criteria: {
+                type: 'string',
+                description: 'Archive criteria: "age" (days old), "count" (keep N recent), or "hybrid" (both). Uses config default if omitted.',
+                enum: ['age', 'count', 'hybrid'],
+              },
+              ageDays: {
+                type: 'number',
+                description: 'Age threshold in days. Sprints completed more than this many days ago are eligible. Uses config default if omitted.',
+              },
+              keepCount: {
+                type: 'number',
+                description: 'Number of sprints to keep in active/. Older sprints are eligible for archival. Uses config default if omitted.',
+              },
+              dryRun: {
+                type: 'boolean',
+                description: 'Preview archival without making changes (default: false)',
+              },
+            },
+            required: [],
+          },
+        },
       ],
     };
   });
@@ -206,6 +234,9 @@ async function main() {
           break;
         case 'archive-sprint':
           result = await archiveSprintTool(request.params.arguments);
+          break;
+        case 'auto-archive-sprints':
+          result = await autoArchiveSprintsTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);

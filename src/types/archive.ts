@@ -136,3 +136,70 @@ export interface ArchiveOperationSummary {
   /** True if knowledge extraction was performed */
   knowledgeExtracted: boolean;
 }
+
+/**
+ * Arguments for auto-archive-sprints MCP tool
+ *
+ * @property criteria - Archive criteria ('age' | 'count' | 'hybrid', uses config default if omitted)
+ * @property ageDays - Age threshold in days (uses config default if omitted)
+ * @property keepCount - Number of sprints to keep in active/ (uses config default if omitted)
+ * @property dryRun - If true, preview auto-archival without making changes (optional)
+ *
+ * @example
+ * ```typescript
+ * // Preview with default config
+ * const args: AutoArchiveSprintsArgs = {
+ *   dryRun: true
+ * };
+ *
+ * // Use age-only criteria
+ * const args: AutoArchiveSprintsArgs = {
+ *   criteria: 'age',
+ *   ageDays: 60,
+ *   dryRun: false
+ * };
+ * ```
+ */
+export interface AutoArchiveSprintsArgs {
+  /** Archive criteria strategy (optional, uses config default) */
+  criteria?: 'age' | 'count' | 'hybrid';
+
+  /** Age threshold in days (optional, uses config default) */
+  ageDays?: number;
+
+  /** Number of sprints to keep in active/ (optional, uses config default) */
+  keepCount?: number;
+
+  /** Preview archival without making changes (default: false) */
+  dryRun?: boolean;
+}
+
+/**
+ * Result from auto-archive-sprints MCP tool
+ *
+ * Standard MCP tool result format with text content and optional error flag.
+ *
+ * @property content - Array of text content blocks
+ * @property isError - True if operation failed, false/undefined if succeeded
+ *
+ * @example
+ * ```typescript
+ * const result: AutoArchiveSprintsResult = {
+ *   content: [{
+ *     type: 'text',
+ *     text: '✅ Auto-archived 3 sprints'
+ *   }],
+ *   isError: false
+ * };
+ * ```
+ */
+export interface AutoArchiveSprintsResult {
+  /** Array of text content blocks */
+  content: Array<{
+    type: 'text';
+    text: string;
+  }>;
+
+  /** True if operation failed */
+  isError?: boolean;
+}
