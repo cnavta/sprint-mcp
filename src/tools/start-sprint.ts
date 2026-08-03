@@ -267,13 +267,18 @@ export async function startSprintTool(
 
   // Step 7: Add sprint to index
   try {
+    // Determine correct manifestPath based on archive structure
+    const manifestRelativePath = archiveEnabled
+      ? `planning/active/${sprintId}/sprint-manifest.yaml`
+      : `planning/${sprintId}/sprint-manifest.yaml`;
+
     const indexEntry: SprintIndexEntry = {
       id: sprintId,
       title: sprintArgs.title,
       status: manifest.status,
       owner: sprintArgs.owner,
       createdAt: manifest.createdAt,
-      manifestPath: `planning/${sprintId}/sprint-manifest.yaml`,
+      manifestPath: manifestRelativePath,
       branch: branchName,
       worktreePath: `.worktrees/${sprintId}`,
     };

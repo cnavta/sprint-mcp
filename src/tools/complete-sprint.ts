@@ -8,10 +8,11 @@
  * Per Sprint Protocol §2.9: Sprint Completion
  */
 
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { logger } from '../common/logger.js';
-import { getPlanningDir } from '../common/path-utils.js';
+import { getProjectRoot } from '../common/path-utils.js';
 import { fileExists } from '../common/file-utils.js';
+import { loadSprintIndex } from '../common/sprint-index-manager.js';
 import { updateSprintStatusTool } from './update-sprint-status.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -63,12 +64,12 @@ function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
  * - retro.md
  * - key-learnings.md
  * - publication.yaml
+ *
+ * @param sprintDir - Full path to sprint directory (archive-aware)
  */
 async function checkRequiredArtifacts(
-  sprintId: string
+  sprintDir: string
 ): Promise<ArtifactCheck[]> {
-  const sprintDir = join(getPlanningDir(), sprintId);
-
   const requiredArtifacts = [
     'verification-report.md',
     'retro.md',
@@ -122,12 +123,25 @@ async function validateSprintCompletion(
     completionMode,
   });
 
-  // Check 1: Sprint manifest exists
-  const manifestPath = join(
-    getPlanningDir(),
-    sprintId,
-    'sprint-manifest.yaml'
-  );
+  // Check 1: Find sprint in index (archive-aware)
+  const index = await loadSprintIndex();
+  const sprintEntry = index.sprints.find((s) => s.id === sprintId);
+
+  if (!sprintEntry) {
+    errors.push(`Sprint not found: ${sprintId}`);
+    errors.push(`Sprint does not exist in sprint-index.yaml`);
+    return {
+      valid: false,
+      errors,
+      warnings,
+      artifactChecks: [],
+    };
+  }
+
+  // Get sprint directory from manifestPath (works for both flat and archive structures)
+  const projectRoot = getProjectRoot();
+  const manifestPath = join(projectRoot, sprintEntry.manifestPath);
+  const sprintDir = dirname(manifestPath);
 
   if (!(await fileExists(manifestPath))) {
     errors.push(`Sprint not found: ${sprintId}`);
@@ -141,7 +155,7 @@ async function validateSprintCompletion(
   }
 
   // Check 2: Required artifacts exist
-  const artifactChecks = await checkRequiredArtifacts(sprintId);
+  const artifactChecks = await checkRequiredArtifacts(sprintDir);
   const missingArtifacts = artifactChecks.filter((check) => !check.exists);
 
   if (missingArtifacts.length > 0) {

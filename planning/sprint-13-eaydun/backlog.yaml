@@ -44,7 +44,7 @@ phases:
   - id: phase-2
     name: "Phase 2: Archive Sprint Tool"
     priority: P0
-    status: in-progress
+    status: completed
     dependencies: [phase-1]
     description: "Implement archive-sprint MCP tool"
     duration: "1-1.5 days"
@@ -481,18 +481,22 @@ tasks:
     title: "Archive Lifecycle Integration Test"
     description: "End-to-end test of start → complete → archive workflow"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 2
     dependencies: ["13-201"]
     files:
       - src/__tests__/integration/archive-lifecycle.test.ts
+      - src/tools/start-sprint.ts (fixed manifestPath for archive)
+      - src/tools/update-sprint-status.ts (made archive-aware)
+      - src/tools/complete-sprint.ts (made archive-aware)
     acceptance_criteria:
-      - Start sprint in active/
-      - Complete sprint
-      - Archive sprint to archive/2026/
-      - Regenerate index
-      - Verify paths correct
-      - Check status excludes archived
+      - Start sprint in active/ ✅
+      - Complete sprint ✅
+      - Archive sprint to archive/2026/ ✅
+      - Regenerate index ✅
+      - Verify paths correct ✅
+      - Check status excludes archived ✅
+      - 2 integration tests passing ✅
 
   - id: "13-204"
     phase: phase-2
