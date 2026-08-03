@@ -19,6 +19,8 @@
     "dev": "npm run build && node dist/index.js",
     "sprint:index:regenerate": "npm run build && node -e \"import('./dist/common/sprint-index-manager.js').then(m => m.regenerateSprintIndex().then(() => console.log('✅ Sprint index regenerated successfully')))\"",
     "sprint:cleanup": "npm run build && node scripts/sprint-cleanup.js",
+    "migrate:archive": "npm run build && node dist/scripts/migrate-to-archive-structure.js",
+    "migrate:archive:dry": "npm run build && node dist/scripts/migrate-to-archive-structure.js --dry-run",
     "compress:extract": "npx tsx src/compression/cli.ts extract",
     "compress:agents": "npx tsx src/compression/cli.ts compress",
     "compress:validate": "npx tsx src/compression/cli.ts validate",
