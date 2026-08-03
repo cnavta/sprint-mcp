@@ -354,7 +354,7 @@ tasks:
     title: "Update Check Status for Active-Only Scanning"
     description: "Update check-sprint-status.ts to scan only active/"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 0.5
     dependencies: ["13-101"]
     files:
@@ -369,7 +369,7 @@ tasks:
     title: "Update Start Sprint for Active Directory"
     description: "Update start-sprint.ts to create sprints in planning/active/"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 0.5
     dependencies: ["13-101"]
     files:

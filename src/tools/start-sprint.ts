@@ -7,11 +7,13 @@
 
 import { join } from 'path';
 import { stringify as stringifyYaml } from 'yaml';
+import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { getPlanningDir } from '../common/path-utils.js';
-import { ensureDir, writeFile } from '../common/file-utils.js';
+import { ensureDir, writeFile, fileExists, readFile } from '../common/file-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { SprintIndexEntry } from '../types/sprint-index.js';
+import type { ArchiveConfig } from '../types/archive-config.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
 import { verifyMainBranch, createWorktree, getWorktreePath } from '../common/git-utils.js';
 import { addSprintToIndex } from '../common/sprint-index-manager.js';
@@ -39,24 +41,85 @@ function generateShortHash(): string {
 }
 
 /**
+ * Check if archive system is enabled
+ */
+async function isArchiveEnabled(): Promise<boolean> {
+  const planningDir = getPlanningDir();
+  const configPath = join(planningDir, 'archive-config.yaml');
+
+  if (!(await fileExists(configPath))) {
+    return false;
+  }
+
+  try {
+    const configContent = await readFile(configPath);
+    const config = parseYaml(configContent) as { archive: ArchiveConfig };
+    return config.archive?.enabled === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Get the next sprint number by checking existing sprints
+ *
+ * Scans both flat structure (planning/) and archive structure (planning/active/ + planning/archive/{year}/)
  */
 async function getNextSprintNumber(): Promise<number> {
   const planningDir = getPlanningDir();
+  const archiveEnabled = await isArchiveEnabled();
+  const { readdir } = await import('fs/promises');
+
+  const sprintNumbers: number[] = [];
+
   try {
-    const { readdir } = await import('fs/promises');
-    const entries = await readdir(planningDir, { withFileTypes: true });
-    const sprintNumbers = entries
-      .filter((entry) => entry.isDirectory() && entry.name.startsWith('sprint-'))
-      .map((entry) => {
-        const match = entry.name.match(/^sprint-(\d+)-/);
-        return match ? parseInt(match[1], 10) : 0;
-      })
-      .filter((num) => !isNaN(num));
+    if (!archiveEnabled) {
+      // Flat structure: scan planning/ directly
+      const entries = await readdir(planningDir, { withFileTypes: true });
+      entries
+        .filter((entry) => entry.isDirectory() && entry.name.startsWith('sprint-'))
+        .forEach((entry) => {
+          const match = entry.name.match(/^sprint-(\d+)-/);
+          if (match) {
+            sprintNumbers.push(parseInt(match[1], 10));
+          }
+        });
+    } else {
+      // Archive structure: scan active/ and archive/*/
+      const activeDir = join(planningDir, 'active');
+      if (await fileExists(activeDir)) {
+        const activeEntries = await readdir(activeDir, { withFileTypes: true });
+        activeEntries
+          .filter((entry) => entry.isDirectory() && entry.name.startsWith('sprint-'))
+          .forEach((entry) => {
+            const match = entry.name.match(/^sprint-(\d+)-/);
+            if (match) {
+              sprintNumbers.push(parseInt(match[1], 10));
+            }
+          });
+      }
+
+      const archiveDir = join(planningDir, 'archive');
+      if (await fileExists(archiveDir)) {
+        const yearDirs = await readdir(archiveDir, { withFileTypes: true });
+        for (const yearDir of yearDirs.filter(d => d.isDirectory())) {
+          const yearPath = join(archiveDir, yearDir.name);
+          const archivedEntries = await readdir(yearPath, { withFileTypes: true });
+          archivedEntries
+            .filter((entry) => entry.isDirectory() && entry.name.startsWith('sprint-'))
+            .forEach((entry) => {
+              const match = entry.name.match(/^sprint-(\d+)-/);
+              if (match) {
+                sprintNumbers.push(parseInt(match[1], 10));
+              }
+            });
+        }
+      }
+    }
 
     return sprintNumbers.length > 0 ? Math.max(...sprintNumbers) + 1 : 1;
   } catch {
-    // Planning directory doesn't exist yet
+    // Directory doesn't exist yet
     return 1;
   }
 }
@@ -117,7 +180,18 @@ export async function startSprintTool(
 
   // Step 3: Create sprint directory
   const planningDir = getPlanningDir();
-  const sprintDir = join(planningDir, sprintId);
+  const archiveEnabled = await isArchiveEnabled();
+
+  // Determine sprint parent directory
+  let sprintParentDir = planningDir;
+  if (archiveEnabled) {
+    // Archive structure: create in planning/active/
+    sprintParentDir = join(planningDir, 'active');
+    await ensureDir(sprintParentDir); // Ensure active/ exists
+    logger.debug('Archive enabled, creating sprint in active/ directory');
+  }
+
+  const sprintDir = join(sprintParentDir, sprintId);
   await ensureDir(sprintDir);
   logger.info(`Created sprint directory: ${sprintDir}`);
 
