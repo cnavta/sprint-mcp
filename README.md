@@ -32,6 +32,9 @@ Model Context Protocol enables Claude Desktop to interact with external tools an
 - **Git Worktree Integration** - Isolated development environments per sprint
 - **Artifact Generation** - Automated creation of plans, reports, retrospectives
 - **Sprint Index Management** - Track all sprints across your projects
+- **Archive System** - Organize completed sprints by year, free up active workspace
+- **Knowledge Extraction** - Automatically extract lessons, patterns, and metrics from completed sprints
+- **Auto-Archive** - Intelligent archival based on age, count, or hybrid criteria
 - **Cleanup Tools** - Remove completed sprint worktrees safely
 - **Validation & Verification** - Quality gates and artifact validation
 
@@ -155,6 +158,21 @@ sprint-mcp provides the following MCP tools:
   - Validates index integrity
   - Recovers from index corruption
 
+### Archive & Knowledge
+
+- **`archive-sprint`** - Archive completed sprints to organized storage
+  - Moves sprints from `planning/active/` to `planning/archive/{year}/`
+  - Updates sprint index with new location
+  - Triggers knowledge extraction (if enabled)
+  - Dry-run mode for preview
+
+- **`auto-archive-sprints`** - Automatically archive eligible sprints
+  - Age criteria: Archive sprints older than N days
+  - Count criteria: Keep only N most recent sprints
+  - Hybrid criteria: Must meet both age AND count thresholds
+  - Batch processing with error handling
+  - Configurable via `planning/archive-config.yaml`
+
 ### Cleanup
 
 - **`cleanup-sprint`** - Clean up completed sprint worktrees
@@ -242,6 +260,25 @@ Each sprint uses an isolated git worktree:
 - Independent working directories
 - Separate git operations
 - Easy cleanup after completion
+
+### Archive System
+
+Completed sprints are organized in an archive hierarchy:
+- **Active sprints**: `planning/active/{sprint-id}/`
+- **Archived sprints**: `planning/archive/{year}/{sprint-id}/`
+- **Auto-archival**: Configurable age/count/hybrid criteria
+- **Knowledge extraction**: Automatic extraction of lessons and patterns
+- **Index tracking**: All sprints remain in `planning/sprint-index.yaml`
+
+### Knowledge Base
+
+The system automatically builds a knowledge base from sprint artifacts:
+- **Lessons learned**: Extracted from `key-learnings.md`, retrospectives
+- **Patterns**: Successful approaches from "what went well" sections
+- **Anti-patterns**: Things to avoid from "what to improve" sections
+- **Metrics**: Sprint duration, effort, velocity tracking
+- **Deduplication**: Similar knowledge merged with frequency tracking
+- **Storage**: `planning/knowledge/knowledge-base.yaml`
 
 ---
 
@@ -355,7 +392,7 @@ npm test                # Run all tests
 npm run test:coverage   # With coverage report
 ```
 
-Current test coverage: 71.57% statements, 224 tests passing
+Current test coverage: 310 tests passing across 18 test suites
 
 ---
 
