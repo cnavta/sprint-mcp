@@ -498,14 +498,14 @@ tasks:
     title: "Register Archive Tool in MCP Server"
     description: "Add archive-sprint to MCP tool registry"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 0.25
     dependencies: ["13-201"]
     files:
       - src/index.ts
     acceptance_criteria:
-      - Tool registered with correct name
-      - Input schema defined
+      - Tool registered with correct name (archive-sprint)
+      - Input schema defined (sprintId, dryRun)
       - Tool callable via MCP
       - Shows in tool list
 

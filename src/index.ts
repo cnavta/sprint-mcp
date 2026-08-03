@@ -20,6 +20,7 @@ import { regenerateSprintIndexTool } from './tools/regenerate-sprint-index.js';
 import { updateSprintStatusTool } from './tools/update-sprint-status.js';
 import { completeSprintTool } from './tools/complete-sprint.js';
 import { cleanupSprintTool } from './tools/cleanup-sprint.js';
+import { archiveSprintTool } from './tools/archive-sprint.js';
 
 /**
  * Initialize and start the MCP server
@@ -157,6 +158,24 @@ async function main() {
             required: [],
           },
         },
+        {
+          name: 'archive-sprint',
+          description: 'Archive a completed sprint by moving it from active/ to archive/{year}/. Updates sprint index with new path. Supports dry-run mode for preview.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              sprintId: {
+                type: 'string',
+                description: 'Sprint ID to archive (e.g., sprint-12-sdwpw0)',
+              },
+              dryRun: {
+                type: 'boolean',
+                description: 'Preview archival without making changes (default: false)',
+              },
+            },
+            required: ['sprintId'],
+          },
+        },
       ],
     };
   });
@@ -184,6 +203,9 @@ async function main() {
           break;
         case 'cleanup-sprint':
           result = await cleanupSprintTool(request.params.arguments);
+          break;
+        case 'archive-sprint':
+          result = await archiveSprintTool(request.params.arguments);
           break;
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
