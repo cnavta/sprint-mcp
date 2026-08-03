@@ -546,21 +546,24 @@ tasks:
     title: "Implement Artifact Discovery"
     description: "Pattern-based discovery of knowledge artifacts"
     priority: P1
-    status: pending
+    status: completed
     effort_hours: 2-3
     dependencies: ["13-300"]
     files:
-      - src/common/knowledge/artifact-discovery.ts
+      - src/common/knowledge/artifact-discovery.ts (245 lines)
     acceptance_criteria:
-      - Finds key-learnings.md
-      - Finds lessons-learned.md
-      - Finds custom named files (*learn*.md)
-      - Finds retro.md
-      - Finds SPRINT_COMPLETE.md
-      - Finds completion-summary.md
-      - Finds all *-summary.md files
-      - Pattern matching case-insensitive
-      - Returns categorized artifacts
+      - Finds key-learnings.md ✅
+      - Finds lessons-learned.md ✅
+      - Finds custom named files (*learn*.md) ✅
+      - Finds retro.md ✅
+      - Finds SPRINT_COMPLETE.md ✅
+      - Finds completion-summary.md ✅
+      - Finds all *-summary.md files ✅
+      - Pattern matching case-insensitive ✅
+      - Returns categorized artifacts ✅
+      - discoverArtifacts() function ✅
+      - hasKnowledgeArtifacts() helper ✅
+      - getPrioritizedArtifacts() helper ✅
 
   - id: "13-302"
     phase: phase-3
