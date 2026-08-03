@@ -22,26 +22,37 @@ import {
   loadSprintIndex,
   updateSprintIndexPath,
 } from '../common/sprint-index-manager.js';
+import { extractKnowledge } from '../common/knowledge/extractor.js';
+import { deduplicateKnowledge } from '../common/knowledge/deduplicator.js';
+import { aggregateKnowledge } from '../common/knowledge/aggregator.js';
 
 /**
- * Check if archive system is enabled
+ * Load archive configuration
  */
-async function isArchiveEnabled(): Promise<boolean> {
+async function loadArchiveConfig(): Promise<ArchiveConfig | null> {
   const planningDir = getPlanningDir();
   const configPath = join(planningDir, 'archive-config.yaml');
 
   if (!(await fileExists(configPath))) {
-    return false;
+    return null;
   }
 
   try {
     const configContent = await readFile(configPath);
     const config = parseYaml(configContent) as { archive: ArchiveConfig };
-    return config.archive?.enabled === true;
+    return config.archive || null;
   } catch (err) {
     logger.warn('Failed to read archive-config.yaml', err);
-    return false;
+    return null;
   }
+}
+
+/**
+ * Check if archive system is enabled
+ */
+async function isArchiveEnabled(): Promise<boolean> {
+  const config = await loadArchiveConfig();
+  return config?.enabled === true;
 }
 
 /**
@@ -342,11 +353,24 @@ export async function archiveSprintTool(
     resultText += `- Destination: ${destination.destinationPath}\n`;
     resultText += `- Index Path: ${destination.manifestPath}\n`;
 
+    // Check if knowledge extraction would happen
+    const archiveConfig = await loadArchiveConfig();
+    const wouldExtractKnowledge =
+      archiveConfig?.knowledge?.extractOnComplete === true;
+
     resultText += `\n**Operations that would be performed**:\n`;
     resultText += `1. Create archive year directory: planning/archive/${destination.year}/\n`;
     resultText += `2. Move sprint directory\n`;
     resultText += `3. Update sprint-index.yaml with new path\n`;
-    resultText += `4. (Future) Extract knowledge artifacts\n`;
+
+    if (wouldExtractKnowledge) {
+      resultText += `4. Extract knowledge from sprint artifacts\n`;
+      if (archiveConfig?.knowledge?.aggregateOnExtraction) {
+        resultText += `5. Aggregate knowledge into planning/knowledge/knowledge-base.yaml\n`;
+      }
+    } else {
+      resultText += `4. Skip knowledge extraction (disabled in archive-config.yaml)\n`;
+    }
 
     resultText += `\n**To execute archival**:\n`;
     resultText += `Run without dry-run flag: archive-sprint ${sprintId}\n`;
@@ -399,10 +423,56 @@ export async function archiveSprintTool(
     };
   }
 
-  // Step 4: TODO - Knowledge extraction integration (Phase 3)
-  // if (archive-config.yaml knowledge.extractOnComplete) {
-  //   await extractKnowledgeArtifacts(sprintId, destination.destinationPath);
-  // }
+  // Step 4: Knowledge extraction (if enabled)
+  let knowledgeExtracted = false;
+  let knowledgeStats = { lessons: 0, patterns: 0, antiPatterns: 0 };
+
+  try {
+    const archiveConfig = await loadArchiveConfig();
+
+    if (archiveConfig?.knowledge?.extractOnComplete) {
+      logger.info(`Extracting knowledge from ${sprintId}...`);
+
+      // Load sprint entry with updated manifestPath
+      const index = await loadSprintIndex();
+      const sprint = index.sprints.find((s) => s.id === sprintId);
+
+      if (sprint) {
+        // Extract knowledge
+        const extracted = await extractKnowledge(sprint);
+
+        // Deduplicate within sprint
+        const deduplicated = deduplicateKnowledge(extracted);
+
+        knowledgeStats = {
+          lessons: deduplicated.lessons.length,
+          patterns: deduplicated.patterns.length,
+          antiPatterns: deduplicated.antiPatterns.length,
+        };
+
+        // Aggregate into knowledge base if configured
+        if (archiveConfig.knowledge.aggregateOnExtraction) {
+          await aggregateKnowledge(deduplicated);
+          logger.info(
+            `Aggregated knowledge: ${knowledgeStats.lessons} lessons, ${knowledgeStats.patterns} patterns, ${knowledgeStats.antiPatterns} anti-patterns`
+          );
+        }
+
+        knowledgeExtracted = true;
+      } else {
+        logger.warn(
+          `Sprint ${sprintId} not found in index after archive, skipping knowledge extraction`
+        );
+      }
+    } else {
+      logger.debug(
+        'Knowledge extraction disabled in archive-config.yaml or config not found'
+      );
+    }
+  } catch (error) {
+    logger.error(`Knowledge extraction failed for ${sprintId}`, error);
+    // Don't fail the whole archival if knowledge extraction fails
+  }
 
   // Success - build summary
   let resultText = `✅ Sprint ${sprintId} archived successfully!\n\n`;
@@ -417,7 +487,12 @@ export async function archiveSprintTool(
   resultText += `✅ Created archive year directory\n`;
   resultText += `✅ Moved sprint from active/ to archive/${destination.year}/\n`;
   resultText += `✅ Updated sprint-index.yaml\n`;
-  resultText += `⏭️  Knowledge extraction (Phase 3 - not yet implemented)\n`;
+
+  if (knowledgeExtracted) {
+    resultText += `✅ Extracted knowledge: ${knowledgeStats.lessons} lessons, ${knowledgeStats.patterns} patterns, ${knowledgeStats.antiPatterns} anti-patterns\n`;
+  } else {
+    resultText += `⏭️  Knowledge extraction skipped (disabled in archive-config.yaml)\n`;
+  }
 
   resultText += `\n**Sprint is now archived**:\n`;
   resultText += `- No longer appears in check-sprint-status (active sprints only)\n`;
