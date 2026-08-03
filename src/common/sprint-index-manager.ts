@@ -376,6 +376,7 @@ async function isArchiveEnabled(): Promise<boolean> {
  * If archive system is enabled, scans:
  * - planning/active/
  * - planning/archive/{year}/
+ * - planning/ root (for legacy sprints not yet migrated)
  *
  * Otherwise, scans flat structure:
  * - planning/
@@ -390,8 +391,8 @@ async function getSprintDirectories(): Promise<string[]> {
     return await listDirectories(planningDir);
   }
 
-  // Archive structure: scan active/ and archive/{year}/
-  logger.debug('Using archive structure, scanning active/ and archive/ directories');
+  // Archive structure: scan active/, archive/{year}/, and planning root for legacy sprints
+  logger.debug('Using archive structure, scanning active/, archive/, and planning root directories');
   const sprintDirs: string[] = [];
 
   // Scan active/
@@ -404,13 +405,34 @@ async function getSprintDirectories(): Promise<string[]> {
 
   // Scan archive/{year}/
   const archiveDir = join(planningDir, 'archive');
+  const archiveCount = sprintDirs.length;
   if (await fileExists(archiveDir)) {
     const yearDirs = await listDirectories(archiveDir);
     for (const yearDir of yearDirs) {
       const archivedDirs = await listDirectories(yearDir);
       sprintDirs.push(...archivedDirs);
     }
-    logger.debug(`Found ${sprintDirs.length - (await listDirectories(activeDir)).length} sprints in archive/`);
+    logger.debug(`Found ${sprintDirs.length - archiveCount} sprints in archive/`);
+  }
+
+  // Scan planning root for legacy sprint directories (not yet migrated)
+  // Filter out known non-sprint directories
+  const rootDirs = await listDirectories(planningDir);
+  const legacyDirs = rootDirs.filter((dir) => {
+    const dirName = dir.split('/').pop() || '';
+    // Only include directories that start with 'sprint-'
+    // Exclude active/, archive/, knowledge/, and other system directories
+    return (
+      dirName.startsWith('sprint-') &&
+      !dir.includes('/active/') &&
+      !dir.includes('/archive/') &&
+      !dir.includes('/knowledge/')
+    );
+  });
+
+  if (legacyDirs.length > 0) {
+    sprintDirs.push(...legacyDirs);
+    logger.debug(`Found ${legacyDirs.length} legacy sprints in planning root (not yet migrated)`);
   }
 
   return sprintDirs;
