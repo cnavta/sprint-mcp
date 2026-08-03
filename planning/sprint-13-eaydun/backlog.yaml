@@ -338,7 +338,7 @@ tasks:
     title: "Update Regenerate Index for Archive Scanning"
     description: "Update sprint-index-manager.ts to scan both active/ and archive/"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 2
     dependencies: ["13-101"]
     files:
