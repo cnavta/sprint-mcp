@@ -47,3 +47,12 @@ export {
   DEFAULT_ARCHIVE_CONFIG,
   RECOMMENDED_ARCHIVE_CONFIG,
 } from './archive-config.js';
+
+// Archive sprint tool types
+export type {
+  ArchiveSprintArgs,
+  ArchiveSprintResult,
+  ArchiveDestination,
+  ArchiveValidationResult,
+  ArchiveOperationSummary,
+} from './archive.js';

@@ -44,7 +44,7 @@ phases:
   - id: phase-2
     name: "Phase 2: Archive Sprint Tool"
     priority: P0
-    status: pending
+    status: in-progress
     dependencies: [phase-1]
     description: "Implement archive-sprint MCP tool"
     duration: "1-1.5 days"
@@ -421,7 +421,7 @@ tasks:
     title: "Define Archive Sprint Types"
     description: "Create TypeScript interfaces for archive-sprint tool"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 1
     dependencies: ["13-106"]
     files:
@@ -438,18 +438,19 @@ tasks:
     title: "Implement Archive Sprint Tool"
     description: "Create archive-sprint MCP tool for manual archival"
     priority: P0
-    status: pending
+    status: completed
     effort_hours: 4-5
     dependencies: ["13-200"]
     files:
       - src/tools/archive-sprint.ts
+      - src/common/sprint-index-manager.ts (added updateSprintIndexPath)
     acceptance_criteria:
       - Validates sprint is completed
       - Determines archive year from manifest
       - Creates archive/{year}/ if needed
       - Moves sprint directory
       - Updates sprint-index.yaml paths
-      - Integrates with knowledge extraction
+      - Integrates with knowledge extraction (TODO for Phase 3)
       - Supports dry-run mode
       - Comprehensive error handling
       - Logging at each step

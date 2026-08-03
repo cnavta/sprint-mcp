@@ -249,6 +249,32 @@ export async function updateSprintInIndex(
 }
 
 /**
+ * Update manifest path for a sprint in the index
+ *
+ * Helper function for archive-sprint tool to update the manifestPath
+ * when moving sprints from active/ to archive/{year}/.
+ *
+ * @param sprintId - Sprint identifier
+ * @param manifestPath - New manifest path relative to project root
+ * @throws Error if sprint not found in index
+ *
+ * @example
+ * ```typescript
+ * await updateSprintIndexPath(
+ *   'sprint-12-sdwpw0',
+ *   'planning/archive/2026/sprint-12-sdwpw0/sprint-manifest.yaml'
+ * );
+ * ```
+ */
+export async function updateSprintIndexPath(
+  sprintId: string,
+  manifestPath: string
+): Promise<void> {
+  logger.info(`Updating manifest path for ${sprintId} to ${manifestPath}`);
+  await updateSprintInIndex(sprintId, { manifestPath });
+}
+
+/**
  * Result of sprint index regeneration including diagnostics
  */
 export interface RegenerateResult {
