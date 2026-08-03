@@ -523,20 +523,23 @@ tasks:
     title: "Define Knowledge Schemas"
     description: "Create TypeScript interfaces for knowledge base"
     priority: P1
-    status: pending
+    status: completed
     effort_hours: 1-2
     dependencies: ["13-204"]
     files:
-      - src/types/knowledge.ts
-      - src/types/index.ts
+      - src/types/knowledge.ts (created, 407 lines)
+      - src/types/index.ts (updated exports)
+      - src/types/archive-config.ts (renamed KnowledgeCategory to KnowledgeType)
     acceptance_criteria:
-      - Lesson interface defined
-      - Pattern interface defined
-      - AntiPattern interface defined
-      - KnowledgeBase interface defined
-      - SprintMetrics interface defined
-      - KnowledgeArtifacts interface defined
-      - Exported from types/index.ts
+      - Lesson interface defined ✅
+      - Pattern interface defined ✅
+      - AntiPattern interface defined ✅
+      - KnowledgeBase interface defined ✅
+      - SprintMetrics interface defined ✅
+      - KnowledgeArtifacts interface defined ✅
+      - ExtractedKnowledge interface defined ✅
+      - Exported from types/index.ts ✅
+      - Resolved naming conflict with archive-config.ts ✅
 
   - id: "13-301"
     phase: phase-3

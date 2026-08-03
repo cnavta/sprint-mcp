@@ -39,7 +39,7 @@ export type {
   MigrationMetadata,
   ArchiveSchedule,
   ArchiveCriteria,
-  KnowledgeCategory,
+  KnowledgeType,
 } from './archive-config.js';
 
 // Archive configuration defaults
@@ -56,3 +56,15 @@ export type {
   ArchiveValidationResult,
   ArchiveOperationSummary,
 } from './archive.js';
+
+// Knowledge extraction types
+export type {
+  KnowledgeCategory,
+  Lesson,
+  Pattern,
+  AntiPattern,
+  SprintMetrics,
+  KnowledgeArtifacts,
+  KnowledgeBase,
+  ExtractedKnowledge,
+} from './knowledge.js';

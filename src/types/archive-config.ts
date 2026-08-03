@@ -32,14 +32,14 @@ export type ArchiveSchedule = 'on-complete' | 'manual' | 'daily';
 export type ArchiveCriteria = 'age' | 'count' | 'hybrid';
 
 /**
- * Knowledge categories to extract from archived sprints
+ * Types of knowledge to extract from archived sprints
  *
  * - lessons: Key learnings, lessons learned
  * - patterns: Successful approaches, best practices
  * - anti-patterns: Things to avoid, known pitfalls
  * - metrics: Performance data, effort estimates, velocity
  */
-export type KnowledgeCategory = 'lessons' | 'patterns' | 'anti-patterns' | 'metrics';
+export type KnowledgeType = 'lessons' | 'patterns' | 'anti-patterns' | 'metrics';
 
 /**
  * Auto-archive configuration
@@ -125,7 +125,7 @@ export interface KnowledgeExtractionConfig {
   extractOnComplete: boolean;
 
   /**
-   * Knowledge categories to extract
+   * Types of knowledge to extract
    *
    * Determines which types of knowledge to extract from sprint artifacts:
    * - lessons: Key learnings, lessons learned
@@ -135,7 +135,7 @@ export interface KnowledgeExtractionConfig {
    *
    * Default: ['lessons', 'patterns', 'anti-patterns', 'metrics']
    */
-  categories: KnowledgeCategory[];
+  categories: KnowledgeType[];
 
   /**
    * Aggregate knowledge after extraction
