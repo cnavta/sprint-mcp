@@ -570,19 +570,20 @@ tasks:
     title: "Implement Markdown Parsers"
     description: "Parse various markdown formats for knowledge extraction"
     priority: P1
-    status: pending
+    status: completed
     effort_hours: 3-4
     dependencies: ["13-300"]
     files:
-      - src/common/knowledge/markdown-parser.ts
+      - src/common/knowledge/markdown-parser.ts (449 lines)
     acceptance_criteria:
-      - parseMarkdownSections() splits by headers
-      - parseKeyLearningsMarkdown() extracts lessons
-      - parseRetroMarkdown() extracts retrospective
-      - extractFromSummary() handles SPRINT_COMPLETE.md
-      - detectCategories() identifies Technical/Process/etc
-      - Handles markdown variations
-      - Robust error handling
+      - parseMarkdownSections() splits by headers ✅
+      - extractBulletPoints() extracts list items ✅
+      - parseKeyLearningsMarkdown() extracts lessons ✅
+      - parseRetroMarkdown() extracts retrospective ✅
+      - extractFromSummary() handles SPRINT_COMPLETE.md ✅
+      - detectCategory() identifies Technical/Process/etc ✅
+      - Handles markdown variations ✅
+      - Section-based and bullet-based parsing ✅
 
   - id: "13-303"
     phase: phase-3
