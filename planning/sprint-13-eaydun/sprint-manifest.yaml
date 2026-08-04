@@ -1,0 +1,13 @@
+id: sprint-13-eaydun
+title: Sprint Archive System with Knowledge Capture
+goal: Implement Option 1 sprint archiving (active/archive directories) with
+  automated knowledge extraction and lessons learned capture from completed
+  sprints
+owner: Christopher Navta
+createdAt: 2026-08-02T23:12:33.913Z
+status: complete
+links:
+  branch: feature/sprint-13-eaydun-sprint-archive-system-with-kno
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-04T01:58:54.900Z
+completionMode: forced
