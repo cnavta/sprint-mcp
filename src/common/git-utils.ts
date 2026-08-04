@@ -5,8 +5,8 @@
  */
 
 import { execSync } from 'child_process';
-import { join } from 'path';
 import { logger } from './logger.js';
+import { getWorktreeDir } from './path-utils.js';
 
 /**
  * Result of main branch verification
@@ -229,10 +229,11 @@ export function removeWorktree(path: string, force: boolean = false): boolean {
  *
  * @param sprintId - Sprint ID (e.g., "sprint-1-abc123")
  * @returns Absolute path to the sprint worktree
+ * @deprecated Use getWorktreeDir() from path-utils.ts instead
  */
 export function getWorktreePath(sprintId: string): string {
-  const cwd = process.cwd();
-  return join(cwd, '.worktrees', sprintId);
+  // Delegate to centralized path utilities for multi-repo support
+  return getWorktreeDir(sprintId);
 }
 
 /**

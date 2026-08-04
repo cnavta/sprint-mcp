@@ -8,9 +8,11 @@
 import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
+import { getPlanningDir } from '../common/path-utils.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
 import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
 import type { SprintManifest } from '../types/sprint.js';
+import type { ArchiveConfig } from '../types/archive-config.js';
 
 interface CheckSprintStatusResult {
   content: Array<{
@@ -20,13 +22,60 @@ interface CheckSprintStatusResult {
   isError?: boolean;
 }
 
+/**
+ * Check if archive system is enabled
+ */
+async function isArchiveEnabled(): Promise<boolean> {
+  const planningDir = getPlanningDir();
+  const configPath = join(planningDir, 'archive-config.yaml');
+
+  if (!(await fileExists(configPath))) {
+    return false;
+  }
+
+  try {
+    const configContent = await readFile(configPath);
+    const config = parseYaml(configContent) as { archive: ArchiveConfig };
+    return config.archive?.enabled === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get sprint directories to scan for active sprints
+ *
+ * If archive enabled: Only scans planning/active/
+ * If flat structure: Scans planning/ (all sprints)
+ */
+async function getActiveSprintDirectories(): Promise<string[]> {
+  const planningDir = getPlanningDir();
+  const archiveEnabled = await isArchiveEnabled();
+
+  if (!archiveEnabled) {
+    // Flat structure: scan all sprints in planning/
+    logger.debug('Using flat structure, scanning all sprints in planning/');
+    return await listDirectories(planningDir);
+  }
+
+  // Archive structure: scan only active/
+  logger.debug('Using archive structure, scanning only planning/active/');
+  const activeDir = join(planningDir, 'active');
+
+  if (!(await fileExists(activeDir))) {
+    logger.warn('Archive enabled but planning/active/ directory not found');
+    return [];
+  }
+
+  return await listDirectories(activeDir);
+}
+
 export async function checkSprintStatusTool(
   _args?: Record<string, unknown>
 ): Promise<CheckSprintStatusResult> {
   logger.info('Checking sprint status...');
 
-  const planningDir = join(process.cwd(), 'planning');
-  const sprintDirs = await listDirectories(planningDir);
+  const sprintDirs = await getActiveSprintDirectories();
 
   if (sprintDirs.length === 0) {
     logger.info('No sprints found');

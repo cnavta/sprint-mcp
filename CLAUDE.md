@@ -254,3 +254,129 @@ Agents MUST:
 4. Never use or depend on `./deprecated` in deliverables.
 5. Artifacts in `./preview` are directional only, not implementation-ready.
 6. Everything must be: Traceable, Reproducible, Reversible.
+
+## Archive System
+
+### Overview
+
+The archive system organizes completed sprints into a year-based hierarchy:
+- **Active sprints**: `planning/active/{sprint-id}/`
+- **Archived sprints**: `planning/archive/{year}/{sprint-id}/`
+- **Configuration**: `planning/archive-config.yaml`
+- **Knowledge base**: `planning/knowledge/knowledge-base.yaml`
+
+### When to Archive Sprints
+
+Archive a sprint when:
+- Sprint is complete (status: `complete`)
+- Sprint is no longer being actively referenced
+- You want to declutter the active workspace
+- You want to trigger knowledge extraction
+
+**Manual archival**:
+```
+Archive sprint-12-abc123
+```
+
+**Auto-archival** (runs automatically based on config):
+- Age criteria: Archive sprints older than N days
+- Count criteria: Keep only N most recent sprints
+- Hybrid criteria: Must meet both age AND count
+
+### Archive Configuration
+
+Located at `planning/archive-config.yaml`:
+
+```yaml
+archive:
+  enabled: true
+  autoArchive:
+    enabled: true
+    criteria: hybrid      # age | count | hybrid
+    ageDays: 30          # Archive if older than 30 days
+    keepCount: 10        # Keep 10 most recent in active/
+    schedule: manual     # on-complete | manual | daily
+  knowledge:
+    extractOnComplete: true
+    categories:
+      - lessons
+      - patterns
+      - anti-patterns
+      - metrics
+    aggregateOnExtraction: true
+```
+
+### Knowledge Base
+
+The knowledge base automatically aggregates learnings from archived sprints:
+
+**Knowledge categories**:
+- **Lessons**: Key learnings from `key-learnings.md`, retrospectives
+- **Patterns**: Successful approaches from "what went well" sections
+- **Anti-patterns**: Things to avoid from "what to improve" sections
+- **Metrics**: Sprint duration, velocity, effort tracking
+
+**Deduplication**: Similar knowledge is merged with frequency tracking (e.g., "Always validate input" appearing in multiple sprints → frequency: 3)
+
+**Location**: `planning/knowledge/knowledge-base.yaml`
+
+**Usage**:
+- Review before starting new sprints
+- Reference patterns and anti-patterns
+- Track recurring lessons
+- Measure sprint velocity trends
+
+### Multi-Repository Setup
+
+For multiple projects using sprint-mcp:
+
+1. **Separate configs** - Each repo has its own `planning/archive-config.yaml`
+2. **Independent knowledge bases** - Each repo builds its own knowledge base
+3. **Shared MCP server** - One sprint-mcp installation serves all repos
+4. **Context switching** - Claude operates in the current repo's context
+
+### Common Workflows
+
+**Workflow 1: Complete and Archive**
+```
+1. Complete sprint-12-abc123
+2. Archive sprint-12-abc123
+```
+→ Sprint moved to archive/2026/, knowledge extracted
+
+**Workflow 2: Auto-Archive Old Sprints**
+```
+Auto-archive sprints older than 60 days
+```
+→ Batch archives eligible sprints, extracts knowledge
+
+**Workflow 3: Review Knowledge Base**
+```
+What lessons have we learned about testing?
+```
+→ Claude reads `planning/knowledge/knowledge-base.yaml` and summarizes testing-related lessons
+
+**Workflow 4: Cleanup After Sprint**
+```
+1. Complete sprint-12-abc123
+2. Archive sprint-12-abc123
+3. Cleanup sprint worktree for sprint-12-abc123
+```
+→ Sprint complete, archived, knowledge extracted, worktree removed
+
+### Migration from Flat Structure
+
+If you have sprints in `planning/` root (pre-archive system):
+
+```bash
+npm run migrate:archive
+```
+
+This:
+1. Creates `planning/active/` and `planning/archive/` directories
+2. Moves all sprints to `planning/active/`
+3. Creates `planning/archive-config.yaml`
+4. Updates `planning/sprint-index.yaml`
+5. Backs up old index
+
+After migration, all new sprints go to `planning/active/`.
