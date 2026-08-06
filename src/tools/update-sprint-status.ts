@@ -5,12 +5,13 @@
  * the sprint index (derived cache). This ensures consistency between the two.
  */
 
+import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
+import { getProjectRoot } from '../common/project-config.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
-import { updateSprintInIndex } from '../common/sprint-index-manager.js';
+import { loadSprintIndex, updateSprintInIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
-import { getManifestPath } from '../common/project-config.js';
 import type { SprintManifest, SprintStatus } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -91,9 +92,32 @@ export async function updateSprintStatusTool(
 
   logger.info(`Updating sprint status for ${sprintId}`, updates);
 
-  // Step 1: Load and update manifest (authoritative source)
-  const manifestPath = getManifestPath(sprintId);
+  // Step 1: Find sprint manifest path from index (archive-aware)
+  // Try to load from index first; fall back to flat structure if index doesn't exist or sprint not found
+  let manifestPath: string;
 
+  try {
+    const index = await loadSprintIndex();
+    const sprintEntry = index.sprints.find((s) => s.id === sprintId);
+
+    if (sprintEntry) {
+      // Use manifestPath from index (supports both flat and archive structures)
+      manifestPath = join(getProjectRoot(), sprintEntry.manifestPath);
+      logger.debug(`Found sprint in index, using path: ${manifestPath}`);
+    } else {
+      // Sprint not in index - fall back to flat structure
+      const { getPlanningDir } = await import('../common/project-config.js');
+      manifestPath = join(getPlanningDir(), sprintId, 'sprint-manifest.yaml');
+      logger.warn(`Sprint ${sprintId} not in index, trying flat structure: ${manifestPath}`);
+    }
+  } catch (error) {
+    // Index doesn't exist or can't be loaded - fall back to flat structure
+    const { getPlanningDir } = await import('../common/project-config.js');
+    manifestPath = join(getPlanningDir(), sprintId, 'sprint-manifest.yaml');
+    logger.warn(`Could not load index (${error}), trying flat structure: ${manifestPath}`);
+  }
+
+  // Step 2: Load and update manifest (authoritative source)
   if (!(await fileExists(manifestPath))) {
     logger.error(`Sprint manifest not found: ${manifestPath}`);
     return {
@@ -136,7 +160,7 @@ export async function updateSprintStatusTool(
     await writeFile(manifestPath, stringifyYaml(manifest));
     logger.info(`Updated sprint manifest: ${manifestPath}`);
 
-    // Step 2: Update index (derived cache)
+    // Step 3: Update index (derived cache)
     try {
       const indexUpdates: Record<string, unknown> = {};
 

@@ -33,6 +33,7 @@ import type {
   SprintStatistics,
 } from '../types/sprint-index.js';
 import type { SprintManifest } from '../types/sprint.js';
+import type { ArchiveConfig } from '../types/archive-config.js';
 
 /**
  * Header comment for the generated index file
@@ -243,6 +244,32 @@ export async function updateSprintInIndex(
 }
 
 /**
+ * Update manifest path for a sprint in the index
+ *
+ * Helper function for archive-sprint tool to update the manifestPath
+ * when moving sprints from active/ to archive/{year}/.
+ *
+ * @param sprintId - Sprint identifier
+ * @param manifestPath - New manifest path relative to project root
+ * @throws Error if sprint not found in index
+ *
+ * @example
+ * ```typescript
+ * await updateSprintIndexPath(
+ *   'sprint-12-sdwpw0',
+ *   'planning/archive/2026/sprint-12-sdwpw0/sprint-manifest.yaml'
+ * );
+ * ```
+ */
+export async function updateSprintIndexPath(
+  sprintId: string,
+  manifestPath: string
+): Promise<void> {
+  logger.info(`Updating manifest path for ${sprintId} to ${manifestPath}`);
+  await updateSprintInIndex(sprintId, { manifestPath });
+}
+
+/**
  * Result of sprint index regeneration including diagnostics
  */
 export interface RegenerateResult {
@@ -315,11 +342,109 @@ async function createMinimalManifest(
 }
 
 /**
+ * Check if archive system is enabled
+ *
+ * Reads archive-config.yaml to determine if archive structure is in use.
+ * Falls back to flat structure if config doesn't exist or archive is disabled.
+ */
+async function isArchiveEnabled(): Promise<boolean> {
+  const planningDir = getPlanningDir();
+  const configPath = join(planningDir, 'archive-config.yaml');
+
+  if (!(await fileExists(configPath))) {
+    return false;
+  }
+
+  try {
+    const configContent = await readFile(configPath);
+    const config = parseYaml(configContent) as { archive: ArchiveConfig };
+    return config.archive?.enabled === true;
+  } catch (err) {
+    logger.warn('Failed to read archive-config.yaml, assuming flat structure', err);
+    return false;
+  }
+}
+
+/**
+ * Get list of sprint directories to scan
+ *
+ * If archive system is enabled, scans:
+ * - planning/active/
+ * - planning/archive/{year}/
+ * - planning/ root (for legacy sprints not yet migrated)
+ *
+ * Otherwise, scans flat structure:
+ * - planning/
+ */
+async function getSprintDirectories(): Promise<string[]> {
+  const planningDir = getPlanningDir();
+  const archiveEnabled = await isArchiveEnabled();
+
+  if (!archiveEnabled) {
+    // Flat structure: scan planning/ directly
+    logger.debug('Using flat structure, scanning planning/ directory');
+    return await listDirectories(planningDir);
+  }
+
+  // Archive structure: scan active/, archive/{year}/, and planning root for legacy sprints
+  logger.debug('Using archive structure, scanning active/, archive/, and planning root directories');
+  const sprintDirs: string[] = [];
+
+  // Scan active/
+  const activeDir = join(planningDir, 'active');
+  if (await fileExists(activeDir)) {
+    const activeDirs = await listDirectories(activeDir);
+    sprintDirs.push(...activeDirs);
+    logger.debug(`Found ${activeDirs.length} sprints in active/`);
+  }
+
+  // Scan archive/{year}/
+  const archiveDir = join(planningDir, 'archive');
+  const archiveCount = sprintDirs.length;
+  if (await fileExists(archiveDir)) {
+    const yearDirs = await listDirectories(archiveDir);
+    for (const yearDir of yearDirs) {
+      const archivedDirs = await listDirectories(yearDir);
+      sprintDirs.push(...archivedDirs);
+    }
+    logger.debug(`Found ${sprintDirs.length - archiveCount} sprints in archive/`);
+  }
+
+  // Scan planning root for legacy sprint directories (not yet migrated)
+  // Filter out known non-sprint directories
+  const rootDirs = await listDirectories(planningDir);
+  const legacyDirs = rootDirs.filter((dir) => {
+    const dirName = dir.split('/').pop() || '';
+    // Only include directories that start with 'sprint-'
+    // Exclude active/, archive/, knowledge/, and other system directories
+    return (
+      dirName.startsWith('sprint-') &&
+      !dir.includes('/active/') &&
+      !dir.includes('/archive/') &&
+      !dir.includes('/knowledge/')
+    );
+  });
+
+  if (legacyDirs.length > 0) {
+    sprintDirs.push(...legacyDirs);
+    logger.debug(`Found ${legacyDirs.length} legacy sprints in planning root (not yet migrated)`);
+  }
+
+  return sprintDirs;
+}
+
+/**
  * Regenerate the entire sprint index from manifests
  *
  * Scans the planning directory for all sprint manifests, extracts metadata,
  * and rebuilds the index from scratch. This is the recovery mechanism if
  * the index becomes corrupted or out of sync.
+ *
+ * Supports both flat structure and active/archive hierarchy:
+ * - Flat: Scans planning/ directly (legacy)
+ * - Archive: Scans planning/active/ and planning/archive/{year}/
+ *
+ * Structure is determined by archive-config.yaml existence and enabled flag.
  *
  * @param options Regeneration options
  * @returns Promise<RegenerateResult> The regenerated index and diagnostics
@@ -329,14 +454,13 @@ export async function regenerateSprintIndex(
 ): Promise<RegenerateResult> {
   logger.info('Regenerating sprint index from manifests');
 
-  const planningDir = getPlanningDir();
-  const sprintDirs = await listDirectories(planningDir);
+  const sprintDirs = await getSprintDirectories();
   const entries: SprintIndexEntry[] = [];
   let skippedCount = 0;
   let repairedCount = 0;
 
   for (const sprintDir of sprintDirs) {
-    // Skip non-sprint directories (e.g., planning/sprint-index.yaml)
+    // Skip non-sprint directories (e.g., active/, archive/, sprint-index.yaml)
     const dirName = sprintDir.split('/').pop() || '';
     if (!dirName.startsWith('sprint-')) {
       continue;
@@ -391,6 +515,12 @@ export async function regenerateSprintIndex(
         const worktreePath = join('.worktrees', dirName);
         const worktreeExists = await fileExists(worktreePath);
 
+        // Calculate relative manifest path from planning directory
+        // sprintDir is absolute path, need to make it relative to planning/
+        const planningDir = getPlanningDir();
+        const relativePath = sprintDir.replace(planningDir + '/', '');
+        const relativeManifestPath = join('planning', relativePath, 'sprint-manifest.yaml');
+
         // Create index entry from manifest
         const entry: SprintIndexEntry = {
           id: manifest.id,
@@ -398,7 +528,7 @@ export async function regenerateSprintIndex(
           status: manifest.status,
           owner: manifest.owner,
           createdAt: manifest.createdAt,
-          manifestPath: join('planning', dirName, 'sprint-manifest.yaml'),
+          manifestPath: relativeManifestPath,
           branch: manifest.links?.branch || `feature/${manifest.id}`,
         };
 

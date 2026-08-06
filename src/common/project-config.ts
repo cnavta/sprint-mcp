@@ -104,9 +104,10 @@ export function getSprintIndexPath(): string {
  * ```
  */
 export function getWorktreePath(sprintId: string): string {
-  // Worktrees must stay with the git repository, not under SPRINT_ROOT
-  // This is because git worktrees are tightly coupled to the .git directory
-  return join(process.cwd(), '.worktrees', sprintId);
+  // Worktrees go in the project root (respects SPRINT_ROOT)
+  // When SPRINT_ROOT points to a git repository, worktrees are created there
+  // When SPRINT_ROOT is not set, falls back to process.cwd()
+  return join(getProjectRoot(), '.worktrees', sprintId);
 }
 
 /**

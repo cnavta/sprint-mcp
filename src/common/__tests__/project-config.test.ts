@@ -124,13 +124,13 @@ describe('project-config', () => {
       expect(worktreePath).toBe(join(process.cwd(), '.worktrees', sprintId));
     });
 
-    it('should use process.cwd() for worktrees even when SPRINT_ROOT is set', () => {
+    it('should respect SPRINT_ROOT for worktrees', () => {
       const customRoot = '/custom/project';
       process.env.SPRINT_ROOT = customRoot;
       const worktreePath = getWorktreePath(sprintId);
-      // Worktrees must stay with the git repo, not under SPRINT_ROOT
-      expect(worktreePath).toBe(join(process.cwd(), '.worktrees', sprintId));
-      expect(worktreePath).not.toContain(customRoot);
+      // Worktrees go in the project root (respects SPRINT_ROOT)
+      expect(worktreePath).toBe(join(customRoot, '.worktrees', sprintId));
+      expect(worktreePath).toContain(customRoot);
     });
 
     it('should handle sprint IDs with special characters', () => {
@@ -281,9 +281,9 @@ describe('project-config', () => {
       );
       expect(indexPath).toBe(join(customRoot, 'planning', 'sprint-index.yaml'));
 
-      // Worktree should be based on process.cwd(), not SPRINT_ROOT
+      // Worktree should also respect SPRINT_ROOT
       const worktreePath = getWorktreePath(sprintId);
-      expect(worktreePath).toBe(join(process.cwd(), '.worktrees', sprintId));
+      expect(worktreePath).toBe(join(customRoot, '.worktrees', sprintId));
     });
 
     it('should work correctly when switching SPRINT_ROOT mid-execution', () => {

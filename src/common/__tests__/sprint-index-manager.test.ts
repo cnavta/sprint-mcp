@@ -612,5 +612,118 @@ describe('sprint-index-manager', () => {
       const manifestExists = await fileExists(join(sprintDir, 'sprint-manifest.yaml'));
       expect(manifestExists).toBe(false);
     });
+
+    it('should scan legacy sprints in planning root when archive mode is enabled', async () => {
+      // Create archive config
+      const archiveConfig = {
+        archive: {
+          enabled: true,
+          autoArchive: {
+            enabled: true,
+            criteria: 'hybrid',
+            ageDays: 30,
+            keepCount: 10,
+            schedule: 'manual',
+          },
+          knowledge: {
+            extractOnComplete: false,
+            categories: ['lessons'],
+            aggregateOnExtraction: false,
+          },
+          migration: {
+            completed: true,
+            backupPath: 'sprint-index.yaml.backup',
+          },
+        },
+      };
+      await fsWriteFile(
+        join(planningDir, 'archive-config.yaml'),
+        stringifyYaml(archiveConfig),
+        'utf-8'
+      );
+
+      // Create active/ and archive/ directories
+      await mkdir(join(planningDir, 'active'), { recursive: true });
+      await mkdir(join(planningDir, 'archive', '2026'), { recursive: true });
+
+      // Create sprint in active/
+      const activeSprint = join(planningDir, 'active', 'sprint-1-active');
+      await mkdir(activeSprint, { recursive: true });
+      const activeManifest = {
+        id: 'sprint-1-active',
+        title: 'Active Sprint',
+        goal: 'Test',
+        owner: 'test',
+        status: 'in-progress',
+        createdAt: new Date().toISOString(),
+        branch: 'feature/sprint-1-active',
+      };
+      await fsWriteFile(
+        join(activeSprint, 'sprint-manifest.yaml'),
+        stringifyYaml(activeManifest),
+        'utf-8'
+      );
+
+      // Create sprint in archive/
+      const archivedSprint = join(planningDir, 'archive', '2026', 'sprint-2-archived');
+      await mkdir(archivedSprint, { recursive: true });
+      const archivedManifest = {
+        id: 'sprint-2-archived',
+        title: 'Archived Sprint',
+        goal: 'Test',
+        owner: 'test',
+        status: 'complete',
+        createdAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        branch: 'feature/sprint-2-archived',
+      };
+      await fsWriteFile(
+        join(archivedSprint, 'sprint-manifest.yaml'),
+        stringifyYaml(archivedManifest),
+        'utf-8'
+      );
+
+      // Create legacy sprint in planning root (not migrated)
+      const legacySprint = join(planningDir, 'sprint-3-legacy');
+      await mkdir(legacySprint, { recursive: true });
+      const legacyManifest = {
+        id: 'sprint-3-legacy',
+        title: 'Legacy Sprint',
+        goal: 'Test',
+        owner: 'test',
+        status: 'complete',
+        createdAt: new Date().toISOString(),
+        completedAt: new Date().toISOString(),
+        branch: 'feature/sprint-3-legacy',
+      };
+      await fsWriteFile(
+        join(legacySprint, 'sprint-manifest.yaml'),
+        stringifyYaml(legacyManifest),
+        'utf-8'
+      );
+
+      // Regenerate index
+      const { index } = await regenerateSprintIndex();
+
+      // Should find all 3 sprints: active, archived, and legacy
+      expect(index.totalSprints).toBe(3);
+      expect(index.activeSprints).toBe(1);
+      expect(index.completedSprints).toBe(2);
+
+      // Verify all sprints are in the index
+      const sprintIds = index.sprints.map((s) => s.id);
+      expect(sprintIds).toContain('sprint-1-active');
+      expect(sprintIds).toContain('sprint-2-archived');
+      expect(sprintIds).toContain('sprint-3-legacy');
+
+      // Verify manifest paths
+      const activeSp = index.sprints.find((s) => s.id === 'sprint-1-active');
+      const archivedSp = index.sprints.find((s) => s.id === 'sprint-2-archived');
+      const legacySp = index.sprints.find((s) => s.id === 'sprint-3-legacy');
+
+      expect(activeSp?.manifestPath).toContain('planning/active/sprint-1-active');
+      expect(archivedSp?.manifestPath).toContain('planning/archive/2026/sprint-2-archived');
+      expect(legacySp?.manifestPath).toContain('planning/sprint-3-legacy');
+    });
   });
 });

@@ -5,8 +5,8 @@
  */
 
 import { execSync } from 'child_process';
-import { join } from 'path';
 import { logger } from './logger.js';
+import { getWorktreeDir } from './path-utils.js';
 
 /**
  * Result of main branch verification
@@ -229,16 +229,17 @@ export function removeWorktree(path: string, force: boolean = false): boolean {
  *
  * @param sprintId - Sprint ID (e.g., "sprint-1-abc123")
  * @returns Absolute path to the sprint worktree
+ * @deprecated Use getWorktreeDir() from path-utils.ts instead
  */
 /**
  * Get worktree path - uses process.cwd() to keep worktrees with git repo
  * Note: Worktrees must stay in repo root, NOT under SPRINT_ROOT
  */
 export function getWorktreePath(sprintId: string): string {
-  // Worktrees must be in the git repository root, not under SPRINT_ROOT
-  // This is because git worktrees are tightly coupled to the .git directory
-  const cwd = process.cwd();
-  return join(cwd, '.worktrees', sprintId);
+  // Delegate to centralized path utilities for multi-repo support
+  // When SPRINT_ROOT is set, worktrees go in that repository
+  // When SPRINT_ROOT is not set, worktrees go in process.cwd()
+  return getWorktreeDir(sprintId);
 }
 
 /**
