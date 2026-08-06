@@ -21,6 +21,7 @@ import {
   listDirectories,
 } from './file-utils.js';
 import { loadSprintIndex } from './sprint-index-manager.js';
+import { getPlanningDir, getProjectRoot } from './project-config.js';
 import type {
   SprintIndex,
   ValidationIssue,
@@ -65,14 +66,6 @@ const REQUIRED_ENTRY_FIELDS = [
   'manifestPath',
   'branch',
 ];
-
-/**
- * Get the path to the planning directory
- * Computed dynamically to support test isolation via process.chdir()
- */
-function getPlanningDir(): string {
-  return join(process.cwd(), 'planning');
-}
 
 /**
  * Validate the sprint index for consistency and correctness
@@ -276,7 +269,7 @@ async function validateManifestFiles(
       continue; // Already reported in validateEntries
     }
 
-    const manifestPath = join(process.cwd(), entry.manifestPath);
+    const manifestPath = join(getProjectRoot(), entry.manifestPath);
     const exists = await fileExists(manifestPath);
 
     if (!exists) {
@@ -309,7 +302,7 @@ async function validateDataConsistency(
       continue;
     }
 
-    const manifestPath = join(process.cwd(), entry.manifestPath);
+    const manifestPath = join(getProjectRoot(), entry.manifestPath);
 
     if (!(await fileExists(manifestPath))) {
       continue; // Already reported in validateManifestFiles

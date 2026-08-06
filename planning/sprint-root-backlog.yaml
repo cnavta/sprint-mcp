@@ -1,0 +1,709 @@
+# SPRINT_ROOT Implementation - Prioritized Backlog
+# Sprint Goal: Implement SPRINT_ROOT environment variable support across all MCP tools
+# Lead Implementor: Claude
+# Generated: 2026-08-05
+
+metadata:
+  sprint_goal: "Implement SPRINT_ROOT environment variable support across all MCP tools"
+  total_story_points: 20
+  estimated_duration: "8-12 hours"
+  phases: 6
+  must_have_tasks: 15
+  should_have_tasks: 5
+  nice_to_have_tasks: 3
+
+# Task statuses: planned | in_progress | blocked | completed | deferred
+# Priorities: P0 (must have) | P1 (should have) | P2 (nice to have)
+
+phases:
+  # ============================================================================
+  # PHASE 1: Foundation - Centralized Configuration Module
+  # ============================================================================
+  - id: phase-1
+    name: "Foundation - Centralized Configuration Module"
+    story_points: 3
+    estimated_hours: "1-2"
+    dependencies: []
+    tasks:
+      - id: task-1.1
+        name: "Create project-config.ts module"
+        description: "Implement centralized configuration module with core path resolution functions"
+        priority: P0
+        story_points: 2
+        status: planned
+        acceptance_criteria:
+          - "getProjectRoot() function implemented"
+          - "Reads SPRINT_ROOT environment variable"
+          - "Falls back to process.cwd() if not set"
+          - "Returns absolute path"
+          - "Handles empty/undefined SPRINT_ROOT"
+        deliverables:
+          - "src/common/project-config.ts"
+        files_to_create:
+          - path: "src/common/project-config.ts"
+            type: "production"
+        implementation_notes: |
+          Core implementation:
+          ```typescript
+          export function getProjectRoot(): string {
+            const sprintRoot = process.env.SPRINT_ROOT;
+            if (!sprintRoot || sprintRoot.trim() === '') {
+              return process.cwd();
+            }
+            // Validate it's an absolute path
+            if (!path.isAbsolute(sprintRoot)) {
+              throw new Error(`SPRINT_ROOT must be an absolute path, got: ${sprintRoot}`);
+            }
+            return sprintRoot;
+          }
+          ```
+
+      - id: task-1.2
+        name: "Implement derived path helper functions"
+        description: "Add helper functions for common path derivations"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-1.1]
+        acceptance_criteria:
+          - "getPlanningDir() implemented"
+          - "getSprintIndexPath() implemented"
+          - "getWorktreePath(sprintId) implemented"
+          - "getSprintDir(sprintId) implemented"
+          - "getManifestPath(sprintId) implemented"
+          - "All helpers use getProjectRoot() as base"
+        deliverables:
+          - "Updated src/common/project-config.ts"
+        implementation_notes: |
+          Helper pattern:
+          ```typescript
+          export function getPlanningDir(): string {
+            return join(getProjectRoot(), 'planning');
+          }
+          ```
+
+      - id: task-1.3
+        name: "Add validation function for SPRINT_ROOT"
+        description: "Implement validation to check SPRINT_ROOT at startup"
+        priority: P1
+        story_points: 0.5
+        status: planned
+        dependencies: [task-1.1]
+        acceptance_criteria:
+          - "validateSprintRoot() function implemented"
+          - "Checks if SPRINT_ROOT is absolute path when set"
+          - "Throws clear error if invalid"
+          - "Optional: checks if path exists"
+        deliverables:
+          - "Updated src/common/project-config.ts"
+
+      - id: task-1.4
+        name: "Write comprehensive unit tests for project-config"
+        description: "Create test suite covering all scenarios"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-1.1, task-1.2]
+        acceptance_criteria:
+          - "Test default behavior (no SPRINT_ROOT)"
+          - "Test with valid SPRINT_ROOT"
+          - "Test with empty SPRINT_ROOT"
+          - "Test with relative path (should error)"
+          - "Test all derived path helpers"
+          - "100% code coverage for project-config.ts"
+        deliverables:
+          - "src/common/__tests__/project-config.test.ts"
+        files_to_create:
+          - path: "src/common/__tests__/project-config.test.ts"
+            type: "test"
+        test_scenarios:
+          - "No SPRINT_ROOT set → uses process.cwd()"
+          - "SPRINT_ROOT=/custom/path → uses /custom/path"
+          - "SPRINT_ROOT='' → uses process.cwd()"
+          - "SPRINT_ROOT=relative/path → throws error"
+          - "getPlanningDir() → {root}/planning"
+          - "getSprintDir('sprint-1-abc') → {root}/planning/sprint-1-abc"
+
+      - id: task-1.5
+        name: "Add JSDoc documentation to project-config"
+        description: "Document all exported functions with clear examples"
+        priority: P1
+        story_points: 0.5
+        status: planned
+        dependencies: [task-1.1, task-1.2]
+        acceptance_criteria:
+          - "Every exported function has JSDoc"
+          - "Examples provided for each function"
+          - "Parameters documented"
+          - "Return types documented"
+          - "Exceptions documented"
+        deliverables:
+          - "Updated src/common/project-config.ts"
+
+  # ============================================================================
+  # PHASE 2: Core Infrastructure - Common Modules
+  # ============================================================================
+  - id: phase-2
+    name: "Core Infrastructure - Common Modules"
+    story_points: 5
+    estimated_hours: "2-3"
+    dependencies: [phase-1]
+    tasks:
+      - id: task-2.1
+        name: "Migrate sprint-index-manager.ts"
+        description: "Replace local path functions with project-config imports"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-1.4]
+        acceptance_criteria:
+          - "Remove local getSprintIndexPath() function"
+          - "Remove local getPlanningDir() function"
+          - "Import from project-config"
+          - "All tests pass"
+          - "No behavior changes"
+        files_to_modify:
+          - path: "src/common/sprint-index-manager.ts"
+            changes:
+              - "Remove getSprintIndexPath() (lines 37-39)"
+              - "Remove getPlanningDir() (lines 45-47)"
+              - "Add import from project-config"
+              - "Update all usages"
+        implementation_pattern: |
+          Before:
+          ```typescript
+          function getSprintIndexPath(): string {
+            return join(process.cwd(), 'planning', 'sprint-index.yaml');
+          }
+          ```
+          After:
+          ```typescript
+          import { getSprintIndexPath } from './project-config.js';
+          // Remove local function, use import
+          ```
+
+      - id: task-2.2
+        name: "Update sprint-index-manager tests"
+        description: "Add tests for SPRINT_ROOT scenarios"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.1]
+        acceptance_criteria:
+          - "Test with SPRINT_ROOT set"
+          - "Test without SPRINT_ROOT"
+          - "All existing tests still pass"
+          - "No test regressions"
+        files_to_modify:
+          - path: "src/common/__tests__/sprint-index-manager.test.ts"
+            changes:
+              - "Add SPRINT_ROOT test cases"
+              - "Verify backward compatibility"
+
+      - id: task-2.3
+        name: "Migrate sprint-index-validator.ts"
+        description: "Replace local path functions with project-config imports"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-2.1]
+        acceptance_criteria:
+          - "Remove local getPlanningDir() function"
+          - "Update manifest path resolution (lines 279, 312)"
+          - "Import from project-config"
+          - "All tests pass"
+        files_to_modify:
+          - path: "src/common/sprint-index-validator.ts"
+            changes:
+              - "Remove getPlanningDir() (lines 73-75)"
+              - "Update join(process.cwd(), entry.manifestPath) calls"
+              - "Add import from project-config"
+
+      - id: task-2.4
+        name: "Update sprint-index-validator tests"
+        description: "Add tests for SPRINT_ROOT scenarios"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.3]
+        acceptance_criteria:
+          - "Test validation with SPRINT_ROOT"
+          - "All existing tests pass"
+        files_to_modify:
+          - path: "src/common/__tests__/sprint-index-validator.test.ts"
+
+      - id: task-2.5
+        name: "Migrate git-utils.ts (CRITICAL)"
+        description: "Update worktree path resolution - requires careful review"
+        priority: P0
+        story_points: 1.5
+        status: planned
+        dependencies: [task-2.1]
+        acceptance_criteria:
+          - "Replace getWorktreePath() implementation"
+          - "Verify git worktrees work correctly"
+          - "Test worktree creation/removal"
+          - "All tests pass"
+          - "CRITICAL: Manual validation of git behavior"
+        files_to_modify:
+          - path: "src/common/git-utils.ts"
+            changes:
+              - "Update getWorktreePath() (line 234)"
+              - "Import from project-config"
+        critical_notes: |
+          Git worktrees must be relative to the actual .git directory.
+          Need to ensure SPRINT_ROOT doesn't break git worktree mechanics.
+          Consider if worktrees should be under SPRINT_ROOT or stay in repo root.
+          Current decision: Keep worktrees in repo root (.worktrees/)
+
+      - id: task-2.6
+        name: "Update git-utils tests"
+        description: "Add comprehensive worktree tests with SPRINT_ROOT"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.5]
+        acceptance_criteria:
+          - "Test worktree creation with SPRINT_ROOT"
+          - "Test worktree removal"
+          - "Verify paths are correct"
+          - "All existing tests pass"
+        files_to_modify:
+          - path: "src/common/__tests__/git-utils.test.ts"
+
+      - id: task-2.7
+        name: "Migrate sprint-cleanup-utils.ts"
+        description: "Update planning directory references"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.1]
+        acceptance_criteria:
+          - "Update planning directory path (line 146)"
+          - "Import from project-config"
+          - "All tests pass"
+        files_to_modify:
+          - path: "src/common/sprint-cleanup-utils.ts"
+            changes:
+              - "Update join(process.cwd(), 'planning', sprintId)"
+              - "Use getSprintDir() instead"
+
+      - id: task-2.8
+        name: "Update sprint-cleanup-utils tests"
+        description: "Add SPRINT_ROOT test coverage"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.7]
+        acceptance_criteria:
+          - "Test cleanup with SPRINT_ROOT"
+          - "All existing tests pass"
+        files_to_modify:
+          - path: "src/common/__tests__/sprint-cleanup-utils.test.ts"
+
+  # ============================================================================
+  # PHASE 3: MCP Tools Migration
+  # ============================================================================
+  - id: phase-3
+    name: "MCP Tools Migration"
+    story_points: 5
+    estimated_hours: "2-3"
+    dependencies: [phase-2]
+    tasks:
+      - id: task-3.1
+        name: "Migrate start-sprint.ts"
+        description: "Update all path constructions in start-sprint tool"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-2.8]
+        acceptance_criteria:
+          - "Update getNextSprintNumber() (line 44)"
+          - "Update sprint directory creation (line 118)"
+          - "Import from project-config"
+          - "Tool tests pass"
+          - "Manual validation of sprint creation"
+        files_to_modify:
+          - path: "src/tools/start-sprint.ts"
+            changes:
+              - "Replace join(process.cwd(), 'planning')"
+              - "Use getPlanningDir() and getSprintDir()"
+
+      - id: task-3.2
+        name: "Update start-sprint tests"
+        description: "Add SPRINT_ROOT test scenarios"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-3.1]
+        acceptance_criteria:
+          - "Test sprint creation with SPRINT_ROOT"
+          - "Verify sprints created in correct location"
+          - "All existing tests pass"
+        files_to_modify:
+          - path: "src/tools/__tests__/start-sprint.test.ts"
+
+      - id: task-3.3
+        name: "Migrate check-sprint-status.ts"
+        description: "Update planning directory reference"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.8]
+        acceptance_criteria:
+          - "Update planning directory (line 28)"
+          - "Import from project-config"
+          - "Tool tests pass"
+        files_to_modify:
+          - path: "src/tools/check-sprint-status.ts"
+            changes:
+              - "Replace join(process.cwd(), 'planning')"
+              - "Use getPlanningDir()"
+
+      - id: task-3.4
+        name: "Update check-sprint-status tests"
+        description: "Add SPRINT_ROOT test coverage"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-3.3]
+        files_to_modify:
+          - path: "src/tools/__tests__/check-sprint-status.test.ts"
+
+      - id: task-3.5
+        name: "Migrate update-sprint-status.ts"
+        description: "Update manifest path construction"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.8]
+        acceptance_criteria:
+          - "Update manifest path (line 96)"
+          - "Import from project-config"
+          - "Tool tests pass"
+        files_to_modify:
+          - path: "src/tools/update-sprint-status.ts"
+            changes:
+              - "Replace join(process.cwd(), 'planning', sprintId, ...)"
+              - "Use getManifestPath(sprintId)"
+
+      - id: task-3.6
+        name: "Update update-sprint-status tests"
+        description: "Add SPRINT_ROOT test coverage"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-3.5]
+        files_to_modify:
+          - path: "src/tools/__tests__/update-sprint-status.test.ts"
+
+      - id: task-3.7
+        name: "Migrate complete-sprint.ts"
+        description: "Update artifact checking and manifest paths"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-2.8]
+        acceptance_criteria:
+          - "Update checkRequiredArtifacts() (line 69)"
+          - "Update manifest path (line 126)"
+          - "Import from project-config"
+          - "Tool tests pass"
+          - "End-to-end validation"
+        files_to_modify:
+          - path: "src/tools/complete-sprint.ts"
+            changes:
+              - "Replace join(process.cwd(), 'planning', sprintId)"
+              - "Use getSprintDir(sprintId) and getManifestPath(sprintId)"
+
+      - id: task-3.8
+        name: "Update complete-sprint tests"
+        description: "Add SPRINT_ROOT test coverage"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-3.7]
+        files_to_modify:
+          - path: "src/tools/__tests__/complete-sprint.test.ts"
+
+      - id: task-3.9
+        name: "Verify cleanup-sprint integration"
+        description: "Ensure cleanup-sprint works after common module migration"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-2.8]
+        acceptance_criteria:
+          - "No code changes needed (uses sprint-cleanup-utils)"
+          - "Integration tests verify correct behavior"
+          - "Manual testing with SPRINT_ROOT"
+        test_only: true
+
+  # ============================================================================
+  # PHASE 4: Compression Subsystem
+  # ============================================================================
+  - id: phase-4
+    name: "Compression Subsystem"
+    story_points: 2
+    estimated_hours: "1"
+    dependencies: [phase-1]
+    tasks:
+      - id: task-4.1
+        name: "Migrate compression/config.ts"
+        description: "Update config path resolution to use SPRINT_ROOT"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-1.4]
+        acceptance_criteria:
+          - "Update loadCompressionConfig() (line 62)"
+          - "Import from project-config"
+          - "Compression tests pass"
+        files_to_modify:
+          - path: "src/compression/config.ts"
+            changes:
+              - "Replace process.cwd() with getProjectRoot()"
+              - "Add import from ../common/project-config"
+
+      - id: task-4.2
+        name: "Update compression/config tests"
+        description: "Add SPRINT_ROOT test scenarios"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-4.1]
+        acceptance_criteria:
+          - "Test config loading with SPRINT_ROOT"
+          - "Verify relative paths resolve correctly"
+          - "All existing tests pass"
+        files_to_modify:
+          - path: "src/compression/__tests__/config.test.ts"
+
+  # ============================================================================
+  # PHASE 5: Integration Testing
+  # ============================================================================
+  - id: phase-5
+    name: "Integration Testing"
+    story_points: 3
+    estimated_hours: "1-2"
+    dependencies: [phase-2, phase-3, phase-4]
+    tasks:
+      - id: task-5.1
+        name: "Create multi-project integration test suite"
+        description: "Test full sprint lifecycle with SPRINT_ROOT"
+        priority: P1
+        story_points: 1.5
+        status: planned
+        dependencies: [task-3.8, task-4.2]
+        acceptance_criteria:
+          - "Test start-sprint with SPRINT_ROOT"
+          - "Test check-sprint-status with SPRINT_ROOT"
+          - "Test complete-sprint with SPRINT_ROOT"
+          - "Verify sprints isolated between projects"
+          - "Verify index files in correct locations"
+        deliverables:
+          - "src/__tests__/integration/sprint-root.test.ts"
+        files_to_create:
+          - path: "src/__tests__/integration/sprint-root.test.ts"
+            type: "test"
+        test_scenarios:
+          - "Full sprint lifecycle with SPRINT_ROOT=/tmp/project-a"
+          - "Switch to SPRINT_ROOT=/tmp/project-b"
+          - "Verify no cross-contamination"
+          - "Verify worktree paths"
+
+      - id: task-5.2
+        name: "Create backward compatibility test suite"
+        description: "Ensure everything works without SPRINT_ROOT"
+        priority: P0
+        story_points: 1
+        status: planned
+        dependencies: [task-3.8, task-4.2]
+        acceptance_criteria:
+          - "Test all MCP tools without SPRINT_ROOT"
+          - "Verify behavior unchanged from baseline"
+          - "Verify existing sprints still accessible"
+        deliverables:
+          - "src/__tests__/integration/backward-compatibility.test.ts"
+        files_to_create:
+          - path: "src/__tests__/integration/backward-compatibility.test.ts"
+            type: "test"
+
+      - id: task-5.3
+        name: "Create edge case test suite"
+        description: "Test error handling and edge cases"
+        priority: P1
+        story_points: 0.5
+        status: planned
+        dependencies: [task-1.4]
+        acceptance_criteria:
+          - "Test invalid SPRINT_ROOT (relative path)"
+          - "Test SPRINT_ROOT pointing to non-existent directory"
+          - "Test SPRINT_ROOT with no permissions"
+          - "Verify clear error messages"
+        test_scenarios:
+          - "SPRINT_ROOT=relative/path → clear error"
+          - "SPRINT_ROOT=/nonexistent → graceful handling"
+          - "SPRINT_ROOT=/no-permission → clear error"
+
+  # ============================================================================
+  # PHASE 6: Documentation and Polish
+  # ============================================================================
+  - id: phase-6
+    name: "Documentation and Polish"
+    story_points: 2
+    estimated_hours: "1"
+    dependencies: [phase-5]
+    tasks:
+      - id: task-6.1
+        name: "Verify and update installation guide"
+        description: "Ensure SPRINT_ROOT section is accurate and complete"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-5.2]
+        acceptance_criteria:
+          - "Verify existing SPRINT_ROOT documentation is accurate"
+          - "Add troubleshooting section"
+          - "Add examples for common scenarios"
+          - "Test all examples"
+        files_to_modify:
+          - path: "documentation/claude-desktop-installation-guide.md"
+            changes:
+              - "Verify lines 420-435 are accurate"
+              - "Add troubleshooting section"
+              - "Add validation examples"
+
+      - id: task-6.2
+        name: "Update README.md"
+        description: "Add SPRINT_ROOT to environment variables section"
+        priority: P0
+        story_points: 0.5
+        status: planned
+        dependencies: [task-6.1]
+        acceptance_criteria:
+          - "Add SPRINT_ROOT to env vars section"
+          - "Add quick start example"
+          - "Link to detailed docs"
+        files_to_modify:
+          - path: "README.md"
+
+      - id: task-6.3
+        name: "Create or update environment variables documentation"
+        description: "Comprehensive guide for all environment variables"
+        priority: P1
+        story_points: 0.5
+        status: planned
+        dependencies: [task-6.1]
+        acceptance_criteria:
+          - "Document SPRINT_ROOT"
+          - "Document NODE_ENV"
+          - "Document validation rules"
+          - "Document fallback behavior"
+          - "Add examples"
+        deliverables:
+          - "documentation/environment-variables.md (new or updated)"
+        files_to_create:
+          - path: "documentation/environment-variables.md"
+            type: "documentation"
+
+      - id: task-6.4
+        name: "Create migration guide (if needed)"
+        description: "Help existing users adopt SPRINT_ROOT"
+        priority: P2
+        story_points: 0.5
+        status: planned
+        dependencies: [task-6.1]
+        acceptance_criteria:
+          - "Document backward compatibility"
+          - "Show before/after examples"
+          - "Address common questions"
+        nice_to_have: true
+
+# ============================================================================
+# DEPENDENCIES GRAPH (for visualization)
+# ============================================================================
+dependency_graph:
+  phase-1: []
+  phase-2: [phase-1]
+  phase-3: [phase-2]
+  phase-4: [phase-1]
+  phase-5: [phase-2, phase-3, phase-4]
+  phase-6: [phase-5]
+
+# ============================================================================
+# VALIDATION CHECKLIST (Sprint Completion Criteria)
+# ============================================================================
+validation_checklist:
+  functional:
+    - "All 6 MCP tools respect SPRINT_ROOT when set"
+    - "All tools work without SPRINT_ROOT (backward compatible)"
+    - "Git worktrees work correctly with SPRINT_ROOT"
+    - "Compression config loads from correct location"
+    - "Sprint index created in correct location"
+
+  testing:
+    - "All unit tests pass"
+    - "All integration tests pass"
+    - "Test coverage maintained (>80%)"
+    - "No test regressions"
+    - "Edge cases handled gracefully"
+
+  code_quality:
+    - "No linting errors"
+    - "Clean build (no warnings)"
+    - "All functions documented"
+    - "Code review complete"
+
+  documentation:
+    - "Installation guide updated"
+    - "README updated"
+    - "Environment variables documented"
+    - "Examples tested"
+    - "Links validated"
+
+# ============================================================================
+# RISK REGISTER
+# ============================================================================
+risks:
+  - id: risk-1
+    description: "Git worktree paths may break with SPRINT_ROOT"
+    severity: high
+    mitigation: "Extra scrutiny on git-utils.ts, comprehensive testing"
+    owner: "Lead Implementor"
+    status: "monitored"
+
+  - id: risk-2
+    description: "Test isolation may be affected by SPRINT_ROOT"
+    severity: medium
+    mitigation: "Review all process.chdir() patterns, test interactions"
+    owner: "Lead Implementor"
+    status: "monitored"
+
+  - id: risk-3
+    description: "Breaking changes in existing deployments"
+    severity: high
+    mitigation: "Strict backward compatibility, extensive testing without SPRINT_ROOT"
+    owner: "Lead Implementor"
+    status: "monitored"
+
+# ============================================================================
+# METRICS
+# ============================================================================
+metrics:
+  code_changes:
+    production_files_modified: 10
+    test_files_modified: 10
+    documentation_files_modified: 3
+    new_files_created: 5
+    total_files_affected: 28
+
+  testing:
+    new_unit_tests: "~50"
+    new_integration_tests: "~10"
+    target_coverage: "80%"
+
+  estimated_loc_changes:
+    additions: "~500"
+    deletions: "~100"
+    net_change: "~400"

@@ -231,8 +231,14 @@ export function removeWorktree(path: string, force: boolean = false): boolean {
  * @returns Absolute path to the sprint worktree
  * @deprecated Use getWorktreeDir() from path-utils.ts instead
  */
+/**
+ * Get worktree path - uses process.cwd() to keep worktrees with git repo
+ * Note: Worktrees must stay in repo root, NOT under SPRINT_ROOT
+ */
 export function getWorktreePath(sprintId: string): string {
   // Delegate to centralized path utilities for multi-repo support
+  // When SPRINT_ROOT is set, worktrees go in that repository
+  // When SPRINT_ROOT is not set, worktrees go in process.cwd()
   return getWorktreeDir(sprintId);
 }
 

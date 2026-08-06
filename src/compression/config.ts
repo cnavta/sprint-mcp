@@ -9,6 +9,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { getProjectRoot } from '../common/project-config.js';
 import {
   CompressionConfig,
   CompressionConfigSchema,
@@ -59,7 +60,7 @@ export function loadCompressionConfig(
   // Resolve path relative to project root
   const resolvedPath = configPath.startsWith('/')
     ? configPath
-    : join(process.cwd(), configPath);
+    : join(getProjectRoot(), configPath);
 
   // Check if config file exists
   if (!existsSync(resolvedPath)) {

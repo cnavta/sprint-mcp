@@ -16,7 +16,6 @@ import { join } from 'path';
 import { promises as fs } from 'fs';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from './logger.js';
-import { getPlanningDir } from './path-utils.js';
 import {
   fileExists,
   readFile,
@@ -24,6 +23,10 @@ import {
   listDirectories,
   listFiles,
 } from './file-utils.js';
+import {
+  getPlanningDir,
+  getSprintIndexPath,
+} from './project-config.js';
 import type {
   SprintIndex,
   SprintIndexEntry,
@@ -31,14 +34,6 @@ import type {
 } from '../types/sprint-index.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { ArchiveConfig } from '../types/archive-config.js';
-
-/**
- * Get the path to the sprint index file
- * Computed dynamically to support multi-repository and test isolation
- */
-function getSprintIndexPath(): string {
-  return join(getPlanningDir(), 'sprint-index.yaml');
-}
 
 /**
  * Header comment for the generated index file

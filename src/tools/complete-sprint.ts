@@ -10,7 +10,7 @@
 
 import { join, dirname } from 'path';
 import { logger } from '../common/logger.js';
-import { getProjectRoot } from '../common/path-utils.js';
+import { getProjectRoot } from '../common/project-config.js';
 import { fileExists } from '../common/file-utils.js';
 import { loadSprintIndex } from '../common/sprint-index-manager.js';
 import { updateSprintStatusTool } from './update-sprint-status.js';

@@ -8,7 +8,7 @@
 import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
-import { getProjectRoot } from '../common/path-utils.js';
+import { getProjectRoot } from '../common/project-config.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
 import { loadSprintIndex, updateSprintInIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
@@ -106,13 +106,13 @@ export async function updateSprintStatusTool(
       logger.debug(`Found sprint in index, using path: ${manifestPath}`);
     } else {
       // Sprint not in index - fall back to flat structure
-      const { getPlanningDir } = await import('../common/path-utils.js');
+      const { getPlanningDir } = await import('../common/project-config.js');
       manifestPath = join(getPlanningDir(), sprintId, 'sprint-manifest.yaml');
       logger.warn(`Sprint ${sprintId} not in index, trying flat structure: ${manifestPath}`);
     }
   } catch (error) {
     // Index doesn't exist or can't be loaded - fall back to flat structure
-    const { getPlanningDir } = await import('../common/path-utils.js');
+    const { getPlanningDir } = await import('../common/project-config.js');
     manifestPath = join(getPlanningDir(), sprintId, 'sprint-manifest.yaml');
     logger.warn(`Could not load index (${error}), trying flat structure: ${manifestPath}`);
   }
