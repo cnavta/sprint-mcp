@@ -1,0 +1,13 @@
+id: sprint-14-kmbtu7
+title: SPRINT_ROOT Environment Variable Implementation
+goal: Implement SPRINT_ROOT environment variable support across all MCP tools,
+  common modules, and compression subsystem to enable multi-project workflows
+owner: Christopher Navta
+createdAt: 2026-08-06T02:19:30.514Z
+status: complete
+links:
+  branch: feature/sprint-14-kmbtu7-sprint-root-environment-variab
+  pr: https://github.com/cnavta/sprint-mcp/pull/15
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-06T02:55:05.623Z
+completionMode: normal

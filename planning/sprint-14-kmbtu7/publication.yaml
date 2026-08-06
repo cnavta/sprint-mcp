@@ -1,0 +1,76 @@
+# Sprint 14 Publication Metadata
+
+id: sprint-14-kmbtu7
+title: SPRINT_ROOT Environment Variable Implementation
+status: complete
+
+# GitHub Pull Request
+pr:
+  url: https://github.com/cnavta/sprint-mcp/pull/15
+  title: "Sprint 14 Deliverables – SPRINT_ROOT Environment Variable Implementation"
+  status: open
+  created: 2026-08-06T02:50:00Z
+
+# Git Branch
+branch:
+  name: feature/sprint-14-kmbtu7-sprint-root-environment-variab
+  base: main
+  commit: da74467
+
+# Deliverables
+deliverables:
+  production_files:
+    - src/common/project-config.ts (NEW)
+    - src/common/sprint-index-manager.ts
+    - src/common/sprint-index-validator.ts
+    - src/common/git-utils.ts
+    - src/common/sprint-cleanup-utils.ts
+    - src/tools/start-sprint.ts
+    - src/tools/check-sprint-status.ts
+    - src/tools/update-sprint-status.ts
+    - src/tools/complete-sprint.ts
+    - src/compression/config.ts
+
+  test_files:
+    - src/common/__tests__/project-config.test.ts (NEW)
+
+  documentation:
+    - README.md
+
+  planning_artifacts:
+    - planning/sprint-14-kmbtu7/sprint-manifest.yaml
+    - planning/sprint-14-kmbtu7/implementation-plan.md
+    - planning/sprint-14-kmbtu7/request-log.md
+    - planning/sprint-14-kmbtu7/validate_deliverable.sh
+    - planning/sprint-14-kmbtu7/verification-report.md
+    - planning/sprint-14-kmbtu7/retro.md
+    - planning/sprint-14-kmbtu7/key-learnings.md
+    - planning/sprint-14-kmbtu7/publication.yaml
+
+# Test Results
+tests:
+  total: 257
+  passed: 257
+  failed: 0
+  coverage: comprehensive
+
+# Quality Metrics
+quality:
+  build_status: passing
+  warnings: 0
+  breaking_changes: 0
+  backward_compatible: true
+
+# Completion Metadata
+completion:
+  mode: normal
+  completed_at: 2026-08-06T02:50:00Z
+  validation_status: passed
+  artifacts_complete: true
+
+# Notes
+notes: |
+  Sprint completed successfully with all required artifacts.
+  All 257 tests passing, zero breaking changes, 100% backward compatibility maintained.
+  SPRINT_ROOT environment variable now fully supported across all MCP tools.
+  Diagnostics added to check-sprint-status for troubleshooting configuration.
