@@ -230,7 +230,13 @@ export function removeWorktree(path: string, force: boolean = false): boolean {
  * @param sprintId - Sprint ID (e.g., "sprint-1-abc123")
  * @returns Absolute path to the sprint worktree
  */
+/**
+ * Get worktree path - uses process.cwd() to keep worktrees with git repo
+ * Note: Worktrees must stay in repo root, NOT under SPRINT_ROOT
+ */
 export function getWorktreePath(sprintId: string): string {
+  // Worktrees must be in the git repository root, not under SPRINT_ROOT
+  // This is because git worktrees are tightly coupled to the .git directory
   const cwd = process.cwd();
   return join(cwd, '.worktrees', sprintId);
 }

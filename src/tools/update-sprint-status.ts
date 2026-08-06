@@ -5,12 +5,12 @@
  * the sprint index (derived cache). This ensures consistency between the two.
  */
 
-import { join } from 'path';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
 import { updateSprintInIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
+import { getManifestPath } from '../common/project-config.js';
 import type { SprintManifest, SprintStatus } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -92,12 +92,7 @@ export async function updateSprintStatusTool(
   logger.info(`Updating sprint status for ${sprintId}`, updates);
 
   // Step 1: Load and update manifest (authoritative source)
-  const manifestPath = join(
-    process.cwd(),
-    'planning',
-    sprintId,
-    'sprint-manifest.yaml'
-  );
+  const manifestPath = getManifestPath(sprintId);
 
   if (!(await fileExists(manifestPath))) {
     logger.error(`Sprint manifest not found: ${manifestPath}`);

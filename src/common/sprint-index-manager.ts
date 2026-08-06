@@ -23,28 +23,16 @@ import {
   listDirectories,
   listFiles,
 } from './file-utils.js';
+import {
+  getPlanningDir,
+  getSprintIndexPath,
+} from './project-config.js';
 import type {
   SprintIndex,
   SprintIndexEntry,
   SprintStatistics,
 } from '../types/sprint-index.js';
 import type { SprintManifest } from '../types/sprint.js';
-
-/**
- * Get the path to the sprint index file
- * Computed dynamically to support test isolation via process.chdir()
- */
-function getSprintIndexPath(): string {
-  return join(process.cwd(), 'planning', 'sprint-index.yaml');
-}
-
-/**
- * Get the path to the planning directory containing sprint manifests
- * Computed dynamically to support test isolation via process.chdir()
- */
-function getPlanningDir(): string {
-  return join(process.cwd(), 'planning');
-}
 
 /**
  * Header comment for the generated index file

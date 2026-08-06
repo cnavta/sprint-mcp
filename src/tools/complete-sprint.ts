@@ -12,6 +12,7 @@ import { join } from 'path';
 import { logger } from '../common/logger.js';
 import { fileExists } from '../common/file-utils.js';
 import { updateSprintStatusTool } from './update-sprint-status.js';
+import { getSprintDir, getManifestPath } from '../common/project-config.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
 interface CompleteSprintArgs {
@@ -66,7 +67,7 @@ function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
 async function checkRequiredArtifacts(
   sprintId: string
 ): Promise<ArtifactCheck[]> {
-  const sprintDir = join(process.cwd(), 'planning', sprintId);
+  const sprintDir = getSprintDir(sprintId);
 
   const requiredArtifacts = [
     'verification-report.md',
@@ -122,12 +123,7 @@ async function validateSprintCompletion(
   });
 
   // Check 1: Sprint manifest exists
-  const manifestPath = join(
-    process.cwd(),
-    'planning',
-    sprintId,
-    'sprint-manifest.yaml'
-  );
+  const manifestPath = getManifestPath(sprintId);
 
   if (!(await fileExists(manifestPath))) {
     errors.push(`Sprint not found: ${sprintId}`);

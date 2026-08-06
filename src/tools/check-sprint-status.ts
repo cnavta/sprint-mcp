@@ -10,6 +10,7 @@ import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
 import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
+import { getPlanningDir, getConfigSummary } from '../common/project-config.js';
 import type { SprintManifest } from '../types/sprint.js';
 
 interface CheckSprintStatusResult {
@@ -25,7 +26,7 @@ export async function checkSprintStatusTool(
 ): Promise<CheckSprintStatusResult> {
   logger.info('Checking sprint status...');
 
-  const planningDir = join(process.cwd(), 'planning');
+  const planningDir = getPlanningDir();
   const sprintDirs = await listDirectories(planningDir);
 
   if (sprintDirs.length === 0) {
@@ -123,6 +124,17 @@ export async function checkSprintStatusTool(
     });
     resultText += `\nℹ️  These worktrees can be removed with: git worktree remove <path>\n`;
   }
+
+  // Add SPRINT_ROOT configuration diagnostics
+  const config = getConfigSummary();
+  resultText += `\n---\n\n**Configuration Diagnostics**:\n`;
+  resultText += `- SPRINT_ROOT environment variable: ${config.sprintRootSet ? '✅ SET' : '❌ NOT SET'}\n`;
+  if (config.sprintRootSet && config.sprintRoot) {
+    resultText += `- SPRINT_ROOT value: ${config.sprintRoot}\n`;
+  }
+  resultText += `- Resolved project root: ${config.projectRoot}\n`;
+  resultText += `- Planning directory: ${config.planningDir}\n`;
+  resultText += `- Sprint index path: ${config.indexPath}\n`;
 
   logger.info(`Sprint status check complete: ${activeSprints.length} active, ${completedSprints.length} completed, ${orphanedWorktrees.length} orphaned worktrees`);
 

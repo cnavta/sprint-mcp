@@ -10,6 +10,7 @@ import { join } from 'path';
 import { logger } from './logger.js';
 import { removeWorktree, listWorktrees, getWorktreePath } from './git-utils.js';
 import { loadSprintIndex } from './sprint-index-manager.js';
+import { getSprintDir } from './project-config.js';
 import type { SprintStatus } from '../types/sprint.js';
 
 /**
@@ -143,7 +144,7 @@ export async function validateCleanupSafety(
   }
 
   // Check 3: Planning directory exists (should be preserved)
-  const planningDir = join(process.cwd(), 'planning', sprintId);
+  const planningDir = join(getSprintDir(sprintId));
   try {
     execSync(`test -d "${planningDir}"`, { stdio: 'pipe' });
     logger.debug(`Planning directory exists: ${planningDir}`);

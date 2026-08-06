@@ -9,6 +9,7 @@ import { join } from 'path';
 import { stringify as stringifyYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { ensureDir, writeFile } from '../common/file-utils.js';
+import { getPlanningDir, getSprintDir } from '../common/project-config.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { SprintIndexEntry } from '../types/sprint-index.js';
 import { checkSprintStatusTool } from './check-sprint-status.js';
@@ -41,7 +42,7 @@ function generateShortHash(): string {
  * Get the next sprint number by checking existing sprints
  */
 async function getNextSprintNumber(): Promise<number> {
-  const planningDir = join(process.cwd(), 'planning');
+  const planningDir = getPlanningDir();
   try {
     const { readdir } = await import('fs/promises');
     const entries = await readdir(planningDir, { withFileTypes: true });
@@ -115,8 +116,7 @@ export async function startSprintTool(
   logger.info(`Generated sprint ID: ${sprintId}`);
 
   // Step 3: Create sprint directory
-  const planningDir = join(process.cwd(), 'planning');
-  const sprintDir = join(planningDir, sprintId);
+  const sprintDir = getSprintDir(sprintId);
   await ensureDir(sprintDir);
   logger.info(`Created sprint directory: ${sprintDir}`);
 
