@@ -284,6 +284,8 @@ export interface RegenerateResult {
 export interface RegenerateOptions {
   /** Create minimal manifests for directories missing them */
   repair?: boolean;
+  /** Only include active sprints in index (excludes archived sprints for performance) */
+  activeOnly?: boolean;
 }
 
 /**
@@ -370,13 +372,16 @@ async function isArchiveEnabled(): Promise<boolean> {
  *
  * If archive system is enabled, scans:
  * - planning/active/
- * - planning/archive/{year}/
+ * - planning/archive/{year}/ (unless activeOnly is true)
  * - planning/ root (for legacy sprints not yet migrated)
  *
  * Otherwise, scans flat structure:
  * - planning/
+ *
+ * @param options Options controlling which directories to scan
+ * @param options.activeOnly If true, excludes archived sprints (for performance)
  */
-async function getSprintDirectories(): Promise<string[]> {
+async function getSprintDirectories(options: { activeOnly?: boolean } = {}): Promise<string[]> {
   const planningDir = getPlanningDir();
   const archiveEnabled = await isArchiveEnabled();
 
@@ -387,7 +392,8 @@ async function getSprintDirectories(): Promise<string[]> {
   }
 
   // Archive structure: scan active/, archive/{year}/, and planning root for legacy sprints
-  logger.debug('Using archive structure, scanning active/, archive/, and planning root directories');
+  const scanArchive = !options.activeOnly;
+  logger.debug(`Using archive structure, scanning active/${scanArchive ? ', archive/,' : ''} and planning root directories`);
   const sprintDirs: string[] = [];
 
   // Scan active/
@@ -398,16 +404,20 @@ async function getSprintDirectories(): Promise<string[]> {
     logger.debug(`Found ${activeDirs.length} sprints in active/`);
   }
 
-  // Scan archive/{year}/
-  const archiveDir = join(planningDir, 'archive');
-  const archiveCount = sprintDirs.length;
-  if (await fileExists(archiveDir)) {
-    const yearDirs = await listDirectories(archiveDir);
-    for (const yearDir of yearDirs) {
-      const archivedDirs = await listDirectories(yearDir);
-      sprintDirs.push(...archivedDirs);
+  // Scan archive/{year}/ (unless activeOnly is true)
+  if (scanArchive) {
+    const archiveDir = join(planningDir, 'archive');
+    const archiveCount = sprintDirs.length;
+    if (await fileExists(archiveDir)) {
+      const yearDirs = await listDirectories(archiveDir);
+      for (const yearDir of yearDirs) {
+        const archivedDirs = await listDirectories(yearDir);
+        sprintDirs.push(...archivedDirs);
+      }
+      logger.debug(`Found ${sprintDirs.length - archiveCount} sprints in archive/`);
     }
-    logger.debug(`Found ${sprintDirs.length - archiveCount} sprints in archive/`);
+  } else {
+    logger.debug('Skipping archive/ (activeOnly mode)');
   }
 
   // Scan planning root for legacy sprint directories (not yet migrated)
@@ -452,9 +462,10 @@ async function getSprintDirectories(): Promise<string[]> {
 export async function regenerateSprintIndex(
   options: RegenerateOptions = {}
 ): Promise<RegenerateResult> {
-  logger.info('Regenerating sprint index from manifests');
+  const mode = options.activeOnly ? 'active sprints only' : 'all sprints (active + archived)';
+  logger.info(`Regenerating sprint index from manifests (${mode})`);
 
-  const sprintDirs = await getSprintDirectories();
+  const sprintDirs = await getSprintDirectories({ activeOnly: options.activeOnly });
   const entries: SprintIndexEntry[] = [];
   let skippedCount = 0;
   let repairedCount = 0;

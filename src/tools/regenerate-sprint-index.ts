@@ -25,23 +25,30 @@ interface RegenerateSprintIndexResult {
  * Scans the planning directory for all sprint manifests, extracts metadata,
  * and rebuilds the sprint index from scratch.
  *
- * @param args Tool arguments (optional repair flag)
+ * @param args Tool arguments
+ * @param args.repair Optional flag to create minimal manifests for directories missing them
+ * @param args.activeOnly Optional flag to only include active sprints (excludes archived for performance)
  * @returns Result with success message and sprint counts
  */
 export async function regenerateSprintIndexTool(
   args?: Record<string, unknown>
 ): Promise<RegenerateSprintIndexResult> {
   const repair = args?.repair === true || args?.repair === 'true';
+  const activeOnly = args?.activeOnly === true || args?.activeOnly === 'true';
 
-  if (repair) {
-    logger.info('Regenerating sprint index from manifests (MCP tool) with repair mode enabled');
-  } else {
-    logger.info('Regenerating sprint index from manifests (MCP tool)');
-  }
+  const modes: string[] = [];
+  if (repair) modes.push('repair mode');
+  if (activeOnly) modes.push('active-only mode');
+
+  const modeDescription = modes.length > 0 ? ` (${modes.join(', ')})` : '';
+  logger.info(`Regenerating sprint index from manifests (MCP tool)${modeDescription}`);
 
   try {
-    // Regenerate index from all manifests
-    const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex({ repair });
+    // Regenerate index from manifests
+    const { index, skippedDirectories, repairedDirectories } = await regenerateSprintIndex({
+      repair,
+      activeOnly
+    });
 
     // Validate the regenerated index
     const validation = await validateSprintIndex();
@@ -56,6 +63,10 @@ export async function regenerateSprintIndexTool(
       // Concise output for clean, successful non-repair regeneration
       resultText = `✅ Sprint index regenerated successfully\n\n`;
       resultText += `${index.totalSprints} total (${index.activeSprints} active, ${index.completedSprints} completed)\n`;
+
+      if (activeOnly) {
+        resultText += `\n⚡ Active-only mode: Archived sprints excluded from index for performance\n`;
+      }
 
       // Show active sprints if any
       const activeSprints = index.sprints.filter(s => s.status !== 'complete');
@@ -73,6 +84,9 @@ export async function regenerateSprintIndexTool(
       resultText += `- Total sprints: ${index.totalSprints}\n`;
       resultText += `- Active sprints: ${index.activeSprints}\n`;
       resultText += `- Completed sprints: ${index.completedSprints}\n`;
+      if (activeOnly) {
+        resultText += `- ⚡ Mode: Active-only (archived sprints excluded)\n`;
+      }
       if (repairedDirectories > 0) {
         resultText += `- ✅ Repaired directories (manifests created): ${repairedDirectories}\n`;
       }
@@ -81,6 +95,13 @@ export async function regenerateSprintIndexTool(
       }
       resultText += `- Generated at: ${index.generatedAt}\n`;
       resultText += `\n`;
+
+      if (activeOnly) {
+        resultText += `**Active-only mode:**\n`;
+        resultText += `Archived sprints excluded from index for improved performance.\n`;
+        resultText += `Use \`regenerate-sprint-index\` without activeOnly flag to include all sprints.\n`;
+        resultText += `\n`;
+      }
 
       if (repair && repairedDirectories > 0) {
         resultText += `**Repair mode enabled:**\n`;
