@@ -1,11 +1,15 @@
 {
   "mcpServers": {
-    "sprint-mcp": {
+    "sprint-mcp-local": {
       "type": "stdio",
       "command": "node",
-      "args": ["dist/index.js"],
+      "args": [
+        "/Users/christophernavta/IdeaProjects/sprint-mcp/dist/index.js"
+      ],
       "env": {
-        "LOG_LEVEL": "info"
+        "SPRINT_ROOT": "/Users/christophernavta/IdeaProjects/sprint-mcp",
+        "LOG_LEVEL": "debug",
+        "NODE_ENV": "development"
       }
     }
   }

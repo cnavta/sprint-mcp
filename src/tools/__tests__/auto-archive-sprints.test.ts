@@ -11,6 +11,7 @@ import { autoArchiveSprintsTool } from '../auto-archive-sprints.js';
 import { startSprintTool } from '../start-sprint.js';
 import { updateSprintStatusTool } from '../update-sprint-status.js';
 import { completeSprintTool } from '../complete-sprint.js';
+import { regenerateSprintIndexTool } from '../regenerate-sprint-index.js';
 import type { ArchiveConfig } from '../../types/archive-config.js';
 
 describe('auto-archive-sprints', () => {
@@ -92,7 +93,7 @@ describe('auto-archive-sprints', () => {
     title: string,
     daysAgo: number
   ): Promise<string> {
-    // Start sprint
+    // Start sprint (creates in worktree - unified model)
     const startResult = await startSprintTool({
       title,
       goal: 'Test',
@@ -100,15 +101,15 @@ describe('auto-archive-sprints', () => {
     });
 
     const sprintId = startResult.content[0].text.match(/sprint-\d+-\w+/)![0];
-    const sprintDir = join(testDir, 'planning', 'active', sprintId);
+    const worktreeSprintDir = join(testDir, '.worktrees', sprintId, 'planning', sprintId);
 
-    // Create required artifacts
+    // Create required artifacts in worktree
     await writeFile(
-      join(sprintDir, 'verification-report.md'),
+      join(worktreeSprintDir, 'verification-report.md'),
       '# Verification Report\n\nAll deliverables completed.'
     );
     await writeFile(
-      join(sprintDir, 'publication.yaml'),
+      join(worktreeSprintDir, 'publication.yaml'),
       'pr: https://github.com/test/repo/pull/1\nstatus: created'
     );
 
@@ -122,12 +123,19 @@ describe('auto-archive-sprints', () => {
       pr: 'https://github.com/test/repo/pull/1',
     });
 
-    // Manually update completedAt to simulate old sprint
+    // Simulate PR merge (copy from worktree to planning/active/)
+    const { cp } = await import('fs/promises');
+    const activeSprintDir = join(testDir, 'planning', 'active', sprintId);
+    await cp(worktreeSprintDir, activeSprintDir, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprintId), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
+
+    // Manually update completedAt to simulate old sprint (in active/ dir now)
     const completedAt = new Date(
       Date.now() - daysAgo * 24 * 60 * 60 * 1000
     ).toISOString();
 
-    const manifestPath = join(sprintDir, 'sprint-manifest.yaml');
+    const manifestPath = join(activeSprintDir, 'sprint-manifest.yaml');
     const manifestContent = await import('fs/promises').then((fs) =>
       fs.readFile(manifestPath, 'utf-8')
     );

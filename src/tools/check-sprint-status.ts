@@ -43,31 +43,66 @@ async function isArchiveEnabled(): Promise<boolean> {
 }
 
 /**
- * Get sprint directories to scan for active sprints
+ * Get sprint manifest paths to scan for sprints (unified worktree model aware)
  *
- * If archive enabled: Only scans planning/active/
- * If flat structure: Scans planning/ (all sprints)
+ * Scans both:
+ * 1. Worktrees: .worktrees/sprint-N/planning/sprint-N/ (active sprints)
+ * 2. Main repo: planning/active/ or planning/ (completed/legacy sprints)
+ *
+ * Returns absolute paths to sprint directories containing manifests.
  */
 async function getActiveSprintDirectories(): Promise<string[]> {
   const planningDir = getPlanningDir();
   const archiveEnabled = await isArchiveEnabled();
+  const sprintDirs: string[] = [];
 
+  // Step 1: Scan worktrees for active sprints (unified worktree model)
+  logger.debug('Scanning worktrees for active sprints...');
+  try {
+    const worktreesDir = join(planningDir, '..', '.worktrees');
+    if (await fileExists(worktreesDir)) {
+      const worktreeEntries = await listDirectories(worktreesDir);
+      for (const worktreeDir of worktreeEntries) {
+        // Check if this looks like a sprint worktree
+        const match = worktreeDir.match(/sprint-\d+-[a-z0-9]+$/);
+        if (match) {
+          // Look for planning/sprint-N/ inside the worktree
+          const sprintId = match[0];
+          const worktreePlanningDir = join(worktreeDir, 'planning', sprintId);
+          const worktreeManifest = join(worktreePlanningDir, 'sprint-manifest.yaml');
+
+          if (await fileExists(worktreeManifest)) {
+            sprintDirs.push(worktreePlanningDir);
+            logger.debug(`Found worktree sprint: ${sprintId} at ${worktreePlanningDir}`);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    logger.warn(`Failed to scan worktrees (non-fatal): ${error}`);
+  }
+
+  // Step 2: Scan main repo for completed/legacy sprints
   if (!archiveEnabled) {
     // Flat structure: scan all sprints in planning/
-    logger.debug('Using flat structure, scanning all sprints in planning/');
-    return await listDirectories(planningDir);
+    logger.debug('Scanning flat structure in planning/');
+    const mainRepoDirs = await listDirectories(planningDir);
+    sprintDirs.push(...mainRepoDirs);
+  } else {
+    // Archive structure: scan only active/
+    logger.debug('Scanning archive structure in planning/active/');
+    const activeDir = join(planningDir, 'active');
+
+    if (await fileExists(activeDir)) {
+      const activeDirs = await listDirectories(activeDir);
+      sprintDirs.push(...activeDirs);
+    } else {
+      logger.warn('Archive enabled but planning/active/ directory not found');
+    }
   }
 
-  // Archive structure: scan only active/
-  logger.debug('Using archive structure, scanning only planning/active/');
-  const activeDir = join(planningDir, 'active');
-
-  if (!(await fileExists(activeDir))) {
-    logger.warn('Archive enabled but planning/active/ directory not found');
-    return [];
-  }
-
-  return await listDirectories(activeDir);
+  logger.info(`Found ${sprintDirs.length} total sprint directories to check`);
+  return sprintDirs;
 }
 
 export async function checkSprintStatusTool(
@@ -89,15 +124,25 @@ export async function checkSprintStatusTool(
     };
   }
 
-  const activeSprints: SprintManifest[] = [];
-  const completedSprints: SprintManifest[] = [];
+  interface SprintWithLocation extends SprintManifest {
+    _location?: 'worktree' | 'main-repo';
+    _manifestPath?: string;
+  }
+
+  const activeSprints: SprintWithLocation[] = [];
+  const completedSprints: SprintWithLocation[] = [];
 
   for (const sprintDir of sprintDirs) {
     const manifestPath = join(sprintDir, 'sprint-manifest.yaml');
     if (await fileExists(manifestPath)) {
       try {
         const manifestContent = await readFile(manifestPath);
-        const manifest = parseYaml(manifestContent) as SprintManifest;
+        const manifest = parseYaml(manifestContent) as SprintWithLocation;
+
+        // Determine location based on path
+        const isWorktree = manifestPath.includes('.worktrees');
+        manifest._location = isWorktree ? 'worktree' : 'main-repo';
+        manifest._manifestPath = manifestPath;
 
         if (manifest.status !== 'complete') {
           activeSprints.push(manifest);
@@ -132,11 +177,18 @@ export async function checkSprintStatusTool(
   if (activeSprints.length > 0) {
     resultText += `⚠️  Found ${activeSprints.length} active sprint(s):\n\n`;
     activeSprints.forEach((sprint) => {
+      const locationEmoji = sprint._location === 'worktree' ? '📦' : '📁';
+      const locationLabel = sprint._location === 'worktree' ? 'worktree (unified model)' : 'main repo (legacy)';
+
       resultText += `- **${sprint.id}**: ${sprint.title}\n`;
       resultText += `  Status: ${sprint.status}\n`;
       resultText += `  Goal: ${sprint.goal}\n`;
       resultText += `  Owner: ${sprint.owner}\n`;
       resultText += `  Branch: ${sprint.links?.branch || 'N/A'}\n`;
+      resultText += `  Location: ${locationEmoji} ${locationLabel}\n`;
+      if (sprint._manifestPath) {
+        resultText += `  Manifest: ${sprint._manifestPath}\n`;
+      }
 
       // Check if worktree exists for this sprint
       const expectedWorktreePath = getWorktreePath(sprint.id);

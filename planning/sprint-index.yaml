@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-08-03T14:14:50.879Z
+# Generated: 2026-08-06T01:45:59.688Z
 #
 
 version: "1.0"
-generatedAt: 2026-08-03T14:14:50.896Z
-totalSprints: 12
+generatedAt: 2026-08-07T14:54:17.622Z
+totalSprints: 13
 activeSprints: 0
-completedSprints: 12
+completedSprints: 13
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -130,6 +130,16 @@ sprints:
     branch: feature/sprint-12-sdwpw0-sprint-manifest-repair-and-rec
     completedAt: 2026-08-02T22:28:49.073Z
     completionMode: forced
+  - id: sprint-15-dq6cg7
+    title: Worktree-Aware Tool Remediation
+    status: complete
+    owner: Christopher Navta
+    createdAt: 2026-08-06T18:01:31.473Z
+    manifestPath: planning/sprint-15-dq6cg7/sprint-manifest.yaml
+    branch: feature/sprint-15-dq6cg7-worktree-aware-tool-remediatio
+    worktreePath: .worktrees/sprint-15-dq6cg7
+    completedAt: 2026-08-07T14:54:17.615Z
+    completionMode: forced
 statistics:
   byStatus:
     planning: 0
@@ -137,8 +147,8 @@ statistics:
     validating: 0
     verifying: 0
     published: 0
-    complete: 12
+    complete: 13
   byCompletionMode:
     normal: 11
-    forced: 1
-  averageSprintDuration: PT5H
+    forced: 2
+  averageSprintDuration: PT7H

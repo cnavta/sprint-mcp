@@ -366,48 +366,88 @@ async function isArchiveEnabled(): Promise<boolean> {
 }
 
 /**
- * Get list of sprint directories to scan
+ * Get list of sprint directories to scan (unified worktree model aware)
  *
- * If archive system is enabled, scans:
- * - planning/active/
- * - planning/archive/{year}/
- * - planning/ root (for legacy sprints not yet migrated)
+ * Scans in priority order:
+ * 1. Worktrees: .worktrees/sprint-N/planning/sprint-N/ (active sprints, unified model)
+ * 2. Archive enabled:
+ *    - planning/active/ (completed sprints awaiting archival)
+ *    - planning/archive/{year}/ (archived sprints)
+ *    - planning/ root (legacy sprints not yet migrated)
+ * 3. Flat structure:
+ *    - planning/ (all sprints)
  *
- * Otherwise, scans flat structure:
- * - planning/
+ * Structure is determined by archive-config.yaml existence and enabled flag.
  */
 async function getSprintDirectories(): Promise<string[]> {
   const planningDir = getPlanningDir();
   const archiveEnabled = await isArchiveEnabled();
+  const sprintDirs: string[] = [];
+  let worktreeCount = 0;
 
+  // Step 1: Scan worktrees for active sprints (unified worktree model)
+  logger.debug('Scanning worktrees for active sprints...');
+  try {
+    const worktreesDir = join(planningDir, '..', '.worktrees');
+    if (await fileExists(worktreesDir)) {
+      const worktreeEntries = await listDirectories(worktreesDir);
+      for (const worktreeDir of worktreeEntries) {
+        // Check if this looks like a sprint worktree
+        const dirName = worktreeDir.split('/').pop() || '';
+        const match = dirName.match(/^sprint-\d+-[a-z0-9]+$/);
+        if (match) {
+          // Look for planning/sprint-N/ inside the worktree
+          const sprintId = dirName;
+          const worktreePlanningDir = join(worktreeDir, 'planning', sprintId);
+          const worktreeManifest = join(worktreePlanningDir, 'sprint-manifest.yaml');
+
+          if (await fileExists(worktreeManifest)) {
+            sprintDirs.push(worktreePlanningDir);
+            worktreeCount++;
+            logger.debug(`Found worktree sprint: ${sprintId} at ${worktreePlanningDir}`);
+          }
+        }
+      }
+    }
+    logger.info(`Found ${worktreeCount} sprints in worktrees`);
+  } catch (error) {
+    logger.warn(`Failed to scan worktrees (non-fatal): ${error}`);
+  }
+
+  // Step 2: Scan main repo for completed/legacy sprints
   if (!archiveEnabled) {
     // Flat structure: scan planning/ directly
     logger.debug('Using flat structure, scanning planning/ directory');
-    return await listDirectories(planningDir);
+    const flatDirs = await listDirectories(planningDir);
+    sprintDirs.push(...flatDirs);
+    logger.info(`Found ${flatDirs.length} sprints in main repo (flat structure)`);
+    return sprintDirs;
   }
 
   // Archive structure: scan active/, archive/{year}/, and planning root for legacy sprints
   logger.debug('Using archive structure, scanning active/, archive/, and planning root directories');
-  const sprintDirs: string[] = [];
 
   // Scan active/
   const activeDir = join(planningDir, 'active');
+  let activeCount = 0;
   if (await fileExists(activeDir)) {
     const activeDirs = await listDirectories(activeDir);
     sprintDirs.push(...activeDirs);
-    logger.debug(`Found ${activeDirs.length} sprints in active/`);
+    activeCount = activeDirs.length;
+    logger.debug(`Found ${activeCount} sprints in active/`);
   }
 
   // Scan archive/{year}/
   const archiveDir = join(planningDir, 'archive');
-  const archiveCount = sprintDirs.length;
+  let archiveCount = 0;
   if (await fileExists(archiveDir)) {
     const yearDirs = await listDirectories(archiveDir);
     for (const yearDir of yearDirs) {
       const archivedDirs = await listDirectories(yearDir);
       sprintDirs.push(...archivedDirs);
+      archiveCount += archivedDirs.length;
     }
-    logger.debug(`Found ${sprintDirs.length - archiveCount} sprints in archive/`);
+    logger.debug(`Found ${archiveCount} sprints in archive/`);
   }
 
   // Scan planning root for legacy sprint directories (not yet migrated)
@@ -429,6 +469,8 @@ async function getSprintDirectories(): Promise<string[]> {
     sprintDirs.push(...legacyDirs);
     logger.debug(`Found ${legacyDirs.length} legacy sprints in planning root (not yet migrated)`);
   }
+
+  logger.info(`Found ${sprintDirs.length} total sprints: ${worktreeCount} in worktrees, ${activeCount} in active/, ${archiveCount} in archive/, ${legacyDirs.length} legacy`);
 
   return sprintDirs;
 }
@@ -511,15 +553,33 @@ export async function regenerateSprintIndex(
           continue;
         }
 
-        // Extract worktree path if it exists
-        const worktreePath = join('.worktrees', dirName);
-        const worktreeExists = await fileExists(worktreePath);
-
-        // Calculate relative manifest path from planning directory
-        // sprintDir is absolute path, need to make it relative to planning/
+        // Determine manifest path based on location (unified worktree model aware)
         const planningDir = getPlanningDir();
-        const relativePath = sprintDir.replace(planningDir + '/', '');
-        const relativeManifestPath = join('planning', relativePath, 'sprint-manifest.yaml');
+        let relativeManifestPath: string;
+
+        // Check if this sprint is in a worktree
+        const isWorktree = sprintDir.includes('.worktrees');
+        if (isWorktree) {
+          // Worktree sprint: manifestPath = .worktrees/sprint-N/planning/sprint-N/sprint-manifest.yaml
+          const worktreeMatch = sprintDir.match(/\.worktrees\/(sprint-\d+-[a-z0-9]+)\/planning\/(sprint-\d+-[a-z0-9]+)/);
+          if (worktreeMatch) {
+            const sprintId = worktreeMatch[1];
+            relativeManifestPath = `.worktrees/${sprintId}/planning/${sprintId}/sprint-manifest.yaml`;
+            logger.debug(`Worktree sprint ${manifest.id}: manifestPath = ${relativeManifestPath}`);
+          } else {
+            // Fallback: use full worktree path
+            relativeManifestPath = sprintDir.replace(planningDir.replace('/planning', ''), '') + '/sprint-manifest.yaml';
+          }
+        } else {
+          // Main repo sprint: calculate relative path from planning directory
+          const relativePath = sprintDir.replace(planningDir + '/', '');
+          relativeManifestPath = join('planning', relativePath, 'sprint-manifest.yaml');
+          logger.debug(`Main repo sprint ${manifest.id}: manifestPath = ${relativeManifestPath}`);
+        }
+
+        // Check if worktree exists for this sprint
+        const worktreePath = join('.worktrees', manifest.id);
+        const worktreeExists = await fileExists(join(planningDir, '..', worktreePath));
 
         // Create index entry from manifest
         const entry: SprintIndexEntry = {

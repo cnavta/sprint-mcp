@@ -138,14 +138,19 @@ async function validateSprintCompletion(
     };
   }
 
-  // Get sprint directory from manifestPath (works for both flat and archive structures)
+  // Get sprint directory from manifestPath (works for all models: worktree, archive, flat)
+  // Unified worktree model: manifestPath = .worktrees/sprint-N/planning/sprint-N/sprint-manifest.yaml
+  // Legacy/completed: manifestPath = planning/active/sprint-N/sprint-manifest.yaml or planning/sprint-N/sprint-manifest.yaml
   const projectRoot = getProjectRoot();
   const manifestPath = join(projectRoot, sprintEntry.manifestPath);
   const sprintDir = dirname(manifestPath);
 
+  logger.info(`Validating sprint ${sprintId} at: ${manifestPath}`);
+
   if (!(await fileExists(manifestPath))) {
     errors.push(`Sprint not found: ${sprintId}`);
     errors.push(`Manifest does not exist at: ${manifestPath}`);
+    errors.push(`Index has manifestPath: ${sprintEntry.manifestPath}`);
     return {
       valid: false,
       errors,

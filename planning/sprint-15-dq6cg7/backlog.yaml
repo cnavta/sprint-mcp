@@ -1,0 +1,527 @@
+# Sprint 15 Prioritized Backlog
+# Generated: 2026-08-06
+# Sprint: sprint-15-dq6cg7
+# Title: Worktree-Aware Tool Remediation
+
+metadata:
+  sprint_id: sprint-15-dq6cg7
+  sprint_title: Worktree-Aware Tool Remediation
+  generated_at: 2026-08-06T00:00:00Z
+  total_tasks: 11
+  total_estimated_hours: 14.5
+
+summary:
+  description: >
+    Based on comprehensive audit findings, this backlog focuses on
+    documentation, testing, and defensive enhancements rather than bug fixes.
+    The audit confirmed NO CRITICAL ISSUES with worktree handling - all tools
+    are already worktree-aware via centralized path utilities.
+
+  scope_pivot: >
+    Original scope: Bug remediation for worktree path handling
+    Actual scope: Enhancement and validation of existing sound architecture
+
+  key_finding: >
+    All 8 MCP tools correctly use centralized path utilities (getProjectRoot,
+    getPlanningDir, getWorktreePath). SPRINT_ROOT environment variable ensures
+    correct operation from any worktree context. No code remediation needed.
+
+# Priority Levels:
+# - P0: Critical (blocking, must do)
+# - P1: High (should do this sprint)
+# - P2: Medium (nice to have this sprint)
+# - P3: Low (can defer to future sprint)
+
+tasks:
+  # ============================================================================
+  # PHASE 1: DOCUMENTATION ENHANCEMENT
+  # ============================================================================
+
+  - id: DOC-001
+    title: Update CLAUDE.md with worktree architecture section
+    priority: P1
+    category: documentation
+    estimated_hours: 0.5
+    status: pending
+    description: >
+      Add comprehensive worktree architecture documentation to CLAUDE.md
+      explaining path resolution strategy, centralized utilities, and how
+      SPRINT_ROOT ensures correct operation from any worktree context.
+    acceptance_criteria:
+      - New "Worktree Architecture" section added after Archive System
+      - Documents path resolution strategy (getProjectRoot, getPlanningDir, getWorktreePath)
+      - Includes .mcp.json configuration example with SPRINT_ROOT
+      - Explains why planning artifacts are shared across worktrees
+      - Reviewed by user and approved
+    dependencies: []
+    artifacts:
+      - path: CLAUDE.md
+        type: documentation
+        description: Enhanced with worktree architecture section
+    references:
+      - audit_recommendation: "Documentation Enhancement (Priority: LOW)"
+        audit_section: "Recommendations - Section 2"
+
+  - id: DOC-002
+    title: Add path resolution flow to architecture.yaml
+    priority: P1
+    category: documentation
+    estimated_hours: 0.3
+    status: pending
+    description: >
+      Enhance architecture.yaml with technical documentation of the worktree
+      system, path resolution strategy, and architectural invariants.
+    acceptance_criteria:
+      - New technical_architecture.worktree_system section added
+      - Documents path resolution utilities and flow
+      - Defines worktree layout structure
+      - States invariants (e.g., planning artifacts must be shared)
+      - YAML validates and is well-formed
+    dependencies:
+      - DOC-001
+    artifacts:
+      - path: architecture.yaml
+        type: configuration
+        description: Enhanced with worktree system documentation
+    references:
+      - audit_recommendation: "Documentation Enhancement (Priority: LOW)"
+
+  # ============================================================================
+  # PHASE 2: INTEGRATION TESTING
+  # ============================================================================
+
+  - id: TEST-001
+    title: Create worktree integration test suite
+    priority: P2
+    category: testing
+    estimated_hours: 4.0
+    status: pending
+    description: >
+      Create comprehensive integration tests that validate all MCP tools
+      work correctly under various worktree scenarios (SPRINT_ROOT set/unset,
+      running from repo root vs worktree).
+    acceptance_criteria:
+      - Integration test file created at src/integration/__tests__/worktree-integration.test.ts
+      - Tests cover 4 scenarios (SPRINT_ROOT set, not set, repo root, worktree context)
+      - All 8 MCP tools tested in at least one scenario
+      - All tests pass
+      - Test coverage for path resolution >90%
+      - Tests integrated into npm test suite
+    dependencies:
+      - DOC-001
+      - DOC-002
+    artifacts:
+      - path: src/integration/__tests__/worktree-integration.test.ts
+        type: test
+        description: Integration tests for worktree scenarios
+    references:
+      - audit_recommendation: "Integration Test (Priority: MEDIUM)"
+        audit_section: "Recommendations - Section 3"
+    test_scenarios:
+      - name: SPRINT_ROOT set (production mode)
+        tests:
+          - start-sprint creates artifacts in correct location
+          - complete-sprint finds artifacts
+          - update-sprint-status updates correct manifest
+          - regenerate-sprint-index scans correct directory
+      - name: SPRINT_ROOT not set (local dev mode)
+        tests:
+          - Tools fall back to process.cwd()
+          - Behavior is consistent
+          - Warning logged about missing SPRINT_ROOT
+      - name: Test run from repo root
+        tests:
+          - All tools work correctly
+          - Paths resolve to expected locations
+      - name: Test run from worktree directory
+        tests:
+          - Tools still work correctly via SPRINT_ROOT
+          - No path resolution errors
+
+  - id: TEST-002
+    title: Enhance path resolution unit tests
+    priority: P2
+    category: testing
+    estimated_hours: 1.5
+    status: pending
+    description: >
+      Add additional unit tests for edge cases in path resolution logic
+      (trailing slashes, relative paths, special characters, archive structure).
+    acceptance_criteria:
+      - At least 4 new unit test cases added to path-utils.test.ts
+      - Tests cover edge cases (trailing slash, relative path, special chars, archive)
+      - All tests pass
+      - Test coverage for path utilities >95%
+    dependencies: []
+    artifacts:
+      - path: src/common/__tests__/path-utils.test.ts
+        type: test
+        description: Enhanced unit tests for path utilities
+    test_cases:
+      - getProjectRoot() with SPRINT_ROOT containing trailing slash
+      - getProjectRoot() with SPRINT_ROOT containing relative path
+      - getPlanningDir() with archive structure enabled
+      - getWorktreePath() with special characters in sprint ID
+
+  # ============================================================================
+  # PHASE 3: DEFENSIVE PROGRAMMING
+  # ============================================================================
+
+  - id: DEF-001
+    title: Enhance getProjectRoot() with git root detection
+    priority: P3
+    category: defensive_programming
+    estimated_hours: 1.5
+    status: pending
+    description: >
+      Add defensive fallback to getProjectRoot() that detects when running
+      from a worktree (without SPRINT_ROOT set) and automatically finds the
+      git repository root using 'git rev-parse --show-toplevel'.
+    acceptance_criteria:
+      - getProjectRoot() enhanced with worktree detection logic
+      - Executes 'git rev-parse --show-toplevel' if cwd contains /.worktrees/
+      - Logs warning when fallback is used
+      - Gracefully handles git command failure
+      - All existing tests still pass
+      - New unit tests added for fallback behavior
+    dependencies:
+      - TEST-002
+    artifacts:
+      - path: src/common/path-utils.ts
+        type: source_code
+        description: Enhanced getProjectRoot() with git root detection
+    references:
+      - audit_recommendation: "Defensive Programming (Priority: LOW)"
+        audit_section: "Recommendations - Section 4"
+    risk_assessment:
+      level: low
+      rationale: Only executes if SPRINT_ROOT not set AND in worktree
+      mitigation: Comprehensive error handling, logging, no change to existing behavior
+
+  - id: DEF-002
+    title: Add configuration validation on server startup
+    priority: P3
+    category: defensive_programming
+    estimated_hours: 1.0
+    status: pending
+    description: >
+      Add startup validation in src/index.ts that checks SPRINT_ROOT
+      configuration and warns if server is running from a worktree without it.
+    acceptance_criteria:
+      - Validation logic added to main() function startup
+      - Checks if SPRINT_ROOT is set
+      - Warns if SPRINT_ROOT not set
+      - Errors if running from worktree without SPRINT_ROOT
+      - Logs configuration summary (SPRINT_ROOT, planning dir) on startup
+      - Server still starts successfully in all scenarios
+    dependencies:
+      - DEF-001
+    artifacts:
+      - path: src/index.ts
+        type: source_code
+        description: Enhanced startup with configuration validation
+    risk_assessment:
+      level: low
+      rationale: Validation only, does not block server startup
+
+  # ============================================================================
+  # PHASE 4: ARCHITECTURE VALIDATION
+  # ============================================================================
+
+  - id: ARCH-001
+    title: Create path resolution linter
+    priority: P2
+    category: tooling
+    estimated_hours: 3.0
+    status: pending
+    description: >
+      Create a static analysis tool that scans TypeScript files for path
+      resolution anti-patterns (direct process.cwd() usage, hardcoded paths,
+      not using centralized utilities).
+    acceptance_criteria:
+      - Linter script created at scripts/lint-path-resolution.ts
+      - Scans all files in src/tools/ and src/common/
+      - Detects direct process.cwd() usage outside path utilities
+      - Detects hardcoded /planning/ or /.worktrees/ paths
+      - Provides clear error messages with file:line references
+      - Returns non-zero exit code on violations
+      - Can be integrated into npm run lint
+      - All current files pass linting
+    dependencies:
+      - DOC-002
+    artifacts:
+      - path: scripts/lint-path-resolution.ts
+        type: tooling
+        description: Static analysis linter for path resolution
+      - path: package.json
+        type: configuration
+        description: Updated with lint:paths script
+    rules:
+      - id: no-direct-cwd
+        description: Ban direct process.cwd() calls in tools
+        severity: error
+      - id: no-hardcoded-paths
+        description: Ban hardcoded /planning/ or /.worktrees/ paths
+        severity: error
+      - id: require-centralized-utils
+        description: Require use of getProjectRoot(), getPlanningDir(), getWorktreePath()
+        severity: warning
+
+  - id: ARCH-002
+    title: Add runtime path resolution assertions
+    priority: P2
+    category: defensive_programming
+    estimated_hours: 1.0
+    status: pending
+    description: >
+      Add runtime assertions in path utility functions that detect and throw
+      errors for impossible states (e.g., planning dir inside .worktrees/).
+    acceptance_criteria:
+      - Assertion added to getPlanningDir() checking for .worktrees/ in path
+      - Assertion added to getWorktreePath() checking for planning/ in path
+      - Clear error messages explaining the path resolution error
+      - Assertions log error before throwing
+      - All existing tests still pass
+    dependencies:
+      - DEF-001
+    artifacts:
+      - path: src/common/path-utils.ts
+        type: source_code
+        description: Enhanced with runtime path assertions
+    risk_assessment:
+      level: medium
+      rationale: Could throw errors in unexpected scenarios if path resolution breaks
+      mitigation: Comprehensive testing, only throws on impossible states
+
+  # ============================================================================
+  # PHASE 5: VALIDATION AND CLEANUP
+  # ============================================================================
+
+  - id: VAL-001
+    title: Run full test suite and validate all enhancements
+    priority: P1
+    category: validation
+    estimated_hours: 1.0
+    status: pending
+    description: >
+      Execute complete test suite (existing + new tests), validate all
+      enhancements work correctly, and ensure no regressions introduced.
+    acceptance_criteria:
+      - All 342 existing tests pass
+      - All new tests pass (integration + unit, ~15-20 tests)
+      - npm run build succeeds
+      - npm run lint succeeds (including new path resolution linter)
+      - Test coverage reports generated and reviewed
+      - No regressions in tool behavior
+    dependencies:
+      - TEST-001
+      - TEST-002
+      - DEF-001
+      - DEF-002
+      - ARCH-001
+      - ARCH-002
+    artifacts:
+      - path: test-results/
+        type: test_results
+        description: Complete test execution results
+      - path: coverage/
+        type: coverage_report
+        description: Code coverage reports
+
+  - id: VAL-002
+    title: Manual validation of worktree scenarios
+    priority: P1
+    category: validation
+    estimated_hours: 0.7
+    status: pending
+    description: >
+      Manually test all MCP tools in real worktree scenarios to validate
+      that path resolution works correctly in production-like environment.
+    acceptance_criteria:
+      - Test start-sprint from repo root with SPRINT_ROOT set - artifacts in correct location
+      - Test start-sprint from worktree with SPRINT_ROOT set - artifacts in correct location
+      - Test complete-sprint from worktree - finds artifacts correctly
+      - Test regenerate-sprint-index from worktree - scans correct directory
+      - Test all scenarios with SPRINT_ROOT unset (local dev mode) - appropriate warnings shown
+      - Document all test results in verification report
+    dependencies:
+      - VAL-001
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/verification-report.md
+        type: documentation
+        description: Manual testing results documented
+    test_checklist:
+      - start-sprint from repo root (SPRINT_ROOT set)
+      - start-sprint from worktree (SPRINT_ROOT set)
+      - complete-sprint from worktree
+      - regenerate-sprint-index from worktree
+      - All tools with SPRINT_ROOT unset
+
+  - id: VAL-003
+    title: Update request log with all implementation activities
+    priority: P1
+    category: documentation
+    estimated_hours: 0.5
+    status: pending
+    description: >
+      Ensure request-log.md is up-to-date with all implementation activities,
+      commands executed, and files modified during this sprint.
+    acceptance_criteria:
+      - All implementation activities logged
+      - All file modifications documented
+      - All commands executed recorded
+      - Timestamps accurate
+      - Links to artifacts included
+    dependencies:
+      - VAL-002
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/request-log.md
+        type: documentation
+        description: Complete log of sprint activities
+
+# ============================================================================
+# TASK DEPENDENCIES GRAPH
+# ============================================================================
+dependency_graph:
+  phase_1_documentation:
+    - DOC-001 (no dependencies)
+    - DOC-002 (depends on DOC-001)
+
+  phase_2_testing:
+    - TEST-002 (no dependencies, can run parallel with DOC phase)
+    - TEST-001 (depends on DOC-001, DOC-002)
+
+  phase_3_defensive:
+    - DEF-001 (depends on TEST-002)
+    - DEF-002 (depends on DEF-001)
+
+  phase_4_validation:
+    - ARCH-001 (depends on DOC-002, can run parallel with DEF phase)
+    - ARCH-002 (depends on DEF-001)
+
+  phase_5_final:
+    - VAL-001 (depends on all TEST, DEF, ARCH tasks)
+    - VAL-002 (depends on VAL-001)
+    - VAL-003 (depends on VAL-002)
+
+# ============================================================================
+# EXECUTION SEQUENCE (RECOMMENDED)
+# ============================================================================
+execution_sequence:
+  week_1:
+    day_1:
+      - DOC-001 (0.5h)
+      - DOC-002 (0.3h)
+      - TEST-002 (1.5h) # Can start in parallel with DOC tasks
+      - Start TEST-001 (2h of 4h)
+
+    day_2:
+      - Complete TEST-001 (2h remaining)
+      - DEF-001 (1.5h)
+      - Start ARCH-001 (1.5h of 3h)
+
+    day_3:
+      - Complete ARCH-001 (1.5h remaining)
+      - DEF-002 (1h)
+      - ARCH-002 (1h)
+
+    day_4:
+      - VAL-001 (1h)
+      - VAL-002 (0.7h)
+      - VAL-003 (0.5h)
+
+  total_effort: 14.5 hours
+  estimated_calendar_days: 4 days (assuming ~4 hours/day)
+
+# ============================================================================
+# SUCCESS METRICS
+# ============================================================================
+success_metrics:
+  code_quality:
+    - metric: Test coverage for path utilities
+      target: ">95%"
+      current: "~85%"
+
+    - metric: All existing tests passing
+      target: "342/342"
+      current: "342/342"
+
+    - metric: New tests passing
+      target: "15-20/15-20"
+      current: "0/0 (not yet created)"
+
+  documentation:
+    - metric: Worktree architecture documented
+      target: "Complete"
+      status: "Pending"
+
+    - metric: Path resolution flow documented
+      target: "Complete"
+      status: "Pending"
+
+  defensive_programming:
+    - metric: Git root detection implemented
+      target: "Implemented and tested"
+      status: "Pending"
+
+    - metric: Startup validation implemented
+      target: "Implemented and tested"
+      status: "Pending"
+
+  tooling:
+    - metric: Path resolution linter created
+      target: "Implemented and passing on all files"
+      status: "Pending"
+
+    - metric: Runtime assertions added
+      target: "Implemented and tested"
+      status: "Pending"
+
+# ============================================================================
+# DEFERRED ITEMS (Out of Scope)
+# ============================================================================
+deferred_items:
+  - id: DEFER-001
+    title: Bug fixes for worktree path handling
+    reason: "Audit found NO bugs - all tools already worktree-aware"
+    recommendation: "Mark as Won't Fix - no issues exist"
+
+  - id: DEFER-002
+    title: Tool remediation for path resolution errors
+    reason: "All tools use centralized utilities correctly"
+    recommendation: "Mark as Won't Fix - no remediation needed"
+
+  - id: DEFER-003
+    title: Refactor path resolution architecture
+    reason: "Current architecture is sound and well-designed"
+    recommendation: "Mark as Won't Fix - no refactoring needed"
+
+# ============================================================================
+# NOTES
+# ============================================================================
+notes:
+  key_insight: >
+    The comprehensive audit revealed that the original problem statement
+    ("tools do NOT take worktree directory location into account") was a
+    FALSE POSITIVE. All 8 MCP tools correctly use centralized path utilities
+    and the SPRINT_ROOT environment variable ensures correct operation from
+    any context. This sprint pivoted from bug remediation to enhancement
+    and validation.
+
+  architectural_excellence: >
+    The codebase demonstrates excellent architectural discipline with
+    consistent use of getProjectRoot(), getPlanningDir(), and getWorktreePath()
+    throughout all tools. No hardcoded paths, no direct process.cwd() usage
+    in tools, and proper SPRINT_ROOT configuration in production.
+
+  value_delivered: >
+    While no bugs were found, this sprint delivers value through:
+    1. Comprehensive documentation of worktree architecture
+    2. Integration tests preventing future regressions
+    3. Defensive programming for edge cases
+    4. Tooling to prevent path resolution anti-patterns
+    5. Validation that the architecture is sound and production-ready
+
+  future_considerations: >
+    Consider creating a "Best Practices" document for future tool development
+    that codifies the path resolution patterns validated in this sprint.

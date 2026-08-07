@@ -131,7 +131,13 @@ When a sprint starts, the LLM MUST:
    ```
    All subsequent sprint work (planning, implementation, validation) happens within this worktree directory.
 
-7. **Create `sprint-manifest.yaml`** in the sprint directory with required metadata (see schema below). Note: The sprint directory `planning/sprint-<id>/` is accessible from both the main worktree and the sprint worktree.
+7. **Create `sprint-manifest.yaml`** in the sprint directory WITHIN THE WORKTREE with required metadata (see schema below).
+
+   The sprint directory is `planning/sprint-<id>/` INSIDE the worktree, ensuring all sprint artifacts are committed on the feature branch and merged to main via PR.
+
+   Example path: `.worktrees/sprint-<id>/planning/sprint-<id>/sprint-manifest.yaml`
+
+   This directory is created automatically by the start-sprint tool. All planning artifacts (manifest, request-log, implementation-plan, etc.) live on the feature branch alongside code changes.
 
 8. **Log the action in `request-log.md`**
 
@@ -154,20 +160,100 @@ pwd                        # Should show: /path/to/repo/.worktrees/sprint-7-a13b
 
 ---
 
+## 2.2.1 Agent Working Directory Discipline
+
+Once you `cd` to the sprint worktree (`.worktrees/sprint-<id>/`), you MUST remain in that context for ALL sprint work. The unified worktree model ensures all sprint changes (code + planning) are committed together on the feature branch.
+
+### ✅ Correct Workflow (Unified Model)
+
+```bash
+# After sprint starts
+cd .worktrees/sprint-15-dq6cg7/
+
+# All paths are relative to worktree root
+edit src/tools/example.ts                          # Code changes
+edit planning/sprint-15-dq6cg7/request-log.md     # Planning artifacts
+npm test                                           # Run tests
+git add .                                          # Stage all changes
+git commit -m "Implement feature X"               # Commit code + planning
+git push origin feature/sprint-15-dq6cg7-...      # Push to remote
+```
+
+### ❌ Incorrect Workflow (Split Model - Deprecated)
+
+```bash
+# DO NOT DO THIS
+cd /Users/.../sprint-mcp/                          # ❌ Don't go back to main repo
+edit planning/sprint-15-dq6cg7/request-log.md     # ❌ Don't edit planning outside worktree
+cd .worktrees/sprint-15-dq6cg7/                    # ❌ Don't context-switch
+edit src/tools/example.ts
+```
+
+### Key Principles
+
+1. **One Working Directory**: All sprint work happens in `.worktrees/sprint-<id>/`
+2. **Relative Paths**: Use worktree-relative paths (e.g., `src/...`, `planning/sprint-<id>/...`)
+3. **No Context Switching**: Never cd back to main repository during sprint
+4. **Complete Commits**: git commit captures both code and planning artifact changes
+5. **Complete PRs**: PR merges both code and planning to main branch
+
+### After PR Merge
+
+Once the PR is merged:
+- Planning artifacts are now in main repo: `planning/active/sprint-<id>/` (or `planning/sprint-<id>/` if no archive system)
+- Sprint can be archived: `planning/archive/2026/sprint-<id>/`
+- Worktree can be cleaned up: `git worktree remove .worktrees/sprint-<id>/`
+
+### Legacy Sprints (Pre-Sprint-16)
+
+**Note**: Sprints 1-15 used a split model where planning artifacts lived in the main repo planning/ directory, separate from the worktree. This created confusion and violated the principle stated in section 2.2 step 6: "All subsequent sprint work happens within this worktree directory."
+
+If working with legacy sprints (1-15), you may find:
+- Planning artifacts: `planning/sprint-<id>/` (main repo)
+- Code changes: `.worktrees/sprint-<id>/src/` (worktree)
+
+**Starting with Sprint 16**, ALL sprints use the unified worktree model where everything (code + planning) lives in the worktree.
+
+---
+
 # 🧩 2.3 Sprint Directory Structure
+
+The sprint directory lives WITHIN the worktree for unified workflow:
+
+```
+.worktrees/sprint-7-a13b2f/          ← Worktree root
+  planning/
+    sprint-7-a13b2f/                 ← Sprint artifacts on feature branch
+      sprint-manifest.yaml
+      execution-plan.md
+      backlog.yaml
+      request-log.md
+      validate_deliverable.sh
+      verification-report.md
+      publication.yaml
+      retro.md
+      key-learnings.md
+  src/                               ← Code changes on feature branch
+    tools/
+    common/
+    ...
+```
+
+After PR merge to main, the sprint directory structure appears in the main repository:
 
 ```
 planning/
-  sprint-7-a13b2f/
-    sprint-manifest.yaml
-    execution-plan.md
-    backlog.yaml
-    request-log.md
-    validate_deliverable.sh
-    verification-report.md
-    publication.yaml
-    retro.md
-    key-learnings.md
+  active/                            ← Completed sprints (or flat if no archive)
+    sprint-7-a13b2f/
+      sprint-manifest.yaml
+      execution-plan.md
+      backlog.yaml
+      request-log.md
+      validate_deliverable.sh
+      verification-report.md
+      publication.yaml
+      retro.md
+      key-learnings.md
 ```
 
 This directory is the single authoritative source of truth for every sprint. Within it, `backlog.yaml` is the accountability contract for sprint commitments and current work state; `request-log.md` is the record of Human–LLM interactions, interpretations, decisions, and outcomes.

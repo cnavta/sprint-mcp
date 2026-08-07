@@ -92,8 +92,11 @@ export async function updateSprintStatusTool(
 
   logger.info(`Updating sprint status for ${sprintId}`, updates);
 
-  // Step 1: Find sprint manifest path from index (archive-aware)
-  // Try to load from index first; fall back to flat structure if index doesn't exist or sprint not found
+  // Step 1: Find sprint manifest path from index (unified worktree model aware)
+  // Index-based resolution automatically handles all storage models:
+  // - Unified worktree model (active): .worktrees/sprint-N/planning/sprint-N/sprint-manifest.yaml
+  // - Archive structure (completed): planning/active/sprint-N/sprint-manifest.yaml
+  // - Flat structure (legacy): planning/sprint-N/sprint-manifest.yaml
   let manifestPath: string;
 
   try {
@@ -101,9 +104,9 @@ export async function updateSprintStatusTool(
     const sprintEntry = index.sprints.find((s) => s.id === sprintId);
 
     if (sprintEntry) {
-      // Use manifestPath from index (supports both flat and archive structures)
+      // Use manifestPath from index (supports worktree, archive, and flat structures)
       manifestPath = join(getProjectRoot(), sprintEntry.manifestPath);
-      logger.debug(`Found sprint in index, using path: ${manifestPath}`);
+      logger.info(`Found sprint ${sprintId} in index at: ${manifestPath}`);
     } else {
       // Sprint not in index - fall back to flat structure
       const { getPlanningDir } = await import('../common/project-config.js');
