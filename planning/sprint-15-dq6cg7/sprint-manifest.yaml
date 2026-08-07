@@ -1,0 +1,18 @@
+id: sprint-15-dq6cg7
+title: Worktree-Aware Tool Remediation
+goal: Implement unified worktree model where agents work entirely within
+  worktree directory for all sprint work (code + planning artifacts)
+owner: Christopher Navta
+createdAt: 2026-08-06T18:01:31.473Z
+status: complete
+links:
+  branch: feature/sprint-15-dq6cg7-worktree-aware-tool-remediatio
+notes: >
+  Sprint scope pivoted after analysis. Problem is agent worktree-awareness,
+
+  not tool worktree-awareness. Implementing unified worktree model where all
+
+  sprint work happens in .worktrees/sprint-N/. Implementation approved
+  2026-08-06.
+completedAt: 2026-08-07T14:54:17.615Z
+completionMode: forced

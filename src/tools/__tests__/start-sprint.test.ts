@@ -72,27 +72,33 @@ describe('startSprintTool - Integration Tests', () => {
     });
 
     it('should create sprint directory with correct structure', async () => {
-      await startSprintTool({
+      const result = await startSprintTool({
         title: 'Test Sprint',
         goal: 'Test goal',
         owner: 'owner',
       });
 
-      // Verify planning directory exists
-      const planningDir = join(testDir, 'planning');
+      // Extract sprint ID from result
+      const text = extractResponseText(result);
+      const sprintIdMatch = text.match(/sprint-\d+-[a-z0-9]+/);
+      expect(sprintIdMatch).toBeTruthy();
+      const sprintId = sprintIdMatch![0];
+
+      // Verify worktree directory structure (unified worktree model)
       const { readdir, stat } = await import('fs/promises');
-      const planningEntries = await readdir(planningDir);
+      const worktreesDir = join(testDir, '.worktrees');
+      const worktreeEntries = await readdir(worktreesDir);
 
-      // Should have sprint directory and possibly sprint-index.yaml
-      expect(planningEntries.length).toBeGreaterThanOrEqual(1);
+      // Should have sprint worktree directory
+      expect(worktreeEntries).toContain(sprintId);
 
-      // Find the sprint directory (matches pattern sprint-N-hash, not sprint-index.yaml)
-      const sprintDirs = planningEntries.filter(entry => /^sprint-\d+-[a-z0-9]+$/.test(entry));
-      expect(sprintDirs.length).toBe(1);
-      expect(sprintDirs[0]).toMatch(/^sprint-\d+-[a-z0-9]+$/);
+      // Verify worktree planning directory exists
+      const worktreePlanningDir = join(testDir, '.worktrees', sprintId, 'planning');
+      const worktreePlanningStat = await stat(worktreePlanningDir);
+      expect(worktreePlanningStat.isDirectory()).toBe(true);
 
-      // Verify sprint directory exists and is a directory
-      const sprintDir = join(planningDir, sprintDirs[0]);
+      // Verify sprint directory exists inside worktree
+      const sprintDir = join(worktreePlanningDir, sprintId);
       const sprintStat = await stat(sprintDir);
       expect(sprintStat.isDirectory()).toBe(true);
     });
@@ -109,7 +115,7 @@ describe('startSprintTool - Integration Tests', () => {
       expect(sprintIdMatch).toBeTruthy();
 
       const sprintId = sprintIdMatch![0];
-      const manifestPath = join(testDir, 'planning', sprintId, 'sprint-manifest.yaml');
+      const manifestPath = join(testDir, '.worktrees', sprintId, 'planning', sprintId, 'sprint-manifest.yaml');
 
       const manifestContent = await readFile(manifestPath, 'utf-8');
       const manifest = parseYaml(manifestContent) as SprintManifest;
@@ -134,7 +140,7 @@ describe('startSprintTool - Integration Tests', () => {
       const sprintIdMatch = text.match(/sprint-\d+-[a-z0-9]+/);
       const sprintId = sprintIdMatch![0];
 
-      const requestLogPath = join(testDir, 'planning', sprintId, 'request-log.md');
+      const requestLogPath = join(testDir, '.worktrees', sprintId, 'planning', sprintId, 'request-log.md');
       const requestLogContent = await readFile(requestLogPath, 'utf-8');
 
       expect(requestLogContent).toContain('Request Log');
@@ -155,8 +161,9 @@ describe('startSprintTool - Integration Tests', () => {
       expect(id1Match).toBeTruthy();
       const sprintNumber1 = parseInt(id1Match![1], 10);
 
-      // Complete first sprint so we can create second
-      const manifestPath1 = join(testDir, 'planning', id1Match![0], 'sprint-manifest.yaml');
+      // Complete first sprint so we can create second (unified worktree model)
+      const sprintId1 = id1Match![0];
+      const manifestPath1 = join(testDir, '.worktrees', sprintId1, 'planning', sprintId1, 'sprint-manifest.yaml');
       const manifest1Content = await readFile(manifestPath1, 'utf-8');
       const manifest1 = parseYaml(manifest1Content) as SprintManifest;
       manifest1.status = 'complete';
@@ -256,7 +263,8 @@ describe('startSprintTool - Integration Tests', () => {
 
       const text1 = extractResponseText(result1);
       const id1Match = text1.match(/sprint-\d+-[a-z0-9]+/);
-      const manifestPath = join(testDir, 'planning', id1Match![0], 'sprint-manifest.yaml');
+      const sprintId1 = id1Match![0];
+      const manifestPath = join(testDir, '.worktrees', sprintId1, 'planning', sprintId1, 'sprint-manifest.yaml');
 
       const manifestContent = await readFile(manifestPath, 'utf-8');
       const manifest = parseYaml(manifestContent) as SprintManifest;
@@ -479,7 +487,7 @@ describe('startSprintTool - Integration Tests', () => {
       const sprintId1 = id1Match![0];
 
       // Complete first sprint so we can create second
-      const manifestPath1 = join(testDir, 'planning', sprintId1, 'sprint-manifest.yaml');
+      const manifestPath1 = join(testDir, '.worktrees', sprintId1, 'planning', sprintId1, 'sprint-manifest.yaml');
       const manifest1Content = await readFile(manifestPath1, 'utf-8');
       const manifest1 = parseYaml(manifest1Content) as SprintManifest;
       manifest1.status = 'complete';
@@ -563,7 +571,7 @@ describe('startSprintTool - Integration Tests', () => {
       expect(sprintEntry.title).toBe('Index Test Sprint');
       expect(sprintEntry.status).toBe('planning');
       expect(sprintEntry.owner).toBe('test-owner');
-      expect(sprintEntry.manifestPath).toBe(`planning/${sprintId}/sprint-manifest.yaml`);
+      expect(sprintEntry.manifestPath).toBe(`.worktrees/${sprintId}/planning/${sprintId}/sprint-manifest.yaml`);
       expect(sprintEntry.branch).toMatch(/^feature\/sprint-\d+-[a-z0-9]+-index-test-sprint$/);
     });
 
@@ -590,7 +598,7 @@ describe('startSprintTool - Integration Tests', () => {
       expect(index.completedSprints).toBe(0);
 
       // Complete first sprint
-      const manifestPath1 = join(testDir, 'planning', sprintId1, 'sprint-manifest.yaml');
+      const manifestPath1 = join(testDir, '.worktrees', sprintId1, 'planning', sprintId1, 'sprint-manifest.yaml');
       const manifest1Content = await readFile(manifestPath1, 'utf-8');
       const manifest1 = parseYaml(manifest1Content) as SprintManifest;
       manifest1.status = 'complete';
@@ -665,8 +673,8 @@ describe('startSprintTool - Integration Tests', () => {
       expect(sprintIdMatch).toBeTruthy();
       const sprintId = sprintIdMatch![0];
 
-      // Verify manifest was created (authoritative source)
-      const manifestPath = join(testDir, 'planning', sprintId, 'sprint-manifest.yaml');
+      // Verify manifest was created in worktree (unified model)
+      const manifestPath = join(testDir, '.worktrees', sprintId, 'planning', sprintId, 'sprint-manifest.yaml');
       const manifestContent = await readFile(manifestPath, 'utf-8');
       const manifest = parseYaml(manifestContent) as SprintManifest;
 

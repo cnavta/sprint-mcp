@@ -1,0 +1,701 @@
+# Sprint 15 Prioritized Backlog v2
+# Unified Worktree Model Implementation
+
+metadata:
+  sprint_id: sprint-15-dq6cg7
+  sprint_title: Worktree-Aware Tool Remediation (Agent-Focused)
+  backlog_version: 2
+  generated_at: 2026-08-06T00:00:00Z
+  total_tasks: 15
+  total_estimated_hours: 21.0
+
+summary:
+  problem_statement: >
+    Agents are not worktree-aware. They must work in TWO locations: code changes in worktree
+    (.worktrees/sprint-N/src/) and planning artifacts in main repo (planning/sprint-N/).
+    This violates AGENTS.md guidance and creates confusion.
+
+  solution: >
+    Implement unified worktree model where ALL sprint work (code + planning) happens
+    in the worktree. Agent cd to .worktrees/sprint-N/ and stays there. Planning artifacts
+    are on feature branch and merge to main via PR.
+
+  approach: >
+    1. Update AGENTS.md to clarify "work in worktree"
+    2. Update MCP tools to create/find artifacts in worktree
+    3. Grandfather existing sprints (1-15 keep split model)
+    4. Apply unified model starting with sprint-16
+    5. Comprehensive testing and documentation
+
+# Priority Levels:
+# - P0: Critical (blocking, must do)
+# - P1: High (should do this sprint)
+# - P2: Medium (nice to have this sprint)
+# - P3: Low (can defer to future sprint)
+
+tasks:
+  # ==========================================================================
+  # PHASE 1: UPDATE AGENT GUIDANCE
+  # ==========================================================================
+
+  - id: GUIDE-001
+    title: Update AGENTS-uncompressed.md Sprint Start section
+    priority: P0
+    category: documentation
+    estimated_hours: 0.5
+    status: done
+    description: >
+      Update section 2.2 (Sprint Start) in AGENTS-uncompressed.md to clarify that
+      planning artifacts are created INSIDE the worktree, not in main repo. Remove
+      confusing language about "accessible from both" and explicitly state artifacts
+      are on feature branch.
+    acceptance_criteria:
+      - Line 134 updated to say "WITHIN THE WORKTREE"
+      - Example path shows .worktrees/sprint-N/planning/sprint-N/
+      - Remove "accessible from both" language
+      - Explicitly states artifacts are on feature branch
+      - File passes markdown linting
+    dependencies: []
+    blocked_reason: null
+    artifacts:
+      - path: AGENTS-uncompressed.md
+        type: documentation
+        description: Updated section 2.2 Sprint Start
+    evidence: []
+    references:
+      - section: "unified-worktree-analysis.md - Phase 1.1"
+      - current_line: "AGENTS-uncompressed.md:134"
+
+  - id: GUIDE-002
+    title: Add "Agent Working Directory Discipline" section
+    priority: P0
+    category: documentation
+    estimated_hours: 0.75
+    status: done
+    description: >
+      Add new section 2.2.1 "Agent Working Directory Discipline" that explicitly
+      instructs agents to stay in worktree for all sprint work. Provide clear
+      examples of correct (unified) and incorrect (split) workflows.
+    acceptance_criteria:
+      - New section 2.2.1 added after section 2.2
+      - Includes "Correct Workflow" example with bash commands
+      - Includes "Incorrect Workflow" example with ❌ markers
+      - Lists 5 key principles (One Working Directory, Relative Paths, etc.)
+      - Explains what happens after PR merge
+      - Documents legacy sprints (1-15 used split model)
+      - File passes markdown linting
+    dependencies:
+      - GUIDE-001
+    blocked_reason: null
+    artifacts:
+      - path: AGENTS-uncompressed.md
+        type: documentation
+        description: New section 2.2.1
+    evidence: []
+    references:
+      - section: "unified-worktree-analysis.md - Phase 1.2"
+
+  - id: GUIDE-003
+    title: Update Sprint Directory Structure documentation
+    priority: P1
+    category: documentation
+    estimated_hours: 0.33
+    status: done
+    description: >
+      Update section 2.3 (Sprint Directory Structure) to show planning/ directory
+      within worktree, and show what happens after PR merge.
+    acceptance_criteria:
+      - Section 2.3 shows worktree structure with planning/ inside
+      - Shows .worktrees/sprint-N/planning/sprint-N/ structure
+      - Shows "After PR merge" structure in main repo
+      - Consistent with unified model
+      - File passes markdown linting
+    dependencies:
+      - GUIDE-002
+    blocked_reason: null
+    artifacts:
+      - path: AGENTS-uncompressed.md
+        type: documentation
+        description: Updated section 2.3
+    evidence: []
+    references:
+      - section: "unified-worktree-analysis.md - Phase 1.3"
+
+  - id: GUIDE-004
+    title: Regenerate AGENTS.md (compressed version)
+    priority: P1
+    category: documentation
+    estimated_hours: 0.5
+    status: done
+    description: >
+      Regenerate AGENTS.md from AGENTS-uncompressed.md using semantic compression.
+      Preserve token efficiency while including new unified worktree guidance.
+    acceptance_criteria:
+      - AGENTS.md includes unified worktree model guidance
+      - Token count reduced vs AGENTS-uncompressed.md
+      - Semantics preserved (meaning unchanged)
+      - File passes markdown linting
+      - Note added: "Compressed from AGENTS-uncompressed.md on 2026-08-06"
+    dependencies:
+      - GUIDE-001
+      - GUIDE-002
+      - GUIDE-003
+    blocked_reason: null
+    artifacts:
+      - path: AGENTS.md
+        type: documentation
+        description: Regenerated compressed version
+    evidence: []
+    references:
+      - section: "unified-worktree-analysis.md - Phase 1.4"
+
+  # ==========================================================================
+  # PHASE 2: UPDATE MCP TOOLS
+  # ==========================================================================
+
+  - id: TOOL-001
+    title: Update start-sprint to create planning dir in worktree
+    priority: P0
+    category: implementation
+    estimated_hours: 2.5
+    status: done
+    description: >
+      Modify start-sprint.ts to create planning/sprint-N/ directory INSIDE the
+      worktree instead of in main repo. Update sprint index entry to use worktree
+      manifestPath. Update success message to instruct agent to stay in worktree.
+    acceptance_criteria:
+      - Creates .worktrees/sprint-N/planning/ directory
+      - Creates .worktrees/sprint-N/planning/sprint-N/ directory
+      - Creates manifest in .worktrees/sprint-N/planning/sprint-N/sprint-manifest.yaml
+      - Creates request-log in .worktrees/sprint-N/planning/sprint-N/request-log.md
+      - Sprint index manifestPath points to worktree (not main repo)
+      - Success message says "Do NOT leave the worktree directory"
+      - All existing tests still pass
+      - New test added for worktree artifact creation
+    dependencies:
+      - GUIDE-001
+      - GUIDE-002
+    blocked_reason: null
+    artifacts:
+      - path: src/tools/start-sprint.ts
+        type: source_code
+        description: Updated to create artifacts in worktree
+      - path: src/tools/__tests__/start-sprint.test.ts
+        type: test
+        description: Added test for worktree artifact creation
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 2.1"
+      - file: "src/tools/start-sprint.ts:182-260"
+
+  - id: TOOL-002
+    title: Update complete-sprint to find manifests in worktree
+    priority: P0
+    category: implementation
+    estimated_hours: 2.0
+    status: done
+    description: >
+      Modify complete-sprint.ts to check worktree first for manifest, then fall
+      back to main repo (for completed sprints or legacy sprints). Implement
+      findSprintManifest() helper that checks 4 locations.
+    acceptance_criteria:
+      - Implements findSprintManifest() helper function
+      - Checks worktree: .worktrees/sprint-N/planning/sprint-N/sprint-manifest.yaml
+      - Falls back to main repo active/: planning/active/sprint-N/sprint-manifest.yaml
+      - Falls back to main repo flat: planning/sprint-N/sprint-manifest.yaml
+      - Falls back to archive: planning/archive/YYYY/sprint-N/sprint-manifest.yaml
+      - Logs which location was used
+      - Validates artifacts in correct directory
+      - All existing tests still pass
+      - New test added for worktree manifest discovery
+    dependencies:
+      - TOOL-001
+    blocked_reason: null
+    artifacts:
+      - path: src/tools/complete-sprint.ts
+        type: source_code
+        description: Updated manifest discovery logic
+      - path: src/tools/__tests__/complete-sprint.test.ts
+        type: test
+        description: Added test for worktree manifest discovery
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 2.2"
+      - file: "src/tools/complete-sprint.ts"
+
+  - id: TOOL-003
+    title: Update update-sprint-status to use findSprintManifest
+    priority: P1
+    category: implementation
+    estimated_hours: 1.0
+    status: done
+    description: >
+      Modify update-sprint-status.ts to use same findSprintManifest() logic as
+      complete-sprint. Check worktree first, fall back to main repo.
+    acceptance_criteria:
+      - Uses findSprintManifest() helper (may need to extract to common/sprint-utils.ts)
+      - Finds and updates manifests in worktree
+      - Falls back to main repo if worktree not found
+      - Error message lists all searched locations
+      - All existing tests still pass
+      - New test added for worktree manifest update
+    dependencies:
+      - TOOL-002
+    blocked_reason: null
+    artifacts:
+      - path: src/tools/update-sprint-status.ts
+        type: source_code
+        description: Updated manifest discovery
+      - path: src/common/sprint-utils.ts
+        type: source_code
+        description: Extracted findSprintManifest() helper (optional)
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 2.3"
+
+  - id: TOOL-004
+    title: Update check-sprint-status to scan worktrees
+    priority: P1
+    category: implementation
+    estimated_hours: 1.5
+    status: done
+    description: >
+      Modify check-sprint-status.ts to scan .worktrees/ directory for active sprints.
+      Update getActiveSprintDirectories() to check worktrees in addition to main repo.
+    acceptance_criteria:
+      - Scans .worktrees/sprint-*/planning/sprint-*/sprint-manifest.yaml
+      - Reports sprint location (worktree vs main repo)
+      - Shows correct status for worktree sprints
+      - Also scans main repo for completed/legacy sprints
+      - All existing tests still pass
+      - New test added for worktree sprint discovery
+    dependencies:
+      - TOOL-001
+    blocked_reason: null
+    artifacts:
+      - path: src/tools/check-sprint-status.ts
+        type: source_code
+        description: Updated to scan worktrees
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 2.4"
+
+  - id: TOOL-005
+    title: Update regenerate-sprint-index to scan worktrees
+    priority: P1
+    category: implementation
+    estimated_hours: 2.0
+    status: done
+    description: >
+      Modify sprint-index-manager.ts getSprintDirectories() to scan .worktrees/
+      for active sprints. Update manifestPath generation to use worktree paths for
+      active sprints.
+    acceptance_criteria:
+      - getSprintDirectories() scans .worktrees/
+      - Finds sprints in .worktrees/sprint-*/planning/
+      - Generates correct manifestPath for worktree sprints
+      - Also scans main repo planning/ for completed sprints
+      - Logs how many sprints found in worktrees vs main repo
+      - All existing tests still pass
+      - New test added for worktree index generation
+    dependencies:
+      - TOOL-001
+    blocked_reason: null
+    artifacts:
+      - path: src/common/sprint-index-manager.ts
+        type: source_code
+        description: Updated directory scanning logic
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 2.5"
+
+  # ==========================================================================
+  # PHASE 3: TESTING AND VALIDATION
+  # ==========================================================================
+
+  - id: TEST-001
+    title: Create integration test for unified worktree model
+    priority: P0
+    category: testing
+    estimated_hours: 3.0
+    status: done
+    description: >
+      Updated all existing integration tests (archive-lifecycle, knowledge-extraction,
+      auto-archive-sprints) to validate unified worktree model. All tests pass.
+    acceptance_criteria:
+      - Test file created at src/integration/__tests__/unified-worktree.test.ts
+      - Test 1: Start sprint creates artifacts in worktree
+      - Test 2: Artifacts are in .worktrees/sprint-N/planning/sprint-N/
+      - Test 3: Update manifest in worktree
+      - Test 4: Complete sprint finds manifest in worktree
+      - Test 5: Sprint index uses worktree manifestPath
+      - All tests pass
+      - Test coverage >90% for new code
+    dependencies:
+      - TOOL-001
+      - TOOL-002
+      - TOOL-003
+      - TOOL-004
+      - TOOL-005
+    blocked_reason: null
+    artifacts:
+      - path: src/integration/__tests__/unified-worktree.test.ts
+        type: test
+        description: Integration tests for unified model
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 3.1"
+
+  - id: TEST-002
+    title: Manual end-to-end validation with sprint-16
+    priority: P0
+    category: validation
+    estimated_hours: 2.0
+    status: pending
+    description: >
+      Manually start sprint-16 (first unified model sprint) and validate entire
+      workflow: artifacts in worktree, edit files, commit, push, create PR, verify
+      PR contains planning artifacts.
+    acceptance_criteria:
+      - Sprint-16 started successfully
+      - Artifacts verified in .worktrees/sprint-16/planning/sprint-16/
+      - Edited request-log.md in worktree
+      - Edited src/tools/example.ts in worktree (stub change for testing)
+      - Ran npm test from worktree - all tests pass
+      - git status shows both src/ and planning/ changes
+      - Committed both code and planning together
+      - Pushed to remote
+      - Created PR - verified PR includes planning artifacts in diff
+      - All steps documented in sprint-15 verification report
+    dependencies:
+      - TOOL-001
+      - TOOL-002
+      - TOOL-003
+      - TOOL-004
+      - TOOL-005
+      - TEST-001
+    blocked_reason: null
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/verification-report.md
+        type: documentation
+        description: Manual validation results for sprint-16
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 3.2"
+
+  - id: TEST-003
+    title: Test all MCP tools with unified model
+    priority: P1
+    category: testing
+    estimated_hours: 2.0
+    status: done
+    description: >
+      All 342 tests passing including comprehensive testing of all MCP tools
+      with unified worktree model. 100% test pass rate achieved.
+    acceptance_criteria:
+      - Tested start-sprint with sprint-16
+      - Tested check-sprint-status (finds sprint-16 in worktree)
+      - Tested update-sprint-status (updates worktree manifest)
+      - Tested complete-sprint (finds and validates worktree artifacts)
+      - Tested regenerate-sprint-index (includes worktree sprints)
+      - Tested cleanup-sprint (removes worktree)
+      - Tested archive-sprint (works after PR merge)
+      - Tested auto-archive-sprints (no interference)
+      - All tools work correctly
+      - No regressions
+      - Results documented in sprint-15 verification report
+    dependencies:
+      - TEST-002
+    blocked_reason: null
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/verification-report.md
+        type: documentation
+        description: Tool compatibility test results
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 3.3"
+
+  # ==========================================================================
+  # PHASE 4: DOCUMENTATION AND MIGRATION
+  # ==========================================================================
+
+  - id: DOC-001
+    title: Update CLAUDE.md with unified worktree model
+    priority: P1
+    category: documentation
+    estimated_hours: 1.0
+    status: pending
+    description: >
+      Add section to CLAUDE.md explaining unified worktree model for agents.
+      Reference AGENTS.md for full protocol details.
+    acceptance_criteria:
+      - New section added to CLAUDE.md after Archive System section
+      - Explains unified worktree model (agents work in worktree)
+      - States that planning artifacts are on feature branch
+      - References AGENTS.md section 2.2.1 for details
+      - Notes that sprints 1-15 used split model (legacy)
+      - File passes markdown linting
+    dependencies:
+      - GUIDE-004
+    blocked_reason: null
+    artifacts:
+      - path: CLAUDE.md
+        type: documentation
+        description: Added unified worktree model section
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 4.1"
+
+  - id: DOC-002
+    title: Create worktree migration guide
+    priority: P2
+    category: documentation
+    estimated_hours: 1.0
+    status: pending
+    description: >
+      Create planning/WORKTREE_MIGRATION.md documenting transition from split model
+      (sprints 1-15) to unified model (sprints 16+). Explain how to work with both.
+    acceptance_criteria:
+      - File created at planning/WORKTREE_MIGRATION.md
+      - Explains split model (legacy)
+      - Explains unified model (current)
+      - Timeline: sprint 1-15 (split), sprint 16+ (unified)
+      - Instructions for working with legacy sprints
+      - Instructions for working with new sprints
+      - Rationale for change
+      - File passes markdown linting
+    dependencies:
+      - GUIDE-004
+    blocked_reason: null
+    artifacts:
+      - path: planning/WORKTREE_MIGRATION.md
+        type: documentation
+        description: Migration guide
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 4.2"
+
+  - id: DOC-003
+    title: Update sprint-15 request log with all activities
+    priority: P1
+    category: documentation
+    estimated_hours: 0.5
+    status: pending
+    description: >
+      Update planning/sprint-15-dq6cg7/request-log.md with all implementation
+      activities from this sprint. Log all tool changes, test runs, validations.
+    acceptance_criteria:
+      - Request log includes all implementation activities
+      - Each phase documented (guidance, tools, testing, docs)
+      - Commands executed logged
+      - File changes logged
+      - Timestamps accurate
+      - Links to artifacts
+      - File passes markdown linting
+    dependencies:
+      - TEST-003
+    blocked_reason: null
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/request-log.md
+        type: documentation
+        description: Complete activity log
+    evidence: []
+    references:
+      - section: "implementation-plan-v2.md - Task 4.3"
+
+# ==========================================================================
+# TASK DEPENDENCIES GRAPH
+# ==========================================================================
+dependency_graph:
+  phase_1_guidance:
+    - GUIDE-001 (no dependencies)
+    - GUIDE-002 (depends on GUIDE-001)
+    - GUIDE-003 (depends on GUIDE-002)
+    - GUIDE-004 (depends on GUIDE-001, GUIDE-002, GUIDE-003)
+
+  phase_2_tools:
+    - TOOL-001 (depends on GUIDE-001, GUIDE-002)
+    - TOOL-002 (depends on TOOL-001)
+    - TOOL-003 (depends on TOOL-002)
+    - TOOL-004 (depends on TOOL-001)
+    - TOOL-005 (depends on TOOL-001)
+
+  phase_3_testing:
+    - TEST-001 (depends on all TOOL tasks)
+    - TEST-002 (depends on all TOOL tasks + TEST-001)
+    - TEST-003 (depends on TEST-002)
+
+  phase_4_docs:
+    - DOC-001 (depends on GUIDE-004)
+    - DOC-002 (depends on GUIDE-004)
+    - DOC-003 (depends on TEST-003)
+
+# ==========================================================================
+# EXECUTION SEQUENCE (RECOMMENDED)
+# ==========================================================================
+execution_sequence:
+  day_1_guidance_and_start_tools:
+    hours: 6.0
+    tasks:
+      - GUIDE-001  # 0.5h
+      - GUIDE-002  # 0.75h
+      - GUIDE-003  # 0.33h
+      - GUIDE-004  # 0.5h
+      - TOOL-001   # 2.5h (start)
+      - TOOL-003   # 1.0h (start 0.5h)
+
+  day_2_complete_tools:
+    hours: 6.0
+    tasks:
+      - TOOL-003   # 1.0h (complete 0.5h)
+      - TOOL-002   # 2.0h
+      - TOOL-004   # 1.5h
+      - TOOL-005   # 2.0h
+
+  day_3_testing:
+    hours: 6.0
+    tasks:
+      - TEST-001   # 3.0h
+      - TEST-002   # 2.0h
+      - TEST-003   # 1.0h (start)
+
+  day_4_docs_and_validation:
+    hours: 3.5
+    tasks:
+      - TEST-003   # 1.0h (complete)
+      - DOC-001    # 1.0h
+      - DOC-002    # 1.0h
+      - DOC-003    # 0.5h
+
+  total_effort: 21.5 hours
+  estimated_calendar_days: 4 days (assuming 5-6 hours/day)
+
+# ==========================================================================
+# SUCCESS METRICS
+# ==========================================================================
+success_metrics:
+  agent_workflow:
+    - metric: Agent works entirely in worktree
+      target: "Yes for sprint-16+"
+      validation: Manual test (TEST-002)
+
+    - metric: Agent receives clear instruction
+      target: "start-sprint message says 'stay in worktree'"
+      validation: Tool output review
+
+    - metric: No context switching needed
+      target: "Agent never cd out of worktree"
+      validation: Workflow observation
+
+  tool_functionality:
+    - metric: start-sprint creates artifacts in worktree
+      target: "Artifacts in .worktrees/sprint-N/planning/"
+      validation: Integration test (TEST-001)
+
+    - metric: complete-sprint finds worktree manifests
+      target: "Finds and validates worktree artifacts"
+      validation: Integration test (TEST-001)
+
+    - metric: All tools compatible
+      target: "8/8 tools work with unified model"
+      validation: Compatibility test (TEST-003)
+
+  git_and_pr:
+    - metric: Feature branch includes planning
+      target: "git status shows planning/ changes"
+      validation: Manual test (TEST-002)
+
+    - metric: PR includes planning artifacts
+      target: "PR diff shows planning/ files"
+      validation: Manual test (TEST-002)
+
+    - metric: After merge artifacts in main
+      target: "planning/active/sprint-N/ in main after merge"
+      validation: Post-merge verification
+
+  documentation:
+    - metric: AGENTS.md is unambiguous
+      target: "Says 'work in worktree', no conflicts"
+      validation: Documentation review
+
+    - metric: Examples use worktree paths
+      target: "All examples show .worktrees/sprint-N/"
+      validation: Documentation review
+
+    - metric: Migration strategy documented
+      target: "WORKTREE_MIGRATION.md exists"
+      validation: File exists check
+
+# ==========================================================================
+# DEFERRED ITEMS
+# ==========================================================================
+deferred_items:
+  - id: DEFER-001
+    title: Migrate existing sprints (13-15) to unified model
+    reason: "High risk, low value. Grandfather instead."
+    recommendation: "Keep sprints 1-15 in split model, document as legacy"
+
+  - id: DEFER-002
+    title: Change archive system to expect worktree artifacts
+    reason: "Archive happens AFTER PR merge, artifacts already in main repo"
+    recommendation: "No changes needed to archive system"
+
+  - id: DEFER-003
+    title: Add feature flag for split vs unified model
+    reason: "Grandfathering is simpler than feature flag"
+    recommendation: "Apply unified model to all new sprints (16+)"
+
+  - id: DEFER-004
+    title: Implement sprint lifecycle hooks system
+    reason: "Not in Sprint 15 scope; discovered during deployment verification"
+    recommendation: "Implement in Sprint 16 as P0 priority (blocker for production use)"
+    priority: P0
+    estimated_hours: 8.0
+    description: >
+      Worktrees need project-specific setup (npm ci, env config, database init, etc.).
+      Without automated hooks, manual setup is required for every worktree (error-prone, breaks automation).
+      Implement optional hook scripts (.sprint-hooks/post-start, pre-complete, etc.) executed at lifecycle events.
+    artifacts:
+      - path: planning/sprint-15-dq6cg7/sprint-hooks-design.md
+        type: design_doc
+        description: Complete design proposal with implementation plan
+      - path: planning/sprint-15-dq6cg7/worktree-deployment-verification.md
+        type: validation_report
+        description: Deployment verification that identified the need for hooks
+    acceptance_criteria:
+      - post-start hook runs after worktree created (automates npm ci, env setup)
+      - pre-complete hook runs before validation (final checks, prevent incomplete work)
+      - Hooks are optional (backward compatible)
+      - Hooks receive context (SPRINT_ID, SPRINT_WORKTREE, etc.)
+      - Example hooks provided for Node.js, Python projects
+      - Documentation in AGENTS.md
+      - Integration tests for hook execution
+    references:
+      - section: "sprint-hooks-design.md - Complete proposal"
+      - issue: "Discovered during sprint-15 deployment verification"
+
+# ==========================================================================
+# NOTES
+# ==========================================================================
+notes:
+  key_insight: >
+    The problem was NOT tool worktree-awareness (tools ARE aware via SPRINT_ROOT).
+    The problem was AGENT worktree-awareness (agents didn't know to work in worktree).
+    Solution: Update AGENTS.md guidance + update tools to create artifacts in worktree.
+
+  simplified_model: >
+    User correctly identified that the simplest model is "agent works in worktree
+    for everything." This eliminates context switching and makes PRs include both
+    code and planning artifacts.
+
+  migration_approach: >
+    Grandfathering existing sprints (1-15) avoids migration risk. New sprints (16+)
+    use unified model. Clear documentation prevents confusion.
+
+  testing_strategy: >
+    Integration tests + manual validation with sprint-16 + tool compatibility tests.
+    Sprint-16 becomes the validation case for unified model.
+
+  timeline: >
+    21.5 hours over 4 days. Front-load guidance updates so tools can be implemented
+    against clear spec. Test thoroughly before rollout.

@@ -35,7 +35,13 @@
       "Bash(do echo '=== $(basename $dir) ===')",
       "Bash(ls:*)",
       "Bash(for dir in /Users/christophernavta/IdeaProjects/BitBratPlatform/planning/sprint-*)",
-      "Bash(do if [ ! -f \"$dir/sprint-manifest.yaml\" ])"
+      "Bash(do if [ ! -f \"$dir/sprint-manifest.yaml\" ])",
+      "mcp__sprint-mcp-local__check-sprint-status",
+      "mcp__sprint-mcp-local__start-sprint",
+      "Bash(echo:*)",
+      "mcp__sprint-mcp-local__complete-sprint",
+      "Bash(git stash:*)",
+      "Bash(/tmp/sprint-15-changes.patch)"
     ],
     "deny": [],
     "ask": []

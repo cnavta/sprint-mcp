@@ -61,9 +61,12 @@ async function isArchiveEnabled(): Promise<boolean> {
 }
 
 /**
- * Get the next sprint number by checking existing sprints
+ * Get the next sprint number by checking existing sprints (unified worktree model aware)
  *
- * Scans both flat structure (planning/) and archive structure (planning/active/ + planning/archive/{year}/)
+ * Scans:
+ * 1. Worktrees: .worktrees/sprint-N/ (active sprints)
+ * 2. Archive structure: planning/active/ + planning/archive/{year}/
+ * 3. Flat structure: planning/
  */
 async function getNextSprintNumber(): Promise<number> {
   const planningDir = getPlanningDir();
@@ -73,6 +76,21 @@ async function getNextSprintNumber(): Promise<number> {
   const sprintNumbers: number[] = [];
 
   try {
+    // Step 1: Scan worktrees for active sprints (unified worktree model)
+    const worktreesDir = join(planningDir, '..', '.worktrees');
+    if (await fileExists(worktreesDir)) {
+      const worktreeEntries = await readdir(worktreesDir, { withFileTypes: true });
+      worktreeEntries
+        .filter((entry) => entry.isDirectory() && entry.name.startsWith('sprint-'))
+        .forEach((entry) => {
+          const match = entry.name.match(/^sprint-(\d+)-/);
+          if (match) {
+            sprintNumbers.push(parseInt(match[1], 10));
+          }
+        });
+    }
+
+    // Step 2: Scan main repo for completed/legacy sprints
     if (!archiveEnabled) {
       // Flat structure: scan planning/ directly
       const entries = await readdir(planningDir, { withFileTypes: true });
@@ -178,24 +196,7 @@ export async function startSprintTool(
   const sprintId = `sprint-${sprintNumber}-${shortHash}`;
   logger.info(`Generated sprint ID: ${sprintId}`);
 
-  // Step 3: Create sprint directory
-  const planningDir = getPlanningDir();
-  const archiveEnabled = await isArchiveEnabled();
-
-  // Determine sprint parent directory
-  let sprintParentDir = planningDir;
-  if (archiveEnabled) {
-    // Archive structure: create in planning/active/
-    sprintParentDir = join(planningDir, 'active');
-    await ensureDir(sprintParentDir); // Ensure active/ exists
-    logger.debug('Archive enabled, creating sprint in active/ directory');
-  }
-
-  const sprintDir = join(sprintParentDir, sprintId);
-  await ensureDir(sprintDir);
-  logger.info(`Created sprint directory: ${sprintDir}`);
-
-  // Step 4: Create git worktree with feature branch
+  // Step 3: Create git worktree with feature branch (FIRST)
   const branchName = `feature/${sprintId}-${sprintArgs.title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -217,6 +218,28 @@ export async function startSprintTool(
     };
   }
   logger.info(`Created worktree: ${worktreePath}`);
+
+  // Step 4: Create sprint directory INSIDE worktree (unified model)
+  const archiveEnabled = await isArchiveEnabled();
+  const worktreePlanningDir = join(worktreePath, 'planning');
+  await ensureDir(worktreePlanningDir);
+  logger.info(`Created planning directory in worktree: ${worktreePlanningDir}`);
+
+  // Determine sprint parent directory (archive-aware, though typically not used in worktrees)
+  // Note: Archive structure (planning/active/) is used in main repo after PR merge,
+  // but we create flat structure in worktree for simplicity during active sprint
+  let sprintParentDir = worktreePlanningDir;
+  if (archiveEnabled) {
+    // For consistency with archive-aware structure, we could create active/ subdirectory
+    // But for unified worktree model, flat structure is simpler: planning/sprint-N/
+    // Keeping flat structure in worktree; archive structure applies after PR merge
+    sprintParentDir = worktreePlanningDir;
+    logger.debug('Archive enabled in project, but using flat structure in worktree');
+  }
+
+  const sprintDir = join(sprintParentDir, sprintId);
+  await ensureDir(sprintDir);
+  logger.info(`Created sprint directory in worktree: ${sprintDir}`);
 
   // Step 5: Create sprint manifest
   const manifest: SprintManifest = {
@@ -242,7 +265,7 @@ export async function startSprintTool(
 ## Request 1
 **Timestamp**: ${new Date().toISOString()}
 **Prompt**: Start sprint
-**Interpretation**: User initiated sprint via MCP start-sprint tool
+**Interpretation**: User initiated sprint via MCP start-sprint tool (unified worktree model)
 
 **Details**:
 - Title: ${sprintArgs.title}
@@ -250,15 +273,17 @@ export async function startSprintTool(
 - Owner: ${sprintArgs.owner}
 
 **Actions**:
-- Created sprint directory: planning/${sprintId}/
 - Created git worktree: .worktrees/${sprintId}/
 - Created feature branch: ${branchName}
-- Created sprint-manifest.yaml
+- Created planning directory in worktree: .worktrees/${sprintId}/planning/${sprintId}/
+- Created sprint-manifest.yaml in worktree
 
-**Artifacts**:
-- planning/${sprintId}/sprint-manifest.yaml
-- planning/${sprintId}/request-log.md
-- .worktrees/${sprintId}/ (git worktree on branch ${branchName})
+**Artifacts** (all in worktree, on feature branch):
+- .worktrees/${sprintId}/planning/${sprintId}/sprint-manifest.yaml
+- .worktrees/${sprintId}/planning/${sprintId}/request-log.md
+
+**Note**: This sprint uses the unified worktree model where ALL sprint work (code + planning artifacts)
+happens in the worktree. After PR merge, planning artifacts will be in main repo at planning/${archiveEnabled ? 'active/' : ''}${sprintId}/
 `;
 
   const requestLogPath = join(sprintDir, 'request-log.md');
@@ -267,10 +292,9 @@ export async function startSprintTool(
 
   // Step 7: Add sprint to index
   try {
-    // Determine correct manifestPath based on archive structure
-    const manifestRelativePath = archiveEnabled
-      ? `planning/active/${sprintId}/sprint-manifest.yaml`
-      : `planning/${sprintId}/sprint-manifest.yaml`;
+    // Unified worktree model: manifestPath points to worktree (not main repo)
+    // After PR merge, this will be updated to point to main repo location
+    const manifestRelativePath = `.worktrees/${sprintId}/planning/${sprintId}/sprint-manifest.yaml`;
 
     const indexEntry: SprintIndexEntry = {
       id: sprintId,
@@ -278,13 +302,13 @@ export async function startSprintTool(
       status: manifest.status,
       owner: sprintArgs.owner,
       createdAt: manifest.createdAt,
-      manifestPath: manifestRelativePath,
+      manifestPath: manifestRelativePath,  // Points to worktree for active sprint
       branch: branchName,
       worktreePath: `.worktrees/${sprintId}`,
     };
 
     await addSprintToIndex(indexEntry);
-    logger.info(`Added sprint ${sprintId} to index`);
+    logger.info(`Added sprint ${sprintId} to index with worktree manifestPath`);
   } catch (error) {
     // Non-fatal: log warning but continue
     logger.warn(`Failed to add sprint to index (non-fatal): ${error}`);
@@ -315,7 +339,7 @@ export async function startSprintTool(
   }
 
   // Return success message
-  const resultText = `✅ Sprint ${sprintId} initialized successfully!
+  const resultText = `✅ Sprint ${sprintId} initialized successfully (unified worktree model)!
 
 **Sprint Details**:
 - ID: ${sprintId}
@@ -323,25 +347,32 @@ export async function startSprintTool(
 - Goal: ${sprintArgs.goal}
 - Owner: ${sprintArgs.owner}
 - Status: planning
-- Planning directory: planning/${sprintId}/
 - Worktree: .worktrees/${sprintId}/
 - Branch: ${branchName}
 
+**Sprint Artifacts Location** (in worktree, on feature branch):
+- Planning directory: .worktrees/${sprintId}/planning/${sprintId}/
+- Manifest: .worktrees/${sprintId}/planning/${sprintId}/sprint-manifest.yaml
+- Request log: .worktrees/${sprintId}/planning/${sprintId}/request-log.md
+
 **Next Steps**:
-1. Change to sprint worktree: \`cd .worktrees/${sprintId}/\`
+1. ⚠️  **IMPORTANT**: Change to sprint worktree: \`cd .worktrees/${sprintId}/\`
 2. Verify branch: \`git branch --show-current\` (should show: ${branchName})
-3. Create implementation-plan.md with sprint execution details
+3. Create implementation-plan.md in \`planning/${sprintId}/\` (relative to worktree)
 4. Get user approval for the plan before implementing
 5. Update sprint status to 'in-progress' when ready
 
-**Artifacts Created**:
-- planning/${sprintId}/sprint-manifest.yaml
-- planning/${sprintId}/request-log.md
-- .worktrees/${sprintId}/ (isolated worktree on branch ${branchName})
-- planning/sprint-index.yaml (updated with new sprint entry)
+**CRITICAL - Unified Worktree Model**:
+⚠️  **DO NOT leave the worktree directory during sprint work**
+✅ All code changes AND planning artifacts are created in .worktrees/${sprintId}/
+✅ Use relative paths: \`src/...\` for code, \`planning/${sprintId}/...\` for planning
+✅ Commit captures both code and planning together
+✅ PR will merge both code and planning artifacts to main
+
+After PR merge, planning artifacts will be in main repo at: planning/${archiveEnabled ? 'active/' : ''}${sprintId}/
 
 ${validationStatus ? `\n${validationStatus}\n` : ''}
-**Note**: Main worktree remains on main branch. All sprint work happens in .worktrees/${sprintId}/
+**Index**: planning/sprint-index.yaml updated (manifestPath points to worktree for active sprint)
 
 Sprint Protocol rule S1 satisfied: Sprint started on explicit user request.
 `;

@@ -106,26 +106,40 @@ LLM MUST:
 1. **Verify main branch baseline.** Ensure `main` branch exists (locally or as `origin/main`) with at least one commit. If fails, notify human main must be initialized first.
 2. **Check for active sprints.** Verify no `sprint-manifest.yaml` in `planning/` has status other than `complete`. If found, notify human active sprint must be completed or force-closed first (Rule S3).
 3. **Generate sprint ID:** `sprint-<number>-<short-hash>`
-4. **Create sprint directory:** `planning/sprint-<id>/`
-5. **Create git worktree:**
+4. **Create git worktree:**
    ```
    git worktree add .worktrees/sprint-<id> -b feature/<sprint-id>-<short-description>
    ```
    Benefits: Isolation, parallel work, clean separation, easy cleanup. Main worktree remains on `main`; sprint work in `.worktrees/sprint-<id>/`.
-6. **Change to sprint worktree:** `cd .worktrees/sprint-<id>/`
-7. **Create `sprint-manifest.yaml`** in sprint directory with required metadata.
-8. **Log action in `request-log.md`**
+5. **Change to sprint worktree:** `cd .worktrees/sprint-<id>/`
+6. **Create sprint directory INSIDE worktree:** `.worktrees/sprint-<id>/planning/sprint-<id>/`
+7. **Create `sprint-manifest.yaml`** in worktree sprint directory (`.worktrees/sprint-<id>/planning/sprint-<id>/sprint-manifest.yaml`). All planning artifacts live on feature branch.
+8. **Log action in `request-log.md`** (in worktree)
 9. **Verify worktree and branch.** Record `git branch --show-current`, `git status --short --branch`, `pwd`. Implementation MUST NOT begin on default branch or detached HEAD. Current directory should be `.worktrees/sprint-<id>/`.
 
 Worktree creation is initialization requirement, not deferred publication. If worktree cannot be created, keep sprint in `planning`, log blocker, pause implementation.
+
+## 2.2.1 Agent Working Directory Discipline
+
+**MUST stay in worktree** (`.worktrees/sprint-<id>/`) for ALL sprint work. Code and planning artifacts committed together on feature branch.
+
+**Correct**: `cd .worktrees/sprint-N/` → edit code (`src/`) and planning (`planning/sprint-N/`) → `git add . && git commit` → PR merges both
+
+**Incorrect**: Context-switch between main repo and worktree, edit planning outside worktree
+
+**After PR merge**: Planning artifacts in main repo `planning/active/sprint-<id>/`. Worktree removable.
+
+**Legacy**: Sprints 1-15 used split model (planning in main repo). Sprint 16+ uses unified model (everything in worktree).
 
 ---
 
 # 🧩 2.3 Sprint Directory Structure
 
+Sprint directory lives WITHIN worktree (unified model):
+
 ```
-planning/
-  sprint-7-a13b2f/
+.worktrees/sprint-7-a13b2f/
+  planning/sprint-7-a13b2f/    ← Sprint artifacts on feature branch
     sprint-manifest.yaml
     execution-plan.md
     backlog.yaml
@@ -135,7 +149,10 @@ planning/
     publication.yaml
     retro.md
     key-learnings.md
+  src/                          ← Code changes on feature branch
 ```
+
+After PR merge: `planning/active/sprint-7-a13b2f/` (in main repo)
 
 Single authoritative source of truth. `backlog.yaml` is accountability contract for commitments and current work state. `request-log.md` records Human–LLM interactions, interpretations, decisions, outcomes.
 

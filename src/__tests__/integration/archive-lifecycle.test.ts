@@ -81,7 +81,7 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
 
   it('should complete full lifecycle: start → complete → archive', async () => {
     // ================================================================
-    // STEP 1: Start Sprint (creates in planning/active/)
+    // STEP 1: Start Sprint (creates in worktree - unified model)
     // ================================================================
     const startResult = await startSprintTool({
       title: 'Archive Lifecycle Test Sprint',
@@ -97,21 +97,21 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
     expect(sprintIdMatch).toBeTruthy();
     const sprintId = sprintIdMatch![0];
 
-    // Verify sprint created in active/
-    const activeSprintPath = join(testDir, 'planning', 'active', sprintId);
-    const activeManifest = await readFile(
-      join(activeSprintPath, 'sprint-manifest.yaml'),
+    // Verify sprint created in worktree (unified model)
+    const worktreeSprintPath = join(testDir, '.worktrees', sprintId, 'planning', sprintId);
+    const worktreeManifest = await readFile(
+      join(worktreeSprintPath, 'sprint-manifest.yaml'),
       'utf-8'
     );
-    expect(activeManifest).toContain(sprintId);
+    expect(worktreeManifest).toContain(sprintId);
 
-    // Verify index shows active path
+    // Verify index shows worktree path for active sprint
     let indexContent = await readFile(
       join(testDir, 'planning', 'sprint-index.yaml'),
       'utf-8'
     );
     let index = parseYaml(indexContent) as SprintIndex;
-    expect(index.sprints[0].manifestPath).toContain(`planning/active/${sprintId}`);
+    expect(index.sprints[0].manifestPath).toContain(`.worktrees/${sprintId}/planning/${sprintId}`);
     expect(index.activeSprints).toBe(1);
     expect(index.completedSprints).toBe(0);
 
@@ -127,22 +127,22 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
     expect(updateResult.content[0].text).toContain('✅');
 
     // ================================================================
-    // STEP 3: Create Completion Artifacts
+    // STEP 3: Create Completion Artifacts (in worktree)
     // ================================================================
     await writeFile(
-      join(activeSprintPath, 'verification-report.md'),
+      join(worktreeSprintPath, 'verification-report.md'),
       '# Verification Report\n\nAll deliverables completed.'
     );
     await writeFile(
-      join(activeSprintPath, 'retro.md'),
+      join(worktreeSprintPath, 'retro.md'),
       '# Retrospective\n\nWhat worked well: Everything\nWhat to improve: Nothing'
     );
     await writeFile(
-      join(activeSprintPath, 'key-learnings.md'),
+      join(worktreeSprintPath, 'key-learnings.md'),
       '# Key Learnings\n\n- Archive lifecycle works correctly'
     );
     await writeFile(
-      join(activeSprintPath, 'publication.yaml'),
+      join(worktreeSprintPath, 'publication.yaml'),
       'pr: https://github.com/test/repo/pull/1\nstatus: created'
     );
 
@@ -159,12 +159,12 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
     expect(completeResult.content[0].text).toContain('✅');
     expect(completeResult.content[0].text).toContain('completed successfully');
 
-    // Verify sprint still in active/ but marked as complete
-    const activeManifest2 = await readFile(
-      join(activeSprintPath, 'sprint-manifest.yaml'),
+    // Verify sprint still in worktree but marked as complete
+    const worktreeManifest2 = await readFile(
+      join(worktreeSprintPath, 'sprint-manifest.yaml'),
       'utf-8'
     );
-    expect(activeManifest2).toContain(sprintId);
+    expect(worktreeManifest2).toContain(sprintId);
 
     indexContent = await readFile(
       join(testDir, 'planning', 'sprint-index.yaml'),
@@ -183,6 +183,21 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
     expect(statusResult.isError).toBeFalsy();
     expect(statusResult.content[0].text).toContain('✅');
     expect(statusResult.content[0].text).toContain('No active sprints');
+
+    // ================================================================
+    // STEP 5.5: Simulate PR Merge (copy from worktree to planning/active/)
+    // ================================================================
+    // In real workflow, PR merge moves planning artifacts to main repo.
+    // Simulate this by copying from worktree to planning/active/
+    const { cp } = await import('fs/promises');
+    const activeSprintPath = join(testDir, 'planning', 'active', sprintId);
+    await cp(worktreeSprintPath, activeSprintPath, { recursive: true });
+
+    // Remove worktree (simulates post-merge cleanup)
+    await rm(join(testDir, '.worktrees', sprintId), { recursive: true, force: true });
+
+    // Update index to point to active/ instead of worktree (simulates post-merge state)
+    await regenerateSprintIndexTool({});
 
     // ================================================================
     // STEP 6: Archive Sprint (move to archive/2026/)
@@ -257,7 +272,7 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
   });
 
   it('should handle archive with dry-run before actual archive', async () => {
-    // Start and complete a sprint
+    // Start and complete a sprint (unified worktree model)
     const startResult = await startSprintTool({
       title: 'Dry-Run Test Sprint',
       goal: 'Test dry-run mode',
@@ -272,16 +287,24 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
       status: 'in-progress',
     });
 
-    const activeSprintPath = join(testDir, 'planning', 'active', sprintId);
-    await writeFile(join(activeSprintPath, 'verification-report.md'), '# Verification');
-    await writeFile(join(activeSprintPath, 'retro.md'), '# Retro');
-    await writeFile(join(activeSprintPath, 'key-learnings.md'), '# Learnings');
-    await writeFile(join(activeSprintPath, 'publication.yaml'), 'pr: null');
+    // Create completion artifacts in worktree
+    const worktreeSprintPath = join(testDir, '.worktrees', sprintId, 'planning', sprintId);
+    await writeFile(join(worktreeSprintPath, 'verification-report.md'), '# Verification');
+    await writeFile(join(worktreeSprintPath, 'retro.md'), '# Retro');
+    await writeFile(join(worktreeSprintPath, 'key-learnings.md'), '# Learnings');
+    await writeFile(join(worktreeSprintPath, 'publication.yaml'), 'pr: null');
 
     await completeSprintTool({
       sprintId,
       completionMode: 'normal',
     });
+
+    // Simulate PR merge (copy from worktree to planning/active/ and remove worktree)
+    const { cp } = await import('fs/promises');
+    const activeSprintPath = join(testDir, 'planning', 'active', sprintId);
+    await cp(worktreeSprintPath, activeSprintPath, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprintId), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
 
     // ================================================================
     // Dry-run archive (should not move files)
@@ -295,7 +318,7 @@ describe('archive-lifecycle - Full Workflow Integration Test', () => {
     expect(dryRunResult.content[0].text).toContain('🔍');
     expect(dryRunResult.content[0].text).toContain('Dry-run');
 
-    // Verify sprint NOT moved
+    // Verify sprint NOT moved (still in active/)
     const activeManifest = await readFile(
       join(activeSprintPath, 'sprint-manifest.yaml'),
       'utf-8'

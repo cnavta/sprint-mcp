@@ -17,6 +17,7 @@ import { startSprintTool } from '../../tools/start-sprint.js';
 import { updateSprintStatusTool } from '../../tools/update-sprint-status.js';
 import { completeSprintTool } from '../../tools/complete-sprint.js';
 import { archiveSprintTool } from '../../tools/archive-sprint.js';
+import { regenerateSprintIndexTool } from '../../tools/regenerate-sprint-index.js';
 import type { KnowledgeBase } from '../../types/knowledge.js';
 import type { ArchiveConfig } from '../../types/archive-config.js';
 
@@ -97,8 +98,8 @@ describe('Knowledge Extraction - Integration Test', () => {
     expect(sprintIdMatch).not.toBeNull();
     const sprintId = sprintIdMatch![0];
 
-    // Step 2: Create knowledge artifacts in sprint directory
-    const sprintDir = join(testDir, 'planning', 'active', sprintId);
+    // Step 2: Create knowledge artifacts in sprint directory (in worktree)
+    const sprintDir = join(testDir, '.worktrees', sprintId, 'planning', sprintId);
 
     // Create key-learnings.md
     const keyLearningsContent = `# Key Learnings
@@ -179,6 +180,13 @@ describe('Knowledge Extraction - Integration Test', () => {
     });
 
     expect(completeResult.isError).toBeFalsy();
+
+    // Step 4.5: Simulate PR merge (copy from worktree to planning/active/)
+    const { cp } = await import('fs/promises');
+    const activeSprintDir = join(testDir, 'planning', 'active', sprintId);
+    await cp(sprintDir, activeSprintDir, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprintId), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
 
     // Step 5: Archive the sprint (triggers knowledge extraction)
     const archiveResult = await archiveSprintTool({
@@ -300,9 +308,9 @@ describe('Knowledge Extraction - Integration Test', () => {
     });
 
     const sprintId = startResult.content[0].text.match(/sprint-\d+-\w+/)![0];
-    const sprintDir = join(testDir, 'planning', 'active', sprintId);
+    const sprintDir = join(testDir, '.worktrees', sprintId, 'planning', sprintId);
 
-    // Create required completion artifacts
+    // Create required completion artifacts (in worktree)
     await writeFile(
       join(sprintDir, 'verification-report.md'),
       '# Verification Report\n\nAll deliverables completed.'
@@ -318,6 +326,13 @@ describe('Knowledge Extraction - Integration Test', () => {
       completionMode: 'forced',
       pr: 'https://github.com/test/repo/pull/1',
     });
+
+    // Simulate PR merge
+    const { cp } = await import('fs/promises');
+    const activeSprintDir = join(testDir, 'planning', 'active', sprintId);
+    await cp(sprintDir, activeSprintDir, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprintId), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
 
     // Archive sprint
     const archiveResult = await archiveSprintTool({ sprintId, dryRun: false });
@@ -347,8 +362,8 @@ describe('Knowledge Extraction - Integration Test', () => {
     });
     const sprint1 = start1.content[0].text.match(/sprint-\d+-\w+/)![0];
 
-    // Create similar knowledge artifacts for sprint 1
-    const sprintDir1 = join(testDir, 'planning', 'active', sprint1);
+    // Create similar knowledge artifacts for sprint 1 (in worktree)
+    const sprintDir1 = join(testDir, '.worktrees', sprint1, 'planning', sprint1);
     await writeFile(
       join(sprintDir1, 'key-learnings.md'),
       `# Learnings\n- Always validate TypeScript input types\n- Use strict mode`
@@ -370,6 +385,14 @@ describe('Knowledge Extraction - Integration Test', () => {
       completionMode: 'forced',
       pr: 'https://github.com/test/repo/pull/1',
     });
+
+    // Simulate PR merge for sprint 1
+    const { cp } = await import('fs/promises');
+    const activeSprintDir1 = join(testDir, 'planning', 'active', sprint1);
+    await cp(sprintDir1, activeSprintDir1, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprint1), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
+
     await archiveSprintTool({ sprintId: sprint1, dryRun: false });
 
     // Start second sprint
@@ -380,8 +403,8 @@ describe('Knowledge Extraction - Integration Test', () => {
     });
     const sprint2 = start2.content[0].text.match(/sprint-\d+-\w+/)![0];
 
-    // Create similar knowledge artifacts for sprint 2 (should deduplicate)
-    const sprintDir2 = join(testDir, 'planning', 'active', sprint2);
+    // Create similar knowledge artifacts for sprint 2 (should deduplicate) - in worktree
+    const sprintDir2 = join(testDir, '.worktrees', sprint2, 'planning', sprint2);
     await writeFile(
       join(sprintDir2, 'key-learnings.md'),
       `# Learnings\n- Always validate TypeScript input types thoroughly\n- Document all decisions`
@@ -403,6 +426,13 @@ describe('Knowledge Extraction - Integration Test', () => {
       completionMode: 'forced',
       pr: 'https://github.com/test/repo/pull/2',
     });
+
+    // Simulate PR merge for sprint 2
+    const activeSprintDir2 = join(testDir, 'planning', 'active', sprint2);
+    await cp(sprintDir2, activeSprintDir2, { recursive: true });
+    await rm(join(testDir, '.worktrees', sprint2), { recursive: true, force: true });
+    await regenerateSprintIndexTool({});
+
     await archiveSprintTool({ sprintId: sprint2, dryRun: false });
 
     // Verify knowledge base has deduplicated lessons
