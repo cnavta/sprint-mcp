@@ -1,5 +1,5 @@
-pr: pending
-branch: feat/repair
-status: pending
-createdAt: null
-notes: PR creation in progress
+pr: https://github.com/cnavta/sprint-mcp/pull/16
+branch: feature/sprint-15-dq6cg7-worktree-aware-tool-remediatio
+status: created
+createdAt: 2026-08-07T15:20:00.000Z
+notes: PR created successfully via GitHub CLI
