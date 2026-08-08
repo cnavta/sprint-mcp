@@ -1,0 +1,20 @@
+pullRequest:
+  url: https://github.com/cnavta/sprint-mcp/pull/17
+  branch: feature/sprint-16-rgo90d-sprint-lifecycle-hooks-impleme
+  baseBranch: main
+  title: Sprint 16 Deliverables – Sprint Lifecycle Hooks Implementation
+  createdAt: '2026-08-08T02:35:00Z'
+  status: open
+
+commit:
+  sha: 789f0d3
+  message: |
+    Sprint 16: Sprint Lifecycle Hooks Implementation
+
+    Implement sprint lifecycle hooks system to automate worktree setup and enable
+    project-specific automation at key sprint lifecycle events.
+
+publication:
+  date: '2026-08-08T02:35:00Z'
+  method: github-cli
+  successful: true

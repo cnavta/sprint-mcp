@@ -1,0 +1,812 @@
+# Sprint 16 Backlog v2 - Sprint Lifecycle Hooks Implementation
+# Version 2.0 - Revised Hook Model (Option A: Separate Lifecycle and Status Hooks)
+
+sprint:
+  id: sprint-16-rgo90d
+  title: Sprint Lifecycle Hooks Implementation
+  goal: Implement sprint lifecycle hooks system to automate worktree setup and enable project-specific automation
+  owner: Christopher Navta
+  createdAt: 2026-08-07
+  priority: P0
+  estimatedHours: 8-10
+  version: 2.0
+  versionNotes: Revised hook model - 5 explicit hooks (4 lifecycle + 1 generic status change)
+
+metadata:
+  totalTasks: 14
+  completedTasks: 8
+  inProgressTasks: 0
+  blockedTasks: 0
+  deferredTasks: 0
+
+hookModel:
+  type: option-a-explicit-lifecycle-generic-status
+  description: Separate lifecycle hooks (explicit) from status change hooks (generic)
+  lifecycleHooks:
+    - post-worktree-create  # After worktree created
+    - pre-worktree-remove   # Before worktree removed
+    - pre-archive           # Before archiving
+    - post-archive          # After archived
+  statusHooks:
+    - on-status-change      # Before/after ANY status transition
+  totalHooks: 5
+
+phases:
+  - id: phase-1
+    name: Core Hook System
+    description: Implement hook discovery, execution, and integration with MCP tools
+    tasks: [CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006]
+    estimatedHours: 4-5
+
+  - id: phase-2
+    name: Templates & Documentation
+    description: Create example hooks and update documentation
+    tasks: [TMPL-001, TMPL-002, DOCS-001, DOCS-002]
+    estimatedHours: 2-3
+
+  - id: phase-3
+    name: Testing
+    description: Comprehensive test coverage for hooks system
+    tasks: [TEST-001, TEST-002, TEST-003, TEST-004]
+    estimatedHours: 2-3
+
+tasks:
+  # ============================================================================
+  # Phase 1: Core Hook System
+  # ============================================================================
+
+  - id: CORE-001
+    title: Create Hook Types and Interfaces
+    description: Define TypeScript types for hook system (HookName, HookContext, HookResult)
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 0.5
+    completedAt: 2026-08-07T16:30:00Z
+
+    dependencies: []
+    blockedBy: []
+
+    files:
+      create:
+        - src/types/hooks.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Types exported from src/types/hooks.ts
+      - TypeScript compilation successful
+      - HookName includes all 5 hook types (post-worktree-create, on-status-change, pre-worktree-remove, pre-archive, post-archive)
+      - HookContext includes sprintId, worktreePath, planningDir, branch
+      - HookContext includes optional statusFrom, statusTo, lifecyclePhase for on-status-change
+      - HookResult includes executed, exitCode, stdout, stderr, error fields
+      - Types match revised design specification
+
+    implementation:
+      - Create src/types/hooks.ts
+      - Define HookName type as union of 5 hook names
+      - Define HookContext interface with sprint metadata + status change fields
+      - Define HookResult interface for execution results
+      - Export all types
+      - Verify TypeScript compilation
+
+    validation:
+      - TypeScript compiles without errors
+      - Types can be imported in other files
+      - All required fields present in interfaces
+      - Status change fields marked as optional (only used by on-status-change)
+
+    notes: |
+      Foundation for entire hooks system. Revised to support both lifecycle
+      hooks and generic status change hook.
+
+  - id: CORE-002
+    title: Implement Hook Discovery
+    description: Implement findHook() function to locate and validate hook scripts in .sprint-hooks/
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+    completedAt: 2026-08-07T16:35:00Z
+
+    dependencies:
+      - CORE-001  # Needs HookName type
+    blockedBy: []
+
+    files:
+      create:
+        - src/common/hook-manager.ts
+      modify: []
+
+    acceptanceCriteria:
+      - findHook() returns path for existing executable hooks
+      - Returns null for non-existent hooks
+      - Returns null for non-executable hooks (with warning log)
+      - No errors thrown for missing .sprint-hooks directory
+      - Checks executable permission correctly (mode & 0o111)
+      - Works for all 5 hook types
+
+    implementation:
+      - Create src/common/hook-manager.ts
+      - Implement findHook(hookName) function
+      - Construct path to .sprint-hooks/{hookName}
+      - Check file existence using fileExists()
+      - Check executable permission using stat()
+      - Log warning if hook exists but not executable
+      - Return path if valid, null otherwise
+
+    validation:
+      - Unit tests for all scenarios (Task TEST-001)
+      - Manual test with real hook file
+      - Verify warning logged for non-executable hooks
+
+    notes: |
+      Hook discovery is critical for security - only executable files in
+      .sprint-hooks/ should be recognized as hooks. Only checks project root,
+      not parent directories.
+
+  - id: CORE-003
+    title: Implement Hook Execution
+    description: Implement executeHook() function to run hooks with proper environment and error handling
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+    completedAt: 2026-08-07T16:35:00Z
+
+    dependencies:
+      - CORE-001  # Needs HookContext and HookResult types
+      - CORE-002  # Needs findHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/hook-manager.ts
+
+    acceptanceCriteria:
+      - executeHook() runs hooks and captures stdout/stderr
+      - Returns executed false when no hook found
+      - Passes all required environment variables (SPRINT_ID, SPRINT_WORKTREE, SPRINT_PLANNING_DIR, SPRINT_BRANCH, SPRINT_EVENT)
+      - Passes status change variables for on-status-change (SPRINT_STATUS_FROM, SPRINT_STATUS_TO, SPRINT_LIFECYCLE_PHASE)
+      - Returns correct exit code
+      - Handles hook failures gracefully
+      - Respects timeout (default 5 minutes)
+      - Works from any working directory
+
+    implementation:
+      - Implement executeHook(hookName, context) function
+      - Call findHook() to locate hook
+      - Build environment variables from context
+      - Include status change vars if present (statusFrom, statusTo, lifecyclePhase)
+      - Execute hook using execSync with proper options
+      - Capture stdout and stderr
+      - Handle errors and timeouts
+      - Return HookResult with all captured data
+
+    validation:
+      - Unit tests for success and failure (Task TEST-002)
+      - Test environment variable passing
+      - Test status change variables
+      - Test timeout handling
+      - Test error capture
+
+    notes: |
+      execSync options:
+      - cwd: context.worktreePath
+      - env: { ...process.env, SPRINT_ID, SPRINT_WORKTREE, SPRINT_STATUS_FROM, ... }
+      - encoding: 'utf-8'
+      - stdio: 'pipe'
+      - timeout: 300000 (5 minutes)
+
+  - id: CORE-004
+    title: Integrate post-worktree-create Hook
+    description: Add post-worktree-create hook execution to start-sprint tool after worktree creation
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 0.75
+    completedAt: 2026-08-07T16:45:00Z
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/start-sprint.ts
+
+    acceptanceCriteria:
+      - Hook executes after worktree and planning dir created
+      - Hook success output shown to user
+      - Hook failures logged but don't abort sprint creation (non-blocking)
+      - Hook stdout included in result message
+      - Works when no hook present (no errors)
+      - Output message mentions "Worktree setup automated" when hook runs
+
+    implementation:
+      - Import executeHook and types
+      - After worktree creation, call executeHook('post-worktree-create', context)
+      - If hook executed successfully, add success message to output
+      - If hook failed, add warning message (but continue)
+      - Include hook stdout in result text
+      - Update "Next Steps" messaging based on hook execution
+
+    validation:
+      - Integration test with real post-worktree-create hook
+      - Test with no hook present
+      - Test with failing hook
+      - Verify non-blocking behavior
+
+    notes: |
+      post-worktree-create is NON-BLOCKING - failures should not prevent sprint creation.
+      This is the most important hook as it automates worktree setup (npm ci, etc.).
+
+  - id: CORE-005
+    title: Integrate on-status-change Hook
+    description: Add on-status-change hook execution to update-sprint-status tool (pre and post phases)
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+    completedAt: 2026-08-07T17:00:00Z
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/update-sprint-status.ts
+
+    acceptanceCriteria:
+      - Hook executes in PRE phase before status update
+      - PRE phase failure BLOCKS status update (returns error)
+      - Hook executes in POST phase after status update
+      - POST phase failure logged but doesn't block
+      - Hook receives statusFrom, statusTo, lifecyclePhase correctly
+      - Works for ALL status transitions (not just completion)
+      - Clear error messages on pre-phase failure
+
+    implementation:
+      - Import executeHook and types
+      - Get current status from manifest before update
+      - BEFORE status update, call executeHook('on-status-change', { ...context, statusFrom, statusTo: newStatus, lifecyclePhase 'pre' })
+      - If pre-phase fails, return error result (BLOCKING)
+      - Update status in manifest
+      - AFTER status update, call executeHook('on-status-change', { ...context, statusFrom, statusTo newStatus, lifecyclePhase 'post' })
+      - If post-phase fails, log warning (NON-BLOCKING)
+
+    validation:
+      - Integration test with on-status-change hook
+      - Test blocking on pre-phase failure
+      - Test non-blocking post-phase
+      - Test multiple status transitions (planning → in-progress → complete)
+      - Verify status variables passed correctly
+
+    notes: |
+      This hook replaces the original pre-complete and post-complete hooks with a
+      single generic hook that handles ALL status transitions. Much more flexible
+      and scalable. The hook can use SPRINT_STATUS_FROM/TO to decide what to do.
+
+  - id: CORE-006
+    title: Integrate Lifecycle Hooks (worktree-remove, archive)
+    description: Add lifecycle hook execution to cleanup-sprint and archive-sprint tools
+    phase: phase-1
+    priority: P0
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+    completedAt: 2026-08-07T17:15:00Z
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/cleanup-sprint.ts
+        - src/tools/archive-sprint.ts
+
+    acceptanceCriteria:
+      - pre-worktree-remove hook executes before worktree removal
+      - pre-worktree-remove failure BLOCKS cleanup
+      - pre-archive hook executes before moving to archive
+      - pre-archive failure BLOCKS archival
+      - post-archive hook executes after sprint archived
+      - post-archive failure logged but doesn't block
+      - Hooks work with both manual and auto-archive
+
+    implementation:
+      - cleanup-sprint.ts Before worktree removal, call executeHook('pre-worktree-remove', context)
+      - If pre-worktree-remove fails, return error result (BLOCKING)
+      - archive-sprint.ts Before archiving, call executeHook('pre-archive', context)
+      - If pre-archive fails, return error result (BLOCKING)
+      - After successful archive, call executeHook('post-archive', context)
+      - If post-archive fails, log warning (NON-BLOCKING)
+
+    validation:
+      - Integration test with cleanup workflow
+      - Integration test with archive workflow
+      - Test with auto-archive-sprints tool
+      - Verify blocking and non-blocking behavior
+
+    notes: |
+      pre-worktree-remove is BLOCKING - prevents data loss (stop services, backup data)
+      pre-archive is BLOCKING - final validations before archival
+      post-archive is NON-BLOCKING - external system updates, metrics
+
+  # ============================================================================
+  # Phase 2: Templates & Documentation
+  # ============================================================================
+
+  - id: TMPL-001
+    title: Create Node.js/TypeScript Example Hooks
+    description: Create example hooks for Node.js/TypeScript projects (post-worktree-create, on-status-change, pre-worktree-remove)
+    phase: phase-2
+    priority: P1
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+    completedAt: 2026-08-07T17:30:00Z
+
+    dependencies:
+      - CORE-004  # post-worktree-create integration
+      - CORE-005  # on-status-change integration
+      - CORE-006  # pre-worktree-remove integration
+    blockedBy: []
+
+    files:
+      create:
+        - examples/sprint-hooks/node-typescript/post-worktree-create
+        - examples/sprint-hooks/node-typescript/on-status-change
+        - examples/sprint-hooks/node-typescript/pre-worktree-remove
+        - examples/sprint-hooks/node-typescript/README.md
+      modify: []
+
+    acceptanceCriteria:
+      - All hooks are executable (chmod +x)
+      - post-worktree-create installs dependencies, creates .env, runs build
+      - on-status-change checks for uncommitted changes and runs tests on pre-completion, sends notification on post-completion
+      - on-status-change uses SPRINT_STATUS_FROM/TO/LIFECYCLE_PHASE correctly
+      - pre-worktree-remove warns about uncommitted changes, stops services
+      - README explains each hook's purpose and how to use status variables
+      - Hooks follow design spec examples exactly
+
+    implementation:
+      - Create examples/sprint-hooks/node-typescript/ directory
+      - Write post-worktree-create hook (npm ci, .env setup, npm run build)
+      - Write on-status-change hook (conditional logic based on status transition)
+      - Write pre-worktree-remove hook (git status check, warnings, docker-compose down)
+      - Make all hooks executable
+      - Write README with usage instructions and status transition examples
+
+    validation:
+      - Test hooks in real sprint worktree
+      - Verify post-worktree-create completes setup successfully
+      - Verify on-status-change blocks on pre-completion validation failure
+      - Verify on-status-change sends notification on post-completion
+      - Verify error handling works
+
+    notes: |
+      These are the primary examples that most projects will use.
+      Should be production-ready and well-commented. The on-status-change
+      hook demonstrates how to handle different status transitions.
+
+  - id: TMPL-002
+    title: Create Python Example Hooks
+    description: Create example post-worktree-create hook for Python/Django projects
+    phase: phase-2
+    priority: P2
+    status: completed
+    assignee: Lead Implementor
+    estimatedHours: 0.5
+    completedAt: 2026-08-07T17:40:00Z
+
+    dependencies:
+      - CORE-004  # post-worktree-create integration
+    blockedBy: []
+
+    files:
+      create:
+        - examples/sprint-hooks/python-django/post-worktree-create
+        - examples/sprint-hooks/python-django/README.md
+      modify: []
+
+    acceptanceCriteria:
+      - Hook is executable
+      - Creates virtual environment
+      - Installs requirements.txt
+      - Runs database migrations
+      - README explains Django-specific setup
+
+    implementation:
+      - Create examples/sprint-hooks/python-django/ directory
+      - Write post-worktree-create hook (venv creation, pip install, migrate)
+      - Make hook executable
+      - Write README with usage instructions
+
+    validation:
+      - Manual review of script
+      - Verify follows Python best practices
+
+    notes: |
+      Optional example for Python projects. Less critical than Node.js example
+      but demonstrates hooks work for any stack.
+
+  - id: DOCS-001
+    title: Update AGENTS.md with Hooks Documentation
+    description: Add Section 2.2.2 "Sprint Lifecycle Hooks" to AGENTS-uncompressed.md and regenerate AGENTS.md
+    phase: phase-2
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-004  # post-worktree-create integration
+      - CORE-005  # on-status-change integration
+      - CORE-006  # lifecycle hooks integration
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - AGENTS-uncompressed.md
+        - AGENTS.md  # Regenerated
+
+    acceptanceCriteria:
+      - Section 2.2.2 added to AGENTS-uncompressed.md
+      - Describes all 5 hook types
+      - Explains lifecycle hooks vs status change hooks
+      - Lists environment variables (including status change variables)
+      - Explains blocking vs non-blocking behavior
+      - Includes example on-status-change hook showing conditional logic
+      - References examples/ directory
+      - AGENTS.md regenerated with compressed version
+
+    implementation:
+      - Add Section 2.2.2 after Section 2.2.1
+      - Document lifecycle hooks (post-worktree-create, pre-worktree-remove, pre-archive, post-archive)
+      - Document status change hook (on-status-change) with emphasis on flexibility
+      - List all environment variables hooks receive
+      - Include example showing conditional logic based on status transition
+      - Reference examples/ directory
+      - Regenerate AGENTS.md using compression tool
+
+    validation:
+      - Section appears in correct location
+      - All hook types documented
+      - Examples are accurate
+      - Status change hook clearly explained
+      - AGENTS.md properly compressed
+
+    notes: |
+      Critical for agent understanding. Must clearly explain the difference
+      between lifecycle hooks (explicit events) and status change hook (generic).
+
+  - id: DOCS-002
+    title: Update start-sprint Output Messaging
+    description: Update start-sprint output to mention hook automation
+    phase: phase-2
+    priority: P2
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.25
+
+    dependencies:
+      - CORE-004  # post-worktree-create integration
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/start-sprint.ts
+
+    acceptanceCriteria:
+      - Output adapts based on whether hook executed
+      - Shows "Worktree setup automated ✅" when hook runs
+      - Shows "Run npm ci && npm run build" when no hook
+      - Maintains existing output format
+
+    implementation:
+      - Update "Next Steps" section in start-sprint output
+      - Add conditional message based on hookResult.executed
+      - Keep existing guidance for projects without hooks
+
+    validation:
+      - Test output with hook present
+      - Test output with no hook
+      - Verify message clarity
+
+    notes: |
+      Small UX improvement. Low priority but improves user experience.
+
+  # ============================================================================
+  # Phase 3: Testing
+  # ============================================================================
+
+  - id: TEST-001
+    title: Unit Tests for Hook Discovery
+    description: Create comprehensive unit tests for findHook() function
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-002  # Needs findHook() implementation
+    blockedBy: []
+
+    files:
+      create:
+        - src/common/__tests__/hook-manager.test.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Tests finding executable hook
+      - Tests hook doesn't exist
+      - Tests hook exists but not executable
+      - Tests warning logged for non-executable
+      - Tests missing .sprint-hooks directory
+      - Tests all 5 hook names
+      - All tests passing
+      - Uses isolated test directory
+      - Cleans up after each test
+
+    implementation:
+      - Create test file with describe block
+      - Setup Create temp directory for tests
+      - Test case 1 Create executable hook, verify found
+      - Test case 2 No hook file, verify null returned
+      - Test case 3 Hook file without +x, verify null and warning
+      - Test case 4 No .sprint-hooks dir, verify null
+      - Test case 5 Test each of 5 hook names
+      - Teardown Clean up temp files
+
+    validation:
+      - All test cases passing
+      - Coverage report shows 100% for findHook()
+      - No test pollution (each test isolated)
+
+    notes: |
+      Foundation for hook testing. Must be thorough as discovery is
+      critical for security.
+
+  - id: TEST-002
+    title: Unit Tests for Hook Execution
+    description: Create comprehensive unit tests for executeHook() function
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+
+    dependencies:
+      - CORE-003  # Needs executeHook() implementation
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/__tests__/hook-manager.test.ts
+
+    acceptanceCriteria:
+      - Tests successful hook execution
+      - Tests hook failure (non-zero exit)
+      - Tests stdout/stderr capture
+      - Tests environment variables passed correctly (base vars)
+      - Tests status change variables passed correctly (statusFrom, statusTo, lifecyclePhase)
+      - Tests executed false when no hook
+      - Tests timeout handling
+      - Tests permission errors
+      - All tests passing
+
+    implementation:
+      - Add test cases to existing hook-manager.test.ts
+      - Test case 1 Hook returns 0, verify stdout captured
+      - Test case 2 Hook returns 1, verify stderr captured
+      - Test case 3 Verify base env vars in hook
+      - Test case 4 Verify status change env vars for on-status-change
+      - Test case 5 No hook, verify executed false
+      - Test case 6 Long-running hook, verify timeout
+      - Create test hooks for each scenario
+
+    validation:
+      - All test cases passing
+      - Coverage report shows 100% for executeHook()
+      - Edge cases covered
+      - Status change variables tested
+
+    notes: |
+      Critical tests for execution logic. Must cover success, failure,
+      and edge cases thoroughly. Special attention to status change variables.
+
+  - id: TEST-003
+    title: Integration Tests for Sprint Lifecycle
+    description: Create end-to-end integration tests for hooks in actual sprint operations
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 2.0
+
+    dependencies:
+      - CORE-004  # post-worktree-create integration
+      - CORE-005  # on-status-change integration
+      - CORE-006  # lifecycle hooks integration
+    blockedBy: []
+
+    files:
+      create:
+        - src/__tests__/integration/hooks-lifecycle.test.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Tests start-sprint executes post-worktree-create hook
+      - Tests start-sprint continues if post-worktree-create fails
+      - Tests update-sprint-status executes on-status-change (pre + post)
+      - Tests on-status-change blocks on pre-phase failure
+      - Tests on-status-change continues on post-phase failure
+      - Tests multiple status transitions trigger on-status-change correctly
+      - Tests cleanup-sprint blocks on pre-worktree-remove failure
+      - Tests archive-sprint blocks on pre-archive failure
+      - Tests archive-sprint executes post-archive
+      - All tests passing
+      - Uses real tool functions (not mocks)
+
+    implementation:
+      - Create integration test file
+      - Setup Create isolated git repo with .sprint-hooks/
+      - Test scenario 1 start-sprint with post-worktree-create hook
+      - Test scenario 2 start-sprint with failing post-worktree-create
+      - Test scenario 3 update-sprint-status with on-status-change (planning → in-progress)
+      - Test scenario 4 on-status-change blocked by pre-phase failure (pre-completion)
+      - Test scenario 5 on-status-change post-phase (notification after completion)
+      - Test scenario 6 cleanup-sprint blocked by pre-worktree-remove
+      - Test scenario 7 archive-sprint with pre/post-archive
+      - Teardown Clean up test repo
+
+    validation:
+      - All integration scenarios passing
+      - Tests verify blocking vs non-blocking behavior
+      - Tests verify hook output captured
+      - Tests verify status transition variables
+      - Complete workflows tested end-to-end
+
+    notes: |
+      Most important test file. Validates entire hooks system works in
+      real sprint operations. Special focus on on-status-change with
+      different status transitions.
+
+  - id: TEST-004
+    title: Error Handling and Edge Case Tests
+    description: Create tests for error conditions and edge cases
+    phase: phase-3
+    priority: P1
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-003  # Needs executeHook() implementation
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/__tests__/hook-manager.test.ts
+
+    acceptanceCriteria:
+      - Tests hook with syntax error
+      - Tests hook timeout
+      - Tests hook writing to both stdout and stderr
+      - Tests permission errors
+      - Tests multiple status transitions in sequence
+      - Tests execution from different working directories
+      - All tests passing
+      - No uncaught exceptions
+
+    implementation:
+      - Add edge case tests to hook-manager.test.ts
+      - Test case 1 Hook with bash syntax error
+      - Test case 2 Hook that sleeps longer than timeout
+      - Test case 3 Hook that uses both stdout and stderr
+      - Test case 4 Hook without execute permission
+      - Test case 5 Multiple status transitions sequentially
+      - Test case 6 Hook execution with different cwd
+
+    validation:
+      - All edge cases covered
+      - Error messages are clear
+      - No crashes or uncaught exceptions
+      - Timeouts handled gracefully
+
+    notes: |
+      Ensures robustness. Edge cases should fail gracefully with clear
+      error messages.
+
+# ============================================================================
+# Summary
+# ============================================================================
+
+summary:
+  totalTasks: 14  # Reduced from 15 (combined pre-complete + post-complete into on-status-change)
+  breakdown:
+    phase1: 6 tasks  # Core system
+    phase2: 4 tasks  # Templates & docs
+    phase3: 4 tasks  # Testing
+
+  priorities:
+    p0: 10 tasks     # Critical path
+    p1: 2 tasks      # Important but not blocking
+    p2: 2 tasks      # Nice to have
+
+  estimatedEffort:
+    minimum: 8 hours
+    maximum: 10 hours
+    average: 9 hours
+
+  dependencies:
+    criticalPath:
+      - CORE-001 (Types) →
+      - CORE-002 (Discovery) →
+      - CORE-003 (Execution) →
+      - CORE-004, CORE-005, CORE-006 (Integrations) →
+      - TEST-003 (Integration tests)
+
+    parallelizable:
+      - CORE-004, CORE-005, CORE-006 can be done in parallel after CORE-003
+      - TMPL-001, TMPL-002 can be done in parallel
+      - TEST-001, TEST-002, TEST-004 can be done in parallel
+
+  hookModel:
+    type: option-a-explicit-lifecycle-generic-status
+    lifecycleHooks: 4
+    statusHooks: 1
+    totalHooks: 5
+    benefits:
+      - Cleaner separation of concerns
+      - Single hook handles all status transitions
+      - Scales to new statuses without new hooks
+      - More flexible than explicit per-status hooks
+
+  risks:
+    - Hook execution security (mitigated by project-only discovery)
+    - Platform compatibility (documented, Bash required)
+    - Hook failures breaking workflow (clear error messages, non-blocking where appropriate)
+
+# ============================================================================
+# Change Log
+# ============================================================================
+
+changeLog:
+  - date: 2026-08-07T15:00:00Z
+    author: Lead Implementor
+    change: Initial backlog created from Sprint 15 design documents
+    tasksAffected: all
+    reason: Sprint 16 planning phase
+    version: 1.0
+
+  - date: 2026-08-07T16:00:00Z
+    author: Lead Implementor
+    change: Revised hook model to Option A - separate lifecycle and status hooks
+    tasksAffected: all
+    reason: User decision to use explicit lifecycle hooks and generic status change hook
+    version: 2.0
+    details:
+      - Reduced from 6 hooks to 5 hooks
+      - Combined pre-complete and post-complete into on-status-change
+      - Renamed post-start → post-worktree-create
+      - Renamed pre-cleanup → pre-worktree-remove
+      - Added status transition variables (statusFrom, statusTo, lifecyclePhase)
+      - Updated CORE-005 to integrate on-status-change in update-sprint-status.ts
+      - Updated all documentation and examples

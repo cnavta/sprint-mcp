@@ -1,0 +1,76 @@
+#!/bin/bash
+#
+# post-worktree-create Hook - Node.js/TypeScript Example
+#
+# This hook runs AFTER a sprint worktree and planning directory are created.
+# Purpose: Automate worktree setup (install dependencies, build, create .env)
+#
+# Behavior: NON-BLOCKING - Failures logged but don't prevent sprint creation
+#
+# Environment Variables:
+#   SPRINT_ID            Sprint identifier (e.g., "sprint-16-rgo90d")
+#   SPRINT_WORKTREE      Absolute path to sprint worktree
+#   SPRINT_PLANNING_DIR  Absolute path to planning directory
+#   SPRINT_BRANCH        Feature branch name
+#   SPRINT_EVENT         Always "post-worktree-create"
+#
+
+set -e  # Exit on error
+
+echo "🚀 post-worktree-create: Automating worktree setup for $SPRINT_ID"
+echo "   Worktree: $SPRINT_WORKTREE"
+echo "   Branch: $SPRINT_BRANCH"
+echo ""
+
+# Change to worktree directory
+cd "$SPRINT_WORKTREE"
+
+# Step 1: Install dependencies
+echo "📦 Installing dependencies..."
+if [ -f "package.json" ]; then
+  npm ci
+  echo "✅ Dependencies installed"
+else
+  echo "⚠️  No package.json found, skipping npm ci"
+fi
+
+# Step 2: Create .env file from template (if doesn't exist)
+echo ""
+echo "📝 Setting up environment file..."
+if [ -f ".env.template" ] && [ ! -f ".env" ]; then
+  cp .env.template .env
+  echo "✅ Created .env from .env.template"
+elif [ -f ".env.example" ] && [ ! -f ".env" ]; then
+  cp .env.example .env
+  echo "✅ Created .env from .env.example"
+elif [ -f ".env" ]; then
+  echo "ℹ️  .env already exists, skipping"
+else
+  echo "ℹ️  No .env template found, skipping"
+fi
+
+# Step 3: Build project
+echo ""
+echo "🔨 Building project..."
+if grep -q '"build":' package.json 2>/dev/null; then
+  npm run build
+  echo "✅ Build completed"
+else
+  echo "ℹ️  No build script found, skipping"
+fi
+
+# Step 4: Run any setup scripts
+echo ""
+echo "⚙️  Running setup scripts (if any)..."
+if grep -q '"setup":' package.json 2>/dev/null; then
+  npm run setup
+  echo "✅ Setup script completed"
+else
+  echo "ℹ️  No setup script found, skipping"
+fi
+
+echo ""
+echo "✅ Worktree setup complete! Ready for sprint work."
+echo "   Next: cd $SPRINT_WORKTREE && git status"
+
+exit 0

@@ -1,0 +1,95 @@
+#!/bin/bash
+#
+# pre-worktree-remove Hook - Node.js/TypeScript Example
+#
+# This hook runs BEFORE worktree removal during cleanup.
+# Purpose: Prevent data loss (warn about uncommitted changes, stop services, backup data)
+#
+# Behavior: BLOCKING - Failures prevent worktree removal
+#
+# Environment Variables:
+#   SPRINT_ID            Sprint identifier (e.g., "sprint-16-rgo90d")
+#   SPRINT_WORKTREE      Absolute path to sprint worktree
+#   SPRINT_PLANNING_DIR  Absolute path to planning directory
+#   SPRINT_BRANCH        Feature branch name
+#   SPRINT_EVENT         Always "pre-worktree-remove"
+#
+
+set -e  # Exit on error (important for blocking behavior)
+
+echo "🧹 pre-worktree-remove: Preparing for worktree cleanup"
+echo "   Sprint: $SPRINT_ID"
+echo "   Worktree: $SPRINT_WORKTREE"
+echo ""
+
+# Change to worktree directory
+cd "$SPRINT_WORKTREE"
+
+# Step 1: Check for uncommitted changes (safety check)
+echo "🔍 Checking for uncommitted changes..."
+if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+  echo "⚠️  WARNING: Uncommitted changes detected!"
+  echo ""
+  git status --short
+  echo ""
+  echo "❌ ERROR: Cannot remove worktree with uncommitted changes"
+  echo "   Options:"
+  echo "   1. Commit changes: git add . && git commit -m 'message'"
+  echo "   2. Stash changes: git stash"
+  echo "   3. Force cleanup (loses changes): cleanup-sprint --force"
+  exit 1  # BLOCKS cleanup
+fi
+echo "✅ No uncommitted changes"
+
+# Step 2: Check for unpushed commits
+echo ""
+echo "🔍 Checking for unpushed commits..."
+UNPUSHED=$(git log @{u}.. --oneline 2>/dev/null | wc -l || echo "0")
+if [ "$UNPUSHED" -gt 0 ]; then
+  echo "⚠️  WARNING: $UNPUSHED unpushed commit(s) detected!"
+  echo ""
+  git log @{u}.. --oneline
+  echo ""
+  echo "❌ ERROR: Cannot remove worktree with unpushed commits"
+  echo "   Push your commits first: git push"
+  exit 1  # BLOCKS cleanup
+fi
+echo "✅ All commits pushed"
+
+# Step 3: Stop any running services (docker-compose, local servers, etc.)
+echo ""
+echo "🛑 Stopping running services..."
+if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ]; then
+  echo "   Stopping docker-compose services..."
+  docker-compose down 2>/dev/null || true
+  echo "   ✅ Docker services stopped"
+else
+  echo "   ℹ️  No docker-compose.yml found, skipping"
+fi
+
+# Stop any npm/node processes running in this worktree (optional)
+# pkill -f "$SPRINT_WORKTREE" || true
+
+# Step 4: Backup any important temporary data (optional)
+echo ""
+echo "💾 Checking for data to backup..."
+if [ -d "tmp" ] || [ -d ".tmp" ]; then
+  echo "   ℹ️  Found tmp/ directory - consider backing up important data"
+  # Example backup:
+  # tar -czf "$HOME/sprint-backups/$SPRINT_ID-tmp.tar.gz" tmp/
+fi
+
+# Step 5: Clean up generated files (optional - reduces disk usage)
+echo ""
+echo "🗑️  Cleaning up generated files..."
+if [ -d "node_modules" ]; then
+  echo "   ℹ️  node_modules/ will be removed with worktree"
+fi
+if [ -d "dist" ] || [ -d "build" ]; then
+  echo "   ℹ️  Build artifacts will be removed with worktree"
+fi
+
+echo ""
+echo "✅ Pre-cleanup checks passed - worktree is safe to remove"
+echo "   Planning artifacts in planning/$SPRINT_ID/ will be preserved"
+exit 0

@@ -12,6 +12,8 @@ import { getProjectRoot } from '../common/project-config.js';
 import { readFile, writeFile, fileExists } from '../common/file-utils.js';
 import { loadSprintIndex, updateSprintInIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
+import { executeHook } from '../common/hook-manager.js';
+import { getWorktreePath } from '../common/git-utils.js';
 import type { SprintManifest, SprintStatus } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -138,6 +140,49 @@ export async function updateSprintStatusTool(
     // Read current manifest
     const manifestContent = await readFile(manifestPath);
     const manifest = parseYaml(manifestContent) as SprintManifest;
+    const currentStatus = manifest.status;
+
+    // Execute on-status-change hook (PRE phase) if status is being updated
+    if (updates.status && updates.status !== currentStatus) {
+      logger.info('Executing on-status-change hook (PRE phase)...');
+
+      // Determine worktree path and planning dir for hook context
+      const worktreePath = getWorktreePath(sprintId);
+      const planningDir = join(worktreePath, 'planning', sprintId);
+      const branch = manifest.links?.branch || '';
+
+      const preHookResult = await executeHook('on-status-change', {
+        sprintId,
+        worktreePath,
+        planningDir,
+        branch,
+        statusFrom: currentStatus,
+        statusTo: updates.status,
+        lifecyclePhase: 'pre',
+      });
+
+      if (preHookResult.executed && preHookResult.exitCode !== 0) {
+        // PRE hook failed - BLOCK status update
+        logger.error('on-status-change hook (PRE phase) failed - aborting status update', {
+          exitCode: preHookResult.exitCode,
+          stderr: preHookResult.stderr,
+        });
+        return {
+          content: [{
+            type: 'text',
+            text: `❌ Status update blocked by on-status-change hook (PRE phase)\n\n` +
+                  `**Status Transition**: ${currentStatus} → ${updates.status}\n\n` +
+                  `**Hook Error**:\n${preHookResult.stderr || preHookResult.error}\n\n` +
+                  `Fix the issues reported by the hook and try again.`,
+          }],
+          isError: true,
+        };
+      }
+
+      if (preHookResult.executed && preHookResult.exitCode === 0) {
+        logger.info('on-status-change hook (PRE phase) passed');
+      }
+    }
 
     // Apply updates to manifest
     if (updates.status) {
@@ -190,6 +235,37 @@ export async function updateSprintStatusTool(
       logger.warn(
         `Failed to update sprint index (non-fatal, can regenerate): ${error}`
       );
+    }
+
+    // Execute on-status-change hook (POST phase) if status was updated
+    if (updates.status && updates.status !== currentStatus) {
+      logger.info('Executing on-status-change hook (POST phase)...');
+
+      const worktreePath = getWorktreePath(sprintId);
+      const planningDir = join(worktreePath, 'planning', sprintId);
+      const branch = manifest.links?.branch || '';
+
+      const postHookResult = await executeHook('on-status-change', {
+        sprintId,
+        worktreePath,
+        planningDir,
+        branch,
+        statusFrom: currentStatus,
+        statusTo: updates.status,
+        lifecyclePhase: 'post',
+      });
+
+      if (postHookResult.executed && postHookResult.exitCode !== 0) {
+        // POST hook failed - NON-BLOCKING (just log warning)
+        logger.warn('on-status-change hook (POST phase) failed (non-blocking)', {
+          exitCode: postHookResult.exitCode,
+          stderr: postHookResult.stderr,
+        });
+      }
+
+      if (postHookResult.executed && postHookResult.exitCode === 0) {
+        logger.info('on-status-change hook (POST phase) completed');
+      }
     }
 
     // Validate the updated index (optional, non-blocking)

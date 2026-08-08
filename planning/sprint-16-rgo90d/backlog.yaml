@@ -1,0 +1,771 @@
+# Sprint 16 Backlog - Sprint Lifecycle Hooks Implementation
+
+sprint:
+  id: sprint-16-rgo90d
+  title: Sprint Lifecycle Hooks Implementation
+  goal: Implement sprint lifecycle hooks system to automate worktree setup and enable project-specific automation
+  owner: Christopher Navta
+  createdAt: 2026-08-07
+  priority: P0
+  estimatedHours: 8-11
+
+metadata:
+  totalTasks: 15
+  completedTasks: 0
+  inProgressTasks: 0
+  blockedTasks: 0
+  deferredTasks: 0
+
+phases:
+  - id: phase-1
+    name: Core Hook System
+    description: Implement hook discovery, execution, and integration with MCP tools
+    tasks: [CORE-001, CORE-002, CORE-003, CORE-004, CORE-005, CORE-006, CORE-007]
+    estimatedHours: 4-5
+
+  - id: phase-2
+    name: Templates & Documentation
+    description: Create example hooks and update documentation
+    tasks: [TMPL-001, TMPL-002, DOCS-001, DOCS-002]
+    estimatedHours: 2-3
+
+  - id: phase-3
+    name: Testing
+    description: Comprehensive test coverage for hooks system
+    tasks: [TEST-001, TEST-002, TEST-003, TEST-004]
+    estimatedHours: 2-3
+
+tasks:
+  # ============================================================================
+  # Phase 1: Core Hook System
+  # ============================================================================
+
+  - id: CORE-001
+    title: Create Hook Types and Interfaces
+    description: Define TypeScript types for hook system (HookName, HookContext, HookResult)
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.5
+
+    dependencies: []
+    blockedBy: []
+
+    files:
+      create:
+        - src/types/hooks.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Types exported from src/types/hooks.ts
+      - TypeScript compilation successful
+      - HookName includes all 6 hook types
+      - HookContext includes sprintId, worktreePath, planningDir, branch
+      - HookResult includes executed, exitCode, stdout, stderr, error fields
+      - Types match design specification exactly
+
+    implementation:
+      - Create src/types/hooks.ts
+      - Define HookName type as union of hook names
+      - Define HookContext interface with sprint metadata
+      - Define HookResult interface for execution results
+      - Export all types
+      - Verify TypeScript compilation
+
+    validation:
+      - TypeScript compiles without errors
+      - Types can be imported in other files
+      - All required fields present in interfaces
+
+    notes: |
+      Foundation for entire hooks system. Must be completed first as all
+      other tasks depend on these types.
+
+  - id: CORE-002
+    title: Implement Hook Discovery
+    description: Implement findHook() function to locate and validate hook scripts
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-001  # Needs HookName type
+    blockedBy: []
+
+    files:
+      create:
+        - src/common/hook-manager.ts
+      modify: []
+
+    acceptanceCriteria:
+      - findHook() returns path for existing executable hooks
+      - Returns null for non-existent hooks
+      - Returns null for non-executable hooks (with warning log)
+      - No errors thrown for missing .sprint-hooks directory
+      - Checks executable permission correctly (mode & 0o111)
+      - Works for all 6 hook types
+
+    implementation:
+      - Create src/common/hook-manager.ts
+      - Implement findHook(hookName) function
+      - Construct path to .sprint-hooks/{hookName}
+      - Check file existence using fileExists()
+      - Check executable permission using stat()
+      - Log warning if hook exists but not executable
+      - Return path if valid, null otherwise
+
+    validation:
+      - Unit tests for all scenarios (Task TEST-001)
+      - Manual test with real hook file
+      - Verify warning logged for non-executable hooks
+
+    notes: |
+      Hook discovery is critical for security - only executable files in
+      .sprint-hooks/ should be recognized as hooks.
+
+  - id: CORE-003
+    title: Implement Hook Execution
+    description: Implement executeHook() function to run hooks with proper environment and error handling
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+
+    dependencies:
+      - CORE-001  # Needs HookContext and HookResult types
+      - CORE-002  # Needs findHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/hook-manager.ts
+
+    acceptanceCriteria:
+      - executeHook() runs hooks and captures stdout/stderr
+      - Returns executed: false when no hook found
+      - Passes all required environment variables
+      - Returns correct exit code
+      - Handles hook failures gracefully
+      - Respects timeout (default 5 minutes)
+      - Works from any working directory
+
+    implementation:
+      - Implement executeHook(hookName, context) function
+      - Call findHook() to locate hook
+      - Build environment variables from context
+      - Execute hook using execSync with proper options
+      - Capture stdout and stderr
+      - Handle errors and timeouts
+      - Return HookResult with all captured data
+
+    validation:
+      - Unit tests for success and failure (Task TEST-002)
+      - Test environment variable passing
+      - Test timeout handling
+      - Test error capture
+
+    notes: |
+      execSync options:
+      - cwd: context.worktreePath
+      - env: { ...process.env, SPRINT_ID, SPRINT_WORKTREE, ... }
+      - encoding: 'utf-8'
+      - stdio: 'pipe'
+      - timeout: 300000 (5 minutes)
+
+  - id: CORE-004
+    title: Integrate post-start Hook with start-sprint
+    description: Add post-start hook execution to start-sprint tool after worktree creation
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.75
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/start-sprint.ts
+
+    acceptanceCriteria:
+      - Hook executes after worktree and planning dir created
+      - Hook success output shown to user
+      - Hook failures logged but don't abort sprint creation (non-blocking)
+      - Hook stdout included in result message
+      - Works when no hook present (no errors)
+
+    implementation:
+      - Import executeHook and types
+      - After worktree creation, call executeHook('post-start', context)
+      - If hook executed successfully, add success message to output
+      - If hook failed, add warning message (but continue)
+      - Include hook stdout in result text
+
+    validation:
+      - Integration test with real post-start hook
+      - Test with no hook present
+      - Test with failing hook
+      - Verify non-blocking behavior
+
+    notes: |
+      post-start is NON-BLOCKING - failures should not prevent sprint creation.
+      This is the most important hook as it automates worktree setup.
+
+  - id: CORE-005
+    title: Integrate pre-complete and post-complete Hooks
+    description: Add hook execution to complete-sprint tool (pre-complete before validation, post-complete after completion)
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/complete-sprint.ts
+
+    acceptanceCriteria:
+      - pre-complete hook executes before validation
+      - pre-complete failure BLOCKS completion (returns error)
+      - post-complete hook executes after status updated
+      - post-complete failure logged but doesn't block
+      - Clear error messages on pre-complete failure
+      - Hook context includes correct sprint info
+
+    implementation:
+      - Import executeHook and types
+      - Before validation, call executeHook('pre-complete', context)
+      - If pre-complete fails, return error result (BLOCKING)
+      - After status update, call executeHook('post-complete', context)
+      - If post-complete fails, log warning (NON-BLOCKING)
+
+    validation:
+      - Integration test with blocking pre-complete
+      - Test pre-complete success and failure paths
+      - Test post-complete with success and failure
+      - Verify error messages are clear
+
+    notes: |
+      pre-complete is BLOCKING - use for validation (tests, linting, etc.)
+      post-complete is NON-BLOCKING - use for notifications, metrics
+
+  - id: CORE-006
+    title: Integrate pre-cleanup Hook with cleanup-sprint
+    description: Add pre-cleanup hook execution before worktree removal
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.75
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/cleanup-sprint.ts
+
+    acceptanceCriteria:
+      - Hook executes before worktree removal
+      - Hook failure BLOCKS cleanup (returns error)
+      - Hook can stop services, backup data, etc.
+      - Clear error messages on failure
+      - Hook context includes worktree path
+
+    implementation:
+      - Import executeHook and types
+      - Before worktree removal, call executeHook('pre-cleanup', context)
+      - If hook fails, return error result (BLOCKING)
+      - Include hook stderr in error message
+
+    validation:
+      - Integration test with blocking pre-cleanup
+      - Test hook that stops Docker services
+      - Test hook that checks for uncommitted changes
+      - Verify cleanup aborted on failure
+
+    notes: |
+      pre-cleanup is BLOCKING - prevents accidental data loss.
+      Use for stopping services, backing up databases, verifying no uncommitted work.
+
+  - id: CORE-007
+    title: Integrate pre-archive and post-archive Hooks
+    description: Add hook execution to archive-sprint tool (pre-archive before archiving, post-archive after)
+    phase: phase-1
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-003  # Needs executeHook()
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/archive-sprint.ts
+
+    acceptanceCriteria:
+      - pre-archive hook executes before moving to archive
+      - pre-archive failure BLOCKS archival
+      - post-archive hook executes after sprint archived
+      - post-archive failure logged but doesn't block
+      - Hooks work with both manual and auto-archive
+
+    implementation:
+      - Import executeHook and types
+      - Before archiving, call executeHook('pre-archive', context)
+      - If pre-archive fails, return error result (BLOCKING)
+      - After successful archive, call executeHook('post-archive', context)
+      - If post-archive fails, log warning (NON-BLOCKING)
+
+    validation:
+      - Integration test with archive workflow
+      - Test with auto-archive-sprints tool
+      - Verify blocking and non-blocking behavior
+
+    notes: |
+      pre-archive is BLOCKING - use for final validations, report generation
+      post-archive is NON-BLOCKING - use for external system updates
+
+  # ============================================================================
+  # Phase 2: Templates & Documentation
+  # ============================================================================
+
+  - id: TMPL-001
+    title: Create Node.js/TypeScript Example Hooks
+    description: Create example hooks for Node.js/TypeScript projects (post-start, pre-complete, pre-cleanup)
+    phase: phase-2
+    priority: P1
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-004  # post-start integration
+      - CORE-005  # pre-complete integration
+      - CORE-006  # pre-cleanup integration
+    blockedBy: []
+
+    files:
+      create:
+        - examples/sprint-hooks/node-typescript/post-start
+        - examples/sprint-hooks/node-typescript/pre-complete
+        - examples/sprint-hooks/node-typescript/pre-cleanup
+        - examples/sprint-hooks/node-typescript/README.md
+      modify: []
+
+    acceptanceCriteria:
+      - All hooks are executable (chmod +x)
+      - post-start installs dependencies, creates .env, runs build
+      - pre-complete checks for uncommitted changes, runs tests
+      - pre-cleanup warns about uncommitted changes
+      - README explains each hook's purpose
+      - Hooks follow design spec examples exactly
+
+    implementation:
+      - Create examples/sprint-hooks/node-typescript/ directory
+      - Write post-start hook (npm ci, .env setup, npm run build)
+      - Write pre-complete hook (git status check, npm test)
+      - Write pre-cleanup hook (git status check, warnings)
+      - Make all hooks executable
+      - Write README with usage instructions
+
+    validation:
+      - Test hooks in real sprint worktree
+      - Verify post-start completes setup successfully
+      - Verify pre-complete blocks on uncommitted changes
+      - Verify error handling works
+
+    notes: |
+      These are the primary examples that most projects will use.
+      Should be production-ready and well-commented.
+
+  - id: TMPL-002
+    title: Create Python Example Hooks
+    description: Create example post-start hook for Python/Django projects
+    phase: phase-2
+    priority: P2
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.5
+
+    dependencies:
+      - CORE-004  # post-start integration
+    blockedBy: []
+
+    files:
+      create:
+        - examples/sprint-hooks/python-django/post-start
+        - examples/sprint-hooks/python-django/README.md
+      modify: []
+
+    acceptanceCriteria:
+      - Hook is executable
+      - Creates virtual environment
+      - Installs requirements.txt
+      - Runs database migrations
+      - README explains Django-specific setup
+
+    implementation:
+      - Create examples/sprint-hooks/python-django/ directory
+      - Write post-start hook (venv creation, pip install, migrate)
+      - Make hook executable
+      - Write README with usage instructions
+
+    validation:
+      - Manual review of script
+      - Verify follows Python best practices
+
+    notes: |
+      Optional example for Python projects. Less critical than Node.js example
+      but demonstrates hooks work for any stack.
+
+  - id: DOCS-001
+    title: Update AGENTS.md with Hooks Documentation
+    description: Add Section 2.2.2 "Sprint Lifecycle Hooks" to AGENTS-uncompressed.md and regenerate AGENTS.md
+    phase: phase-2
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-004  # post-start integration
+      - CORE-005  # pre-complete, post-complete integration
+      - CORE-006  # pre-cleanup integration
+      - CORE-007  # pre-archive, post-archive integration
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - AGENTS-uncompressed.md
+        - AGENTS.md  # Regenerated
+
+    acceptanceCriteria:
+      - Section 2.2.2 added to AGENTS-uncompressed.md
+      - Describes all 6 hook types
+      - Lists environment variables
+      - Explains blocking vs non-blocking behavior
+      - Includes example hook
+      - AGENTS.md regenerated with compressed version
+
+    implementation:
+      - Add Section 2.2.2 after Section 2.2.1
+      - Document each hook type with purpose and blocking behavior
+      - List all environment variables hooks receive
+      - Include simple example hook
+      - Reference examples/ directory
+      - Regenerate AGENTS.md using compression tool
+
+    validation:
+      - Section appears in correct location
+      - All hook types documented
+      - Examples are accurate
+      - AGENTS.md properly compressed
+
+    notes: |
+      Critical for agent understanding. Must be clear and concise.
+      Follow same format as existing AGENTS.md sections.
+
+  - id: DOCS-002
+    title: Update start-sprint Output Messaging
+    description: Update start-sprint output to mention hook automation
+    phase: phase-2
+    priority: P2
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 0.25
+
+    dependencies:
+      - CORE-004  # post-start integration
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/tools/start-sprint.ts
+
+    acceptanceCriteria:
+      - Output adapts based on whether hook executed
+      - Shows "Worktree setup automated ✅" when hook runs
+      - Shows "Run: npm ci && npm run build" when no hook
+      - Maintains existing output format
+
+    implementation:
+      - Update "Next Steps" section in start-sprint output
+      - Add conditional message based on hookResult.executed
+      - Keep existing guidance for projects without hooks
+
+    validation:
+      - Test output with hook present
+      - Test output with no hook
+      - Verify message clarity
+
+    notes: |
+      Small UX improvement. Low priority but improves user experience.
+
+  # ============================================================================
+  # Phase 3: Testing
+  # ============================================================================
+
+  - id: TEST-001
+    title: Unit Tests for Hook Discovery
+    description: Create comprehensive unit tests for findHook() function
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-002  # Needs findHook() implementation
+    blockedBy: []
+
+    files:
+      create:
+        - src/common/__tests__/hook-manager.test.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Tests finding executable hook
+      - Tests hook doesn't exist
+      - Tests hook exists but not executable
+      - Tests warning logged for non-executable
+      - Tests missing .sprint-hooks directory
+      - Tests all 6 hook names
+      - All tests passing
+      - Uses isolated test directory
+      - Cleans up after each test
+
+    implementation:
+      - Create test file with describe block
+      - Setup: Create temp directory for tests
+      - Test case 1: Create executable hook, verify found
+      - Test case 2: No hook file, verify null returned
+      - Test case 3: Hook file without +x, verify null and warning
+      - Test case 4: No .sprint-hooks dir, verify null
+      - Test case 5: Test each hook name
+      - Teardown: Clean up temp files
+
+    validation:
+      - All test cases passing
+      - Coverage report shows 100% for findHook()
+      - No test pollution (each test isolated)
+
+    notes: |
+      Foundation for hook testing. Must be thorough as discovery is
+      critical for security.
+
+  - id: TEST-002
+    title: Unit Tests for Hook Execution
+    description: Create comprehensive unit tests for executeHook() function
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.5
+
+    dependencies:
+      - CORE-003  # Needs executeHook() implementation
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/__tests__/hook-manager.test.ts
+
+    acceptanceCriteria:
+      - Tests successful hook execution
+      - Tests hook failure (non-zero exit)
+      - Tests stdout/stderr capture
+      - Tests environment variables passed correctly
+      - Tests executed: false when no hook
+      - Tests timeout handling
+      - Tests permission errors
+      - All tests passing
+
+    implementation:
+      - Add test cases to existing hook-manager.test.ts
+      - Test case 1: Hook returns 0, verify stdout captured
+      - Test case 2: Hook returns 1, verify stderr captured
+      - Test case 3: Verify env vars in hook
+      - Test case 4: No hook, verify executed: false
+      - Test case 5: Long-running hook, verify timeout
+      - Create test hooks for each scenario
+
+    validation:
+      - All test cases passing
+      - Coverage report shows 100% for executeHook()
+      - Edge cases covered
+
+    notes: |
+      Critical tests for execution logic. Must cover success, failure,
+      and edge cases thoroughly.
+
+  - id: TEST-003
+    title: Integration Tests for Sprint Lifecycle
+    description: Create end-to-end integration tests for hooks in actual sprint operations
+    phase: phase-3
+    priority: P0
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 2.0
+
+    dependencies:
+      - CORE-004  # post-start integration
+      - CORE-005  # pre-complete, post-complete integration
+      - CORE-006  # pre-cleanup integration
+      - CORE-007  # pre-archive, post-archive integration
+    blockedBy: []
+
+    files:
+      create:
+        - src/__tests__/integration/hooks-lifecycle.test.ts
+      modify: []
+
+    acceptanceCriteria:
+      - Tests start-sprint executes post-start hook
+      - Tests start-sprint continues if post-start fails
+      - Tests complete-sprint blocks on pre-complete failure
+      - Tests complete-sprint executes post-complete
+      - Tests cleanup-sprint blocks on pre-cleanup failure
+      - Tests archive-sprint blocks on pre-archive failure
+      - Tests archive-sprint executes post-archive
+      - All tests passing
+      - Uses real tool functions (not mocks)
+
+    implementation:
+      - Create integration test file
+      - Setup: Create isolated git repo with .sprint-hooks/
+      - Test scenario 1: start-sprint with post-start hook
+      - Test scenario 2: start-sprint with failing post-start
+      - Test scenario 3: complete-sprint blocked by pre-complete
+      - Test scenario 4: complete-sprint with post-complete
+      - Test scenario 5: cleanup-sprint blocked by pre-cleanup
+      - Test scenario 6: archive-sprint with pre/post-archive
+      - Teardown: Clean up test repo
+
+    validation:
+      - All integration scenarios passing
+      - Tests verify blocking vs non-blocking behavior
+      - Tests verify hook output captured
+      - Complete workflows tested end-to-end
+
+    notes: |
+      Most important test file. Validates entire hooks system works in
+      real sprint operations.
+
+  - id: TEST-004
+    title: Error Handling and Edge Case Tests
+    description: Create tests for error conditions and edge cases
+    phase: phase-3
+    priority: P1
+    status: pending
+    assignee: Lead Implementor
+    estimatedHours: 1.0
+
+    dependencies:
+      - CORE-003  # Needs executeHook() implementation
+    blockedBy: []
+
+    files:
+      create: []
+      modify:
+        - src/common/__tests__/hook-manager.test.ts
+
+    acceptanceCriteria:
+      - Tests hook with syntax error
+      - Tests hook timeout
+      - Tests hook writing to both stdout and stderr
+      - Tests permission errors
+      - Tests multiple hooks in sequence
+      - Tests execution from different working directories
+      - All tests passing
+      - No uncaught exceptions
+
+    implementation:
+      - Add edge case tests to hook-manager.test.ts
+      - Test case 1: Hook with bash syntax error
+      - Test case 2: Hook that sleeps longer than timeout
+      - Test case 3: Hook that uses both stdout and stderr
+      - Test case 4: Hook without execute permission
+      - Test case 5: Multiple hooks executed sequentially
+      - Test case 6: Hook execution with different cwd
+
+    validation:
+      - All edge cases covered
+      - Error messages are clear
+      - No crashes or uncaught exceptions
+      - Timeouts handled gracefully
+
+    notes: |
+      Ensures robustness. Edge cases should fail gracefully with clear
+      error messages.
+
+# ============================================================================
+# Summary
+# ============================================================================
+
+summary:
+  totalTasks: 15
+  breakdown:
+    phase1: 7 tasks  # Core system
+    phase2: 4 tasks  # Templates & docs
+    phase3: 4 tasks  # Testing
+
+  priorities:
+    p0: 11 tasks     # Critical path
+    p1: 2 tasks      # Important but not blocking
+    p2: 2 tasks      # Nice to have
+
+  estimatedEffort:
+    minimum: 8 hours
+    maximum: 11 hours
+    average: 9.5 hours
+
+  dependencies:
+    criticalPath:
+      - CORE-001 (Types) →
+      - CORE-002 (Discovery) →
+      - CORE-003 (Execution) →
+      - CORE-004, CORE-005, CORE-006, CORE-007 (Integrations) →
+      - TEST-003 (Integration tests)
+
+    parallelizable:
+      - CORE-004, CORE-005, CORE-006, CORE-007 can be done in parallel after CORE-003
+      - TMPL-001, TMPL-002 can be done in parallel
+      - TEST-001, TEST-002, TEST-004 can be done in parallel
+
+  risks:
+    - Hook execution security (mitigated by project-only discovery)
+    - Platform compatibility (documented, future work)
+    - Hook failures breaking workflow (clear error messages)
+
+# ============================================================================
+# Change Log
+# ============================================================================
+
+changeLog:
+  - date: 2026-08-07
+    author: Lead Implementor
+    change: Initial backlog created from Sprint 15 design documents
+    tasksAffected: all
+    reason: Sprint 16 planning phase

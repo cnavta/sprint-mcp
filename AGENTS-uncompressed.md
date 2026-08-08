@@ -216,6 +216,187 @@ If working with legacy sprints (1-15), you may find:
 
 ---
 
+## 2.2.2 Sprint Lifecycle Hooks
+
+Sprint-MCP provides a hooks system that enables **project-specific automation** at key sprint events. Hooks are optional executable bash scripts stored in `.sprint-hooks/` directory (in the main repository root, NOT in worktrees) that execute automatically during sprint operations.
+
+### Hook Architecture
+
+Hooks follow **Option A: Separate Lifecycle and Status Hooks** model:
+
+**Lifecycle Hooks** (4 hooks - explicit, event-specific):
+- `post-worktree-create` - After worktree + planning directory created
+- `pre-worktree-remove` - Before worktree removal during cleanup
+- `pre-archive` - Before moving sprint to archive
+- `post-archive` - After sprint archived
+
+**Status Change Hook** (1 hook - generic, handles ALL status transitions):
+- `on-status-change` - Before/after ANY status change (planning → in-progress → validating → complete, etc.)
+
+### Blocking vs Non-Blocking Behavior
+
+| Hook | Phase | Behavior |
+|------|-------|----------|
+| `post-worktree-create` | POST | NON-BLOCKING: Failures logged, sprint creation continues |
+| `on-status-change` (PRE) | PRE | BLOCKING: Failures prevent status update |
+| `on-status-change` (POST) | POST | NON-BLOCKING: Failures logged, status update completes |
+| `pre-worktree-remove` | PRE | BLOCKING: Failures prevent worktree removal |
+| `pre-archive` | PRE | BLOCKING: Failures prevent archival |
+| `post-archive` | POST | NON-BLOCKING: Failures logged, archival completes |
+
+**BLOCKING hooks** return non-zero exit code → operation aborted
+**NON-BLOCKING hooks** return non-zero exit code → warning logged, operation continues
+
+### Environment Variables Passed to Hooks
+
+All hooks receive:
+- `SPRINT_ID` - Sprint identifier (e.g., `sprint-16-rgo90d`)
+- `SPRINT_WORKTREE` - Absolute path to worktree (e.g., `/path/.worktrees/sprint-16-rgo90d`)
+- `SPRINT_PLANNING_DIR` - Absolute path to planning directory
+- `SPRINT_BRANCH` - Feature branch name (e.g., `feature/sprint-16-rgo90d-hooks`)
+- `SPRINT_EVENT` - Hook name being executed (e.g., `post-worktree-create`)
+
+**Additionally**, `on-status-change` receives:
+- `SPRINT_STATUS_FROM` - Previous status (e.g., `planning`)
+- `SPRINT_STATUS_TO` - New status (e.g., `in-progress`)
+- `SPRINT_LIFECYCLE_PHASE` - Either `pre` (before update) or `post` (after update)
+
+### Example: on-status-change Hook (Status Transition Logic)
+
+```bash
+#!/bin/bash
+set -e  # Exit on error (blocks on PRE phase, logs on POST phase)
+
+cd "$SPRINT_WORKTREE"
+
+# PRE PHASE - Runs BEFORE status update (BLOCKING)
+if [ "$SPRINT_LIFECYCLE_PHASE" = "pre" ]; then
+  echo "Validating status transition: $SPRINT_STATUS_FROM → $SPRINT_STATUS_TO"
+
+  # Block if starting sprint with uncommitted changes
+  if [ "$SPRINT_STATUS_TO" = "in-progress" ]; then
+    if ! git diff-index --quiet HEAD --; then
+      echo "ERROR: Cannot start sprint with uncommitted changes"
+      exit 1  # BLOCKS status update
+    fi
+  fi
+
+  # Run tests before completion
+  if [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    if ! npm test; then
+      echo "ERROR: Tests failed"
+      exit 1  # BLOCKS status update
+    fi
+  fi
+fi
+
+# POST PHASE - Runs AFTER status update (NON-BLOCKING)
+if [ "$SPRINT_LIFECYCLE_PHASE" = "post" ]; then
+  # Send notification on completion
+  if [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    curl -X POST "$SLACK_WEBHOOK_URL" \
+      -d "{\"text\": \"Sprint $SPRINT_ID completed!\"}"
+  fi
+fi
+
+exit 0
+```
+
+### Hook Discovery and Execution
+
+1. **Discovery**: Hooks are discovered in `.sprint-hooks/` directory in **project root** (not worktree)
+2. **Executable Check**: Hook file must have executable permission (`chmod +x .sprint-hooks/hookname`)
+3. **Execution**: Hooks run with `cwd` set to `SPRINT_WORKTREE` (worktree directory)
+4. **Timeout**: Hooks have 5-minute execution timeout
+5. **Capture**: stdout/stderr captured and logged
+
+**Security**: Only executable files in `.sprint-hooks/` are recognized. Parent directories are NOT searched.
+
+### Common Use Cases
+
+**`post-worktree-create`** - Automate worktree setup:
+- Install dependencies (`npm ci`, `pip install -r requirements.txt`)
+- Run builds (`npm run build`)
+- Create .env files from templates
+- Run database migrations
+- Start development services
+
+**`on-status-change` (PRE)** - Validate transitions:
+- Check for uncommitted changes before starting sprint
+- Run test suite before completion
+- Verify build succeeds before validation
+- Enforce sprint protocol rules
+
+**`on-status-change` (POST)** - Notify and integrate:
+- Send Slack/email notifications on completion
+- Trigger deployments on publish
+- Log metrics to analytics systems
+- Update project management tools
+
+**`pre-worktree-remove`** - Prevent data loss:
+- Check for uncommitted changes
+- Check for unpushed commits
+- Stop running services (docker-compose down)
+- Backup temporary data
+
+**`pre-archive` / `post-archive`** - Archive automation:
+- Validate sprint completeness before archival
+- Extract knowledge/metrics after archival
+- Update external documentation systems
+
+### Example Hooks
+
+Production-ready example hooks are available in `examples/sprint-hooks/`:
+
+**Node.js/TypeScript**:
+- `examples/sprint-hooks/node-typescript/post-worktree-create`
+- `examples/sprint-hooks/node-typescript/on-status-change`
+- `examples/sprint-hooks/node-typescript/pre-worktree-remove`
+- `examples/sprint-hooks/node-typescript/README.md`
+
+**Python/Django**:
+- `examples/sprint-hooks/python-django/post-worktree-create`
+- `examples/sprint-hooks/python-django/README.md`
+
+### Hook Failures and Debugging
+
+**When a BLOCKING hook fails**:
+- Operation is aborted (status update, cleanup, archival)
+- Error message shown to user with hook stderr
+- User must fix issue and retry operation
+
+**When a NON-BLOCKING hook fails**:
+- Operation completes successfully
+- Warning logged with hook stderr
+- No action required (though fixing hook is recommended)
+
+**Debugging hooks**:
+```bash
+# Test hook manually
+cd .worktrees/sprint-X/
+SPRINT_ID="sprint-X-abc123" \
+SPRINT_WORKTREE="$(pwd)" \
+SPRINT_PLANNING_DIR="$(pwd)/planning/sprint-X-abc123" \
+SPRINT_BRANCH="feature/test" \
+SPRINT_EVENT="post-worktree-create" \
+.sprint-hooks/post-worktree-create
+
+# Check hook is executable
+ls -la .sprint-hooks/
+chmod +x .sprint-hooks/*  # Make executable if needed
+```
+
+### Hook Design Principles
+
+1. **Idempotent**: Hooks should be safe to run multiple times
+2. **Fast**: Keep hooks under 5 minutes (enforced timeout)
+3. **Clear Errors**: Exit 1 with descriptive error messages for blocking failures
+4. **Graceful Degradation**: Handle missing dependencies/files gracefully
+5. **Logging**: Use clear output messages (stdout) and errors (stderr)
+6. **Project-Specific**: Hooks live in project repo, not sprint-mcp installation
+
+---
+
 # 🧩 2.3 Sprint Directory Structure
 
 The sprint directory lives WITHIN the worktree for unified workflow:

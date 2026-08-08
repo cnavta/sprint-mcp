@@ -1,0 +1,59 @@
+id: sprint-16-rgo90d
+number: 16
+title: Sprint Lifecycle Hooks Implementation
+goal: Implement sprint lifecycle hooks system to automate worktree setup and enable project-specific automation at key sprint events
+owner: Christopher Navta
+status: complete
+priority: P0
+
+createdAt: '2026-08-07T11:43:00Z'
+completedAt: '2026-08-08T02:30:00Z'
+completionMode: normal
+
+branch: feature/sprint-16-rgo90d-sprint-lifecycle-hooks-implementation
+
+planning:
+  implementationPlan: implementation-plan.md
+  backlog: backlog-v2.yaml
+
+deliverables:
+  - src/types/hooks.ts
+  - src/common/hook-manager.ts
+  - src/common/__tests__/hook-manager.test.ts
+  - src/__tests__/integration/hooks-lifecycle.test.ts
+  - src/tools/start-sprint.ts (modified)
+  - src/tools/update-sprint-status.ts (modified)
+  - src/tools/cleanup-sprint.ts (modified)
+  - src/tools/archive-sprint.ts (modified)
+  - examples/sprint-hooks/node-typescript/
+  - examples/sprint-hooks/python-django/
+  - AGENTS-uncompressed.md (modified)
+  - AGENTS.md (regenerated)
+
+validation:
+  script: validate_deliverable.sh
+  status: ready
+  testsPassing: true
+  buildSuccessful: true
+
+tasks:
+  total: 14
+  completed: 14
+  deferred: 0
+
+phases:
+  - phase-1-core-hook-system
+  - phase-2-templates-documentation
+  - phase-3-testing
+
+notes: |
+  Successfully implemented sprint lifecycle hooks system with 5 hook types:
+  - post-worktree-create (non-blocking)
+  - on-status-change (pre: blocking, post: non-blocking)
+  - pre-worktree-remove (blocking)
+  - pre-archive (blocking)
+  - post-archive (non-blocking)
+
+  All core functionality tested with 27 tests (27/27 passing, 100% pass rate).
+  Full test suite: 369/369 passing (100% pass rate).
+  Documentation comprehensive with examples for Node.js and Python projects.

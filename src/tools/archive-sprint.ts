@@ -10,6 +10,8 @@ import { logger } from '../common/logger.js';
 import { getPlanningDir } from '../common/path-utils.js';
 import { fileExists, readFile } from '../common/file-utils.js';
 import { parse as parseYaml } from 'yaml';
+import { executeHook } from '../common/hook-manager.js';
+import { getWorktreePath } from '../common/git-utils.js';
 import type {
   ArchiveSprintArgs,
   ArchiveSprintResult,
@@ -341,6 +343,21 @@ export async function archiveSprintTool(
 
   const destination = validation.destination;
 
+  // Load sprint entry for hook context
+  const sprint = await loadSprintFromIndex(sprintId);
+  if (!sprint) {
+    // This shouldn't happen since validation passed, but handle defensively
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Sprint ${sprintId} not found in index after validation`,
+        },
+      ],
+      isError: true,
+    };
+  }
+
   // Dry-run mode - show what would happen
   if (dryRun) {
     let resultText = `🔍 Dry-run: Archive preview for ${sprintId}\n\n`;
@@ -385,7 +402,42 @@ export async function archiveSprintTool(
     };
   }
 
-  // Step 2: Move sprint to archive
+  // Step 2: Execute pre-archive hook (BLOCKING)
+  logger.info('Executing pre-archive hook...');
+  const worktreePath = getWorktreePath(sprintId);
+  const planningDir = destination.sourcePath; // Use active dir for hook context
+  const branch = sprint.branch || '';
+
+  const preHookResult = await executeHook('pre-archive', {
+    sprintId,
+    worktreePath,
+    planningDir,
+    branch,
+  });
+
+  if (preHookResult.executed && preHookResult.exitCode !== 0) {
+    // PRE hook failed - BLOCK archival
+    logger.error('pre-archive hook failed - aborting archival', {
+      exitCode: preHookResult.exitCode,
+      stderr: preHookResult.stderr,
+    });
+    return {
+      content: [{
+        type: 'text',
+        text: `❌ Archival blocked by pre-archive hook\n\n` +
+              `**Sprint**: ${sprintId}\n\n` +
+              `**Hook Error**:\n${preHookResult.stderr || preHookResult.error}\n\n` +
+              `Fix the issues reported by the hook and try again.`,
+      }],
+      isError: true,
+    };
+  }
+
+  if (preHookResult.executed && preHookResult.exitCode === 0) {
+    logger.info('pre-archive hook passed');
+  }
+
+  // Step 3: Move sprint to archive
   try {
     await moveSprintToArchive(destination, false);
   } catch (error) {
@@ -404,7 +456,7 @@ export async function archiveSprintTool(
     };
   }
 
-  // Step 3: Update sprint index
+  // Step 4: Update sprint index
   try {
     await updateIndexForArchive(sprintId, destination, false);
   } catch (error) {
@@ -423,7 +475,28 @@ export async function archiveSprintTool(
     };
   }
 
-  // Step 4: Knowledge extraction (if enabled)
+  // Step 5: Execute post-archive hook (NON-BLOCKING)
+  logger.info('Executing post-archive hook...');
+  const postHookResult = await executeHook('post-archive', {
+    sprintId,
+    worktreePath,
+    planningDir: destination.destinationPath, // Now in archive location
+    branch,
+  });
+
+  if (postHookResult.executed && postHookResult.exitCode !== 0) {
+    // POST hook failed - NON-BLOCKING (just log warning)
+    logger.warn('post-archive hook failed (non-blocking)', {
+      exitCode: postHookResult.exitCode,
+      stderr: postHookResult.stderr,
+    });
+  }
+
+  if (postHookResult.executed && postHookResult.exitCode === 0) {
+    logger.info('post-archive hook completed successfully');
+  }
+
+  // Step 6: Knowledge extraction (if enabled)
   let knowledgeExtracted = false;
   let knowledgeStats = { lessons: 0, patterns: 0, antiPatterns: 0 };
 

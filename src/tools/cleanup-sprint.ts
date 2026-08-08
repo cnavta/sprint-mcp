@@ -13,6 +13,9 @@ import {
   cleanupSprint,
   type CleanupCandidate,
 } from '../common/sprint-cleanup-utils.js';
+import { executeHook } from '../common/hook-manager.js';
+import { getWorktreePath } from '../common/git-utils.js';
+import { join } from 'path';
 
 interface CleanupSprintArgs {
   sprintId?: string; // Optional: cleanup specific sprint, or all if omitted
@@ -235,6 +238,39 @@ export async function executeCleanupSprintTool(
     for (const candidate of candidates) {
       logger.info(`Cleaning up ${candidate.sprintId}...`);
 
+      // Execute pre-worktree-remove hook (BLOCKING)
+      logger.info('Executing pre-worktree-remove hook...');
+      const worktreePath = getWorktreePath(candidate.sprintId);
+      const planningDir = join(worktreePath, 'planning', candidate.sprintId);
+
+      const hookResult = await executeHook('pre-worktree-remove', {
+        sprintId: candidate.sprintId,
+        worktreePath,
+        planningDir,
+        branch: candidate.branch,
+      });
+
+      if (hookResult.executed && hookResult.exitCode !== 0) {
+        // PRE hook failed - BLOCK cleanup for this sprint
+        logger.error(`pre-worktree-remove hook failed for ${candidate.sprintId} - skipping cleanup`, {
+          exitCode: hookResult.exitCode,
+          stderr: hookResult.stderr,
+        });
+        errors.push({
+          sprintId: candidate.sprintId,
+          errors: [
+            `pre-worktree-remove hook failed (exit code ${hookResult.exitCode})`,
+            hookResult.stderr || hookResult.error || 'Hook returned non-zero exit code',
+          ],
+        });
+        continue; // Skip this sprint, move to next
+      }
+
+      if (hookResult.executed && hookResult.exitCode === 0) {
+        logger.info(`pre-worktree-remove hook passed for ${candidate.sprintId}`);
+      }
+
+      // Hook passed or not found - proceed with cleanup
       const result = await cleanupSprint(candidate.sprintId, { force });
 
       if (result.success) {
