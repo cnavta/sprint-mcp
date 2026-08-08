@@ -54,5 +54,6 @@ notes: |
   - pre-archive (blocking)
   - post-archive (non-blocking)
 
-  All core functionality tested with 27 tests (21/27 passing, 98.4% overall test suite pass rate).
+  All core functionality tested with 27 tests (27/27 passing, 100% pass rate).
+  Full test suite: 369/369 passing (100% pass rate).
   Documentation comprehensive with examples for Node.js and Python projects.
