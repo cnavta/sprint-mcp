@@ -1,0 +1,146 @@
+#!/bin/bash
+#
+# post-worktree-create Hook - Python/Django Example
+#
+# This hook runs AFTER a sprint worktree and planning directory are created.
+# Purpose: Automate Python/Django worktree setup (venv, dependencies, migrations)
+#
+# Behavior: NON-BLOCKING - Failures logged but don't prevent sprint creation
+#
+# Environment Variables:
+#   SPRINT_ID            Sprint identifier (e.g., "sprint-16-rgo90d")
+#   SPRINT_WORKTREE      Absolute path to sprint worktree
+#   SPRINT_PLANNING_DIR  Absolute path to planning directory
+#   SPRINT_BRANCH        Feature branch name
+#   SPRINT_EVENT         Always "post-worktree-create"
+#
+
+set -e  # Exit on error
+
+echo "🚀 post-worktree-create: Automating Python/Django worktree setup for $SPRINT_ID"
+echo "   Worktree: $SPRINT_WORKTREE"
+echo "   Branch: $SPRINT_BRANCH"
+echo ""
+
+# Change to worktree directory
+cd "$SPRINT_WORKTREE"
+
+# Step 1: Create Python virtual environment
+echo "🐍 Creating Python virtual environment..."
+if [ ! -d "venv" ]; then
+  python3 -m venv venv
+  echo "✅ Virtual environment created"
+else
+  echo "ℹ️  Virtual environment already exists, skipping"
+fi
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Step 2: Upgrade pip
+echo ""
+echo "📦 Upgrading pip..."
+pip install --upgrade pip --quiet
+echo "✅ pip upgraded"
+
+# Step 3: Install dependencies
+echo ""
+echo "📦 Installing Python dependencies..."
+if [ -f "requirements.txt" ]; then
+  pip install -r requirements.txt --quiet
+  echo "✅ Dependencies installed from requirements.txt"
+elif [ -f "requirements/dev.txt" ]; then
+  pip install -r requirements/dev.txt --quiet
+  echo "✅ Dependencies installed from requirements/dev.txt"
+else
+  echo "⚠️  No requirements.txt found, skipping dependency installation"
+fi
+
+# Step 4: Install dev dependencies (optional)
+if [ -f "requirements/dev.txt" ] && [ -f "requirements.txt" ]; then
+  echo ""
+  echo "📦 Installing dev dependencies..."
+  pip install -r requirements/dev.txt --quiet
+  echo "✅ Dev dependencies installed"
+fi
+
+# Step 5: Create .env file from template
+echo ""
+echo "📝 Setting up environment file..."
+if [ -f ".env.template" ] && [ ! -f ".env" ]; then
+  cp .env.template .env
+  echo "✅ Created .env from .env.template"
+elif [ -f ".env.example" ] && [ ! -f ".env" ]; then
+  cp .env.example .env
+  echo "✅ Created .env from .env.example"
+elif [ -f ".env" ]; then
+  echo "ℹ️  .env already exists, skipping"
+else
+  echo "ℹ️  No .env template found, skipping"
+fi
+
+# Step 6: Run Django migrations (if Django project)
+echo ""
+echo "🗃️  Running database migrations..."
+if [ -f "manage.py" ]; then
+  # Check if database exists (SQLite)
+  if [ -f "db.sqlite3" ]; then
+    echo "   Running Django migrations..."
+    python manage.py migrate --noinput
+    echo "✅ Migrations applied"
+  else
+    echo "   Creating database and running migrations..."
+    python manage.py migrate --noinput
+    echo "✅ Database created and migrations applied"
+  fi
+else
+  echo "ℹ️  No manage.py found (not a Django project), skipping migrations"
+fi
+
+# Step 7: Collect static files (Django)
+echo ""
+echo "📁 Collecting static files..."
+if [ -f "manage.py" ]; then
+  if python manage.py help collectstatic &>/dev/null; then
+    python manage.py collectstatic --noinput --clear
+    echo "✅ Static files collected"
+  else
+    echo "ℹ️  collectstatic not configured, skipping"
+  fi
+else
+  echo "ℹ️  No manage.py found, skipping static files"
+fi
+
+# Step 8: Create superuser (optional - commented out by default)
+# echo ""
+# echo "👤 Creating superuser..."
+# if [ -f "manage.py" ]; then
+#   python manage.py createsuperuser --noinput \
+#     --username=admin \
+#     --email=admin@example.com || true
+#   echo "✅ Superuser created (or already exists)"
+# fi
+
+# Step 9: Run tests to verify setup
+echo ""
+echo "🧪 Running tests to verify setup..."
+if [ -f "manage.py" ]; then
+  if python manage.py test --help &>/dev/null; then
+    python manage.py test --verbosity=1 --no-input || echo "⚠️  Some tests failed, but setup continues"
+    echo "✅ Test suite executed"
+  else
+    echo "ℹ️  Django tests not configured, skipping"
+  fi
+elif [ -f "pytest.ini" ] || [ -f "pyproject.toml" ]; then
+  pytest --collect-only &>/dev/null && pytest -v || echo "⚠️  Some tests failed, but setup continues"
+  echo "✅ pytest executed"
+else
+  echo "ℹ️  No test configuration found, skipping tests"
+fi
+
+echo ""
+echo "✅ Python/Django worktree setup complete! Ready for sprint work."
+echo "   Next: cd $SPRINT_WORKTREE && source venv/bin/activate && git status"
+echo "   Activate venv: source venv/bin/activate"
+
+exit 0

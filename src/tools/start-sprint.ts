@@ -18,6 +18,7 @@ import { checkSprintStatusTool } from './check-sprint-status.js';
 import { verifyMainBranch, createWorktree, getWorktreePath } from '../common/git-utils.js';
 import { addSprintToIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
+import { executeHook } from '../common/hook-manager.js';
 
 interface StartSprintArgs {
   title: string;
@@ -290,6 +291,36 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
   await writeFile(requestLogPath, requestLogContent);
   logger.info(`Created request log: ${requestLogPath}`);
 
+  // Step 6.5: Execute post-worktree-create hook (if present)
+  logger.info('Checking for post-worktree-create hook...');
+  let hookOutput = '';
+  const hookResult = await executeHook('post-worktree-create', {
+    sprintId,
+    worktreePath,
+    planningDir: sprintDir,
+    branch: branchName,
+  });
+
+  if (hookResult.executed) {
+    if (hookResult.exitCode === 0) {
+      logger.info('Post-worktree-create hook completed successfully');
+      hookOutput = '\n✅ Worktree setup automated via post-worktree-create hook';
+      if (hookResult.stdout) {
+        hookOutput += `\n\n**Hook Output**:\n${hookResult.stdout}`;
+      }
+    } else {
+      logger.warn('Post-worktree-create hook failed (non-blocking)', {
+        exitCode: hookResult.exitCode,
+        stderr: hookResult.stderr,
+      });
+      hookOutput = '\n⚠️  Post-worktree-create hook failed (non-blocking)';
+      if (hookResult.stderr) {
+        hookOutput += `\n\n**Error**:\n${hookResult.stderr}`;
+      }
+      hookOutput += '\n\n**Note**: Hook failure does not prevent sprint creation. Fix hook and run manually if needed.';
+    }
+  }
+
   // Step 7: Add sprint to index
   try {
     // Unified worktree model: manifestPath points to worktree (not main repo)
@@ -338,6 +369,13 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
     }
   }
 
+  // Build "Next Steps" section based on hook execution
+  const setupStepPrefix = hookResult.executed && hookResult.exitCode === 0
+    ? '✅ Worktree setup automated (post-worktree-create hook ran successfully)'
+    : hookResult.executed && hookResult.exitCode !== 0
+    ? '⚠️  Post-worktree-create hook failed. Manual setup may be needed: `npm ci && npm run build`'
+    : '📦 Manual setup needed: `npm ci && npm run build` (or create a post-worktree-create hook)';
+
   // Return success message
   const resultText = `✅ Sprint ${sprintId} initialized successfully (unified worktree model)!
 
@@ -349,6 +387,7 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
 - Status: planning
 - Worktree: .worktrees/${sprintId}/
 - Branch: ${branchName}
+${hookOutput}
 
 **Sprint Artifacts Location** (in worktree, on feature branch):
 - Planning directory: .worktrees/${sprintId}/planning/${sprintId}/
@@ -357,10 +396,11 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
 
 **Next Steps**:
 1. ⚠️  **IMPORTANT**: Change to sprint worktree: \`cd .worktrees/${sprintId}/\`
-2. Verify branch: \`git branch --show-current\` (should show: ${branchName})
-3. Create implementation-plan.md in \`planning/${sprintId}/\` (relative to worktree)
-4. Get user approval for the plan before implementing
-5. Update sprint status to 'in-progress' when ready
+2. ${setupStepPrefix}
+3. Verify branch: \`git branch --show-current\` (should show: ${branchName})
+4. Create implementation-plan.md in \`planning/${sprintId}/\` (relative to worktree)
+5. Get user approval for the plan before implementing
+6. Update sprint status to 'in-progress' when ready
 
 **CRITICAL - Unified Worktree Model**:
 ⚠️  **DO NOT leave the worktree directory during sprint work**

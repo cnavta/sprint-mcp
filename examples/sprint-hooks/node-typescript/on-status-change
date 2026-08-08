@@ -1,0 +1,114 @@
+#!/bin/bash
+#
+# on-status-change Hook - Node.js/TypeScript Example
+#
+# This hook runs BEFORE (PRE phase) and AFTER (POST phase) ANY status change.
+# Purpose: Validate status transitions, run tests, send notifications
+#
+# Behavior:
+#   - PRE phase: BLOCKING - Failures prevent status update
+#   - POST phase: NON-BLOCKING - Failures logged but don't prevent status update
+#
+# Environment Variables:
+#   SPRINT_ID                 Sprint identifier (e.g., "sprint-16-rgo90d")
+#   SPRINT_WORKTREE           Absolute path to sprint worktree
+#   SPRINT_PLANNING_DIR       Absolute path to planning directory
+#   SPRINT_BRANCH             Feature branch name
+#   SPRINT_EVENT              Always "on-status-change"
+#   SPRINT_STATUS_FROM        Previous status (e.g., "planning")
+#   SPRINT_STATUS_TO          New status (e.g., "in-progress")
+#   SPRINT_LIFECYCLE_PHASE    Either "pre" (before update) or "post" (after update)
+#
+
+set -e  # Exit on error (important for PRE phase blocking)
+
+echo "🔄 on-status-change: Status transition detected"
+echo "   Sprint: $SPRINT_ID"
+echo "   Transition: $SPRINT_STATUS_FROM → $SPRINT_STATUS_TO"
+echo "   Phase: $SPRINT_LIFECYCLE_PHASE"
+echo ""
+
+# Change to worktree directory
+cd "$SPRINT_WORKTREE"
+
+# ==============================================================================
+# PRE PHASE - Runs BEFORE status update (BLOCKING)
+# ==============================================================================
+
+if [ "$SPRINT_LIFECYCLE_PHASE" = "pre" ]; then
+  echo "🔒 PRE phase: Validating status transition..."
+
+  # Example: Block transition to 'in-progress' if uncommitted changes exist
+  if [ "$SPRINT_STATUS_TO" = "in-progress" ]; then
+    echo "   Checking for uncommitted changes..."
+    if ! git diff-index --quiet HEAD -- 2>/dev/null; then
+      echo "❌ ERROR: Cannot start sprint with uncommitted changes"
+      echo "   Please commit or stash changes before changing status to 'in-progress'"
+      exit 1  # BLOCKS status update
+    fi
+    echo "   ✅ No uncommitted changes"
+  fi
+
+  # Example: Run tests before transitioning to 'validating' or 'complete'
+  if [ "$SPRINT_STATUS_TO" = "validating" ] || [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    echo "   Running test suite before completion..."
+    if grep -q '"test":' package.json 2>/dev/null; then
+      if ! npm test; then
+        echo "❌ ERROR: Tests failed, cannot transition to $SPRINT_STATUS_TO"
+        echo "   Fix failing tests before completing sprint"
+        exit 1  # BLOCKS status update
+      fi
+      echo "   ✅ All tests passed"
+    else
+      echo "   ⚠️  No test script found, skipping test validation"
+    fi
+  fi
+
+  # Example: Verify build succeeds before completion
+  if [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    echo "   Verifying build succeeds..."
+    if grep -q '"build":' package.json 2>/dev/null; then
+      if ! npm run build; then
+        echo "❌ ERROR: Build failed, cannot complete sprint"
+        exit 1  # BLOCKS status update
+      fi
+      echo "   ✅ Build successful"
+    fi
+  fi
+
+  echo "✅ PRE phase validation passed - status update will proceed"
+fi
+
+# ==============================================================================
+# POST PHASE - Runs AFTER status update (NON-BLOCKING)
+# ==============================================================================
+
+if [ "$SPRINT_LIFECYCLE_PHASE" = "post" ]; then
+  echo "📢 POST phase: Status updated successfully"
+
+  # Example: Send notification on sprint completion
+  if [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    echo "   🎉 Sprint completed! Sending notification..."
+
+    # Uncomment to send Slack notification:
+    # if [ -n "$SLACK_WEBHOOK_URL" ]; then
+    #   curl -X POST "$SLACK_WEBHOOK_URL" \
+    #     -H 'Content-Type: application/json' \
+    #     -d "{\"text\": \"Sprint $SPRINT_ID completed! 🎉\"}"
+    # fi
+
+    echo "   ℹ️  (Notification disabled - uncomment Slack webhook in hook)"
+  fi
+
+  # Example: Log status change to metrics system
+  if [ "$SPRINT_STATUS_TO" = "complete" ]; then
+    echo "   📊 Logging completion metrics..."
+    echo "   ℹ️  (Metrics logging not implemented - add your metrics endpoint)"
+  fi
+
+  echo "✅ POST phase actions completed"
+fi
+
+echo ""
+echo "✅ on-status-change hook completed successfully"
+exit 0
