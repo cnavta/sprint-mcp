@@ -1,0 +1,10 @@
+id: sprint-19-hmbhz0
+title: Protocol Phase Map Test Fixes
+goal: Fix 6 failing tests in protocol-phase-map.test.ts related to getNextPhase
+  and getPhaseContext functions
+owner: christophernavta
+createdAt: 2026-08-11T22:37:57.849Z
+status: planning
+links:
+  branch: feature/sprint-19-hmbhz0-protocol-phase-map-test-fixes
+notes: Sprint initialized via MCP start-sprint tool
