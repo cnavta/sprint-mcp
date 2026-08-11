@@ -3,7 +3,7 @@
 
 meta:
   backlog_id: sprint-18-y4v2xi-backlog
-  updated_at: "2026-08-11T14:10:00Z"
+  updated_at: "2026-08-11T14:15:00Z"
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -140,7 +140,7 @@ items:
   - id: BL-004
     title: Add protocol citations to update-sprint-status tool
     priority: P0
-    status: todo
+    status: done
     approval: not-required
     owner: llm
     dependencies: []
@@ -152,14 +152,31 @@ items:
       - Protocol section §2.8 cited for transitions to published
       - Citations explain which phase is being entered
       - Response includes protocol compliance section
-    evidence: []
-    updated_at: "2026-08-11T13:30:00Z"
+    evidence:
+      - src/tools/update-sprint-status.ts modified (lines 17-20, 324-359)
+      - Protocol citations section added using Response Composer
+      - All 6 phase sections (§2.4-§2.9) mapped to statuses
+      - S6 atomic update citation always included
+      - Commit a99066a
+      - All acceptance criteria satisfied
+      - All existing tests pass (23 test cases)
+    updated_at: "2026-08-11T14:15:00Z"
     history:
       - at: "2026-08-11T13:30:00Z"
         from: null
         to: todo
         reason: Initial backlog item creation based on execution plan Phase 1
         turn_id: REQ-001
+      - at: "2026-08-11T14:10:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting update-sprint-status protocol citations
+        turn_id: REQ-004
+      - at: "2026-08-11T14:15:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all phase sections mapped with protocol citations
+        turn_id: REQ-004
 
   - id: BL-005
     title: Add protocol citations to complete-sprint tool
