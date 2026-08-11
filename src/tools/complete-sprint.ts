@@ -14,6 +14,10 @@ import { getProjectRoot } from '../common/project-config.js';
 import { fileExists } from '../common/file-utils.js';
 import { loadSprintIndex } from '../common/sprint-index-manager.js';
 import { updateSprintStatusTool } from './update-sprint-status.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
 interface CompleteSprintArgs {
@@ -375,9 +379,44 @@ export async function completeSprintTool(
     resultText += `${pr ? '2' : '3'}. Optionally clean up worktree: \`git worktree remove .worktrees/${sprintId}\`\n`;
     resultText += `${pr ? '3' : '4'}. Start next sprint when ready\n`;
 
-    resultText += `\n**Sprint Protocol Compliance**:\n`;
-    resultText += `✅ Rule S2: Sprint completion with required artifacts validated\n`;
-    resultText += `✅ §2.9: Sprint completion packet requirements satisfied\n`;
+    // Build protocol citations
+    const citations: ProtocolCitation[] = [];
+
+    // S2: Sprint completion (acknowledge completion mode)
+    const s2Description =
+      completionMode === 'normal'
+        ? 'Sprint completion with required artifacts validated'
+        : 'Sprint completion in forced mode (allows missing artifacts)';
+    citations.push({
+      ref: 'S2',
+      description: s2Description,
+      satisfied: true,
+    });
+
+    // §2.9: Sprint Completion Phase
+    citations.push({
+      ref: '§2.9',
+      description: 'Completion Phase - sprint completion packet requirements satisfied',
+      satisfied: true,
+    });
+
+    // S14: PR creation (optional, human-controlled)
+    if (pr) {
+      citations.push({
+        ref: 'S14',
+        description: 'PR provided by human or agent - publication link recorded',
+        satisfied: true,
+      });
+    } else {
+      citations.push({
+        ref: 'S14',
+        description: 'PR creation deferred (human-controlled per protocol)',
+        satisfied: true,
+      });
+    }
+
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(citations);
 
     logger.info(`Sprint ${sprintId} completion successful`);
 

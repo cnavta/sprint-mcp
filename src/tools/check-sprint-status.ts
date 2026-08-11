@@ -11,6 +11,10 @@ import { logger } from '../common/logger.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
 import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
 import { getPlanningDir, getConfigSummary } from '../common/project-config.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { ArchiveConfig } from '../types/archive-config.js';
 
@@ -173,6 +177,7 @@ export async function checkSprintStatusTool(
   });
 
   let resultText = '';
+  const citations: ProtocolCitation[] = [];
 
   if (activeSprints.length > 0) {
     resultText += `⚠️  Found ${activeSprints.length} active sprint(s):\n\n`;
@@ -203,11 +208,29 @@ export async function checkSprintStatusTool(
 
     if (activeSprints.length > 1) {
       resultText += `\n⚠️  WARNING: Multiple active sprints detected. Sprint Protocol rule S3 states only one sprint may be active at a time.\n`;
+      // Protocol citation: S3 violated (multiple sprints)
+      citations.push({
+        ref: 'S3',
+        description: 'Only one sprint may be active at a time',
+        satisfied: false,
+      });
     } else {
       resultText += `\nℹ️  Cannot start a new sprint while sprint ${activeSprints[0].id} is active. Complete it first or force-complete it.\n`;
+      // Protocol citation: S3 blocks new sprint start
+      citations.push({
+        ref: 'S3',
+        description: `Only one sprint may be active at a time (blocks new sprint start until ${activeSprints[0].id} is complete)`,
+        satisfied: false,
+      });
     }
   } else {
     resultText += `✅ No active sprints. Ready to start a new sprint.\n\n`;
+    // Protocol citation: S3 satisfied (no active sprints)
+    citations.push({
+      ref: 'S3',
+      description: 'Only one sprint may be active at a time (currently satisfied - ready to start new sprint)',
+      satisfied: true,
+    });
   }
 
   if (completedSprints.length > 0) {
@@ -225,16 +248,40 @@ export async function checkSprintStatusTool(
     resultText += `\nℹ️  These worktrees can be removed with: git worktree remove <path>\n`;
   }
 
-  // Add SPRINT_ROOT configuration diagnostics
-  const config = getConfigSummary();
-  resultText += `\n---\n\n**Configuration Diagnostics**:\n`;
-  resultText += `- SPRINT_ROOT environment variable: ${config.sprintRootSet ? '✅ SET' : '❌ NOT SET'}\n`;
-  if (config.sprintRootSet && config.sprintRoot) {
-    resultText += `- SPRINT_ROOT value: ${config.sprintRoot}\n`;
+  // Add protocol citations section
+  if (citations.length > 0) {
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(citations);
   }
-  resultText += `- Resolved project root: ${config.projectRoot}\n`;
-  resultText += `- Planning directory: ${config.planningDir}\n`;
-  resultText += `- Sprint index path: ${config.indexPath}\n`;
+
+  // Add SPRINT_ROOT configuration diagnostics (conditionally)
+  // Only show diagnostics when:
+  // 1. SPRINT_ROOT is not set (configuration issue), OR
+  // 2. Errors detected (multiple active sprints, orphaned worktrees, missing worktrees)
+  const config = getConfigSummary();
+  const hasConfigIssue = !config.sprintRootSet;
+  const hasErrors =
+    activeSprints.length > 1 ||  // Multiple active sprints (S3 violation)
+    orphanedWorktrees.length > 0 ||  // Orphaned worktrees
+    activeSprints.some(sprint => {  // Missing worktree for active sprint
+      const worktree = allWorktrees.find(wt => wt.path.includes(sprint.id));
+      return !worktree;
+    });
+
+  if (hasConfigIssue || hasErrors) {
+    resultText += `\n---\n\n**Configuration Diagnostics**:\n`;
+    resultText += `- SPRINT_ROOT environment variable: ${config.sprintRootSet ? '✅ SET' : '❌ NOT SET'}\n`;
+    if (!config.sprintRootSet) {
+      resultText += `  ⚠️  **RECOMMENDATION**: Set SPRINT_ROOT to avoid path resolution issues\n`;
+      resultText += `  Example: export SPRINT_ROOT=/path/to/sprint-mcp\n`;
+    }
+    if (config.sprintRootSet && config.sprintRoot) {
+      resultText += `- SPRINT_ROOT value: ${config.sprintRoot}\n`;
+    }
+    resultText += `- Resolved project root: ${config.projectRoot}\n`;
+    resultText += `- Planning directory: ${config.planningDir}\n`;
+    resultText += `- Sprint index path: ${config.indexPath}\n`;
+  }
 
   logger.info(`Sprint status check complete: ${activeSprints.length} active, ${completedSprints.length} completed, ${orphanedWorktrees.length} orphaned worktrees`);
 

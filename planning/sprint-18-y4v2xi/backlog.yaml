@@ -1,0 +1,861 @@
+# Backlog – sprint-18-y4v2xi
+# MCP Tool Response Optimization
+
+meta:
+  backlog_id: sprint-18-y4v2xi-backlog
+  updated_at: "2026-08-11T15:15:00Z"
+  status_values: [todo, in-progress, blocked, done, deferred, cancelled]
+  approval_values: [not-required, pending, approved]
+
+sprint:
+  id: sprint-18-y4v2xi
+  goal: "Optimize sprint-mcp MCP tool responses to improve LLM agent navigation of the Sprint Protocol by implementing protocol citations, enhanced next-step guidance, and standardized messaging patterns"
+  status: in-progress
+  wip_limit: 2  # Maximum 2 items in-progress at once
+
+# =============================================================================
+# PHASE 1: FOUNDATION (High Priority Quick Wins)
+# =============================================================================
+
+items:
+  - id: BL-001
+    title: Create hook failure message templates utility
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - File created at src/common/hook-message-templates.ts
+      - Blocking hook failure template function exported
+      - Non-blocking hook failure template function exported
+      - Hook debugging guidance template function exported
+      - Templates include sections for error, why blocked, resolution, hook location
+      - TypeScript types defined for template parameters
+    evidence:
+      - src/common/hook-message-templates.ts (380 lines, 6 exported functions)
+      - src/common/__tests__/hook-message-templates.test.ts (445 lines, 26 tests)
+      - Commit 915d83a
+      - All acceptance criteria satisfied
+      - Blocking and non-blocking templates with protocol citations (§2.2.2)
+      - Common recovery actions library included
+    updated_at: "2026-08-11T13:50:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T13:45:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting hook message templates - enables actionable failure guidance across all tools
+        turn_id: REQ-004
+      - at: "2026-08-11T13:50:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all templates created with comprehensive tests and common actions
+        turn_id: REQ-004
+
+  - id: BL-002
+    title: Add protocol citations to check-sprint-status tool
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol Rule S3 cited when active sprint detected
+      - Citation format matches standard (Sprint Protocol Rule S3 with description)
+      - Citation explains why S3 blocks new sprint start
+      - Response includes protocol compliance section
+      - No breaking changes to existing response structure
+    evidence:
+      - src/tools/check-sprint-status.ts modified (lines 14-16, 180, 212-233, 252-255)
+      - Protocol citations section added using Response Composer
+      - S3 cited in 3 scenarios (violated, blocking, satisfied)
+      - Commit 974b6a0
+      - All acceptance criteria satisfied
+      - All existing tests pass
+    updated_at: "2026-08-11T14:00:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T13:55:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting protocol citations implementation - foundational utilities complete
+        turn_id: REQ-004
+      - at: "2026-08-11T14:00:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - S3 protocol citations added with standardized formatting
+        turn_id: REQ-004
+
+  - id: BL-003
+    title: Add protocol citations to start-sprint tool
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol Rule S1 citation retained and enhanced
+      - Protocol section §2.2 cited for sprint start procedure
+      - Citations explain which rules/gates are satisfied
+      - Response includes protocol compliance section
+      - No breaking changes to existing response structure
+    evidence:
+      - src/tools/start-sprint.ts modified (lines 14-17, 383-442)
+      - Protocol citations section added using Response Composer
+      - 3 citations (S1, §2.2, S3) all marked as satisfied
+      - Replaced old S1 text with formatted citations section
+      - Commit 4dce8d9
+      - All acceptance criteria satisfied
+      - All existing tests pass (2 test cases)
+    updated_at: "2026-08-11T14:10:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:05:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting start-sprint protocol citations - continuing protocol citations phase
+        turn_id: REQ-004
+      - at: "2026-08-11T14:10:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - S1, §2.2, and S3 protocol citations added with standardized formatting
+        turn_id: REQ-004
+
+  - id: BL-004
+    title: Add protocol citations to update-sprint-status tool
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol section §2.5 cited for status transitions to in-progress
+      - Protocol section §2.6 cited for transitions to validating
+      - Protocol section §2.7 cited for transitions to verifying
+      - Protocol section §2.8 cited for transitions to published
+      - Citations explain which phase is being entered
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/update-sprint-status.ts modified (lines 17-20, 324-359)
+      - Protocol citations section added using Response Composer
+      - All 6 phase sections (§2.4-§2.9) mapped to statuses
+      - S6 atomic update citation always included
+      - Commit a99066a
+      - All acceptance criteria satisfied
+      - All existing tests pass (23 test cases)
+    updated_at: "2026-08-11T14:15:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:10:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting update-sprint-status protocol citations
+        turn_id: REQ-004
+      - at: "2026-08-11T14:15:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all phase sections mapped with protocol citations
+        turn_id: REQ-004
+
+  - id: BL-005
+    title: Add protocol citations to complete-sprint tool
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Existing Protocol Rule S2 citation retained
+      - Existing Protocol Rule S14 citation retained
+      - Existing Protocol section §2.9 citation retained
+      - Citations enhanced with explanations where needed
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/complete-sprint.ts modified (lines 17-20, 382-419)
+      - Protocol citations section added using Response Composer
+      - S2 citation acknowledges normal vs forced completion mode
+      - §2.9 citation for Completion Phase always included
+      - S14 citation conditional on PR presence (provided or deferred)
+      - Commit 3799aeb
+      - All acceptance criteria satisfied
+      - All existing tests pass (4 test cases)
+    updated_at: "2026-08-11T14:25:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:20:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting complete-sprint protocol citations - continuing protocol citations phase
+        turn_id: REQ-005
+      - at: "2026-08-11T14:25:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - S2, §2.9, and S14 protocol citations added with standardized formatting
+        turn_id: REQ-005
+
+  - id: BL-006
+    title: Add protocol citations to cleanup-sprint tool
+    priority: P1
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol section §2.9 cited for post-completion cleanup timing
+      - Protocol section §2.2.2 cited when hooks block/fail
+      - Citations explain cleanup workflow in sprint lifecycle
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/cleanup-sprint.ts modified (lines 18-21, 179-189, 322-350)
+      - Protocol citations section added using Response Composer
+      - §2.9 citation in preview function for post-completion cleanup timing
+      - §2.9 citation in execute function when cleanup succeeds (with count and disk freed)
+      - §2.2.2 citation when pre-worktree-remove hook blocks cleanup (BLOCKING behavior)
+      - Commit 0852da5
+      - All acceptance criteria satisfied
+      - All existing tests pass (4 test cases)
+    updated_at: "2026-08-11T14:35:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:30:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting cleanup-sprint protocol citations - continuing protocol citations phase
+        turn_id: REQ-005
+      - at: "2026-08-11T14:35:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - §2.9 and §2.2.2 protocol citations added to both preview and execute functions
+        turn_id: REQ-005
+
+  - id: BL-007
+    title: Add protocol citations to archive-sprint tool
+    priority: P1
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol section §2.9.1 cited for knowledge extraction purpose
+      - Protocol section §2.2.2 cited when hooks block/fail
+      - Citations explain archive workflow in sprint lifecycle
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/archive-sprint.ts modified (lines 15-18, 399-425, 449-471, 618-636)
+      - Protocol citations section added using Response Composer
+      - §2.9.1 citation in dry-run for post-completion archival and knowledge extraction
+      - §2.2.2 citation when pre-archive hook blocks archival (BLOCKING behavior)
+      - §2.9.1 citation in success response with archive year and knowledge stats
+      - Commit 50a3fbb
+      - All acceptance criteria satisfied
+      - All existing tests pass (6 test cases)
+    updated_at: "2026-08-11T14:45:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:40:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting archive-sprint protocol citations - continuing protocol citations phase
+        turn_id: REQ-005
+      - at: "2026-08-11T14:45:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - §2.9.1 and §2.2.2 protocol citations added to dry-run, blocking, and success responses
+        turn_id: REQ-005
+
+  - id: BL-008
+    title: Add protocol citations to auto-archive-sprints tool
+    priority: P1
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol section §2.9.1 cited for knowledge extraction purpose
+      - Citations explain batch archive workflow
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/auto-archive-sprints.ts modified (lines 13-16, 409-419, 500-514)
+      - Protocol citations section added using Response Composer
+      - §2.9.1 citation in dry-run for batch archival preview with sprint count and criteria
+      - §2.9.1 citation in success response when sprints archived
+      - Commit 677f3ce
+      - All acceptance criteria satisfied
+      - All existing tests pass (11 test cases)
+    updated_at: "2026-08-11T14:55:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T14:50:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting auto-archive-sprints protocol citations - final tool in protocol citations phase
+        turn_id: REQ-005
+      - at: "2026-08-11T14:55:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - §2.9.1 protocol citations added for batch archival workflow
+        turn_id: REQ-005
+
+  - id: BL-009
+    title: Add protocol citations to regenerate-sprint-index tool
+    priority: P1
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Protocol section §2.3.2 cited for index as derived cache concept
+      - Citations explain when/why regeneration is needed
+      - Response includes protocol compliance section
+    evidence:
+      - src/tools/regenerate-sprint-index.ts modified (lines 13-16, 74-84, 203-221)
+      - Protocol citations section added using Response Composer
+      - §2.3.2 citation in concise output emphasizing index as derived cache
+      - §2.3.2 citation in detailed output emphasizing index as derived cache
+      - Additional §2.3.2 citation when repair mode creates manifests
+      - Commit 1499836
+      - All acceptance criteria satisfied
+      - All existing tests pass (14 test cases)
+    updated_at: "2026-08-11T15:05:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T15:00:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting regenerate-sprint-index protocol citations - final tool in protocol citations phase
+        turn_id: REQ-005
+      - at: "2026-08-11T15:05:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - §2.3.2 protocol citations added to both concise and detailed outputs
+        turn_id: REQ-005
+
+  - id: BL-010
+    title: Optimize configuration diagnostics visibility in check-sprint-status
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Configuration diagnostics only shown when SPRINT_ROOT not set
+      - Configuration diagnostics only shown when errors detected
+      - Normal successful check omits diagnostics section
+      - Token count reduced by ~30% in normal success case
+      - Diagnostics still available when errors occur
+    evidence:
+      - src/tools/check-sprint-status.ts modified (lines 257-284)
+      - Configuration diagnostics made conditional based on hasConfigIssue OR hasErrors
+      - Diagnostics shown when SPRINT_ROOT not set (config.sprintRootSet === false)
+      - Diagnostics shown when errors detected (multiple sprints, orphaned worktrees, missing worktrees)
+      - Added troubleshooting guidance when SPRINT_ROOT not set (RECOMMENDATION with example)
+      - Normal success case omits diagnostics entirely (~30% token reduction)
+      - Commit 68d93d3
+      - All acceptance criteria satisfied
+      - All existing tests pass (17 test cases)
+    updated_at: "2026-08-11T15:15:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+      - at: "2026-08-11T15:10:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting enhanced guidance phase - optimizing configuration diagnostics for token efficiency
+        turn_id: REQ-005
+      - at: "2026-08-11T15:15:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - configuration diagnostics are now conditional and achieve ~30% token reduction
+        turn_id: REQ-005
+
+  - id: BL-011
+    title: Add backlog reminders to update-sprint-status tool
+    priority: P0
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Backlog reminder added when status changes to in-progress
+      - Reminder cites §2.3.1 for backlog accountability contract
+      - Reminder explains when to update backlog (item state changes)
+      - Reminder explains what to update (status, evidence, timestamps, history)
+      - Reminder is concise (2-3 sentences)
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 1
+        turn_id: REQ-001
+
+# =============================================================================
+# PHASE 2: ENHANCED GUIDANCE (High Priority Medium Effort)
+# =============================================================================
+
+  - id: BL-012
+    title: Add protocol phase context to update-sprint-status tool
+    priority: P0
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-018]  # Requires Protocol Phase mapping data
+    blocked_reason: null
+    acceptance:
+      - Current protocol phase identified for each status
+      - Phase name and section reference included (e.g., "Execution (§2.5)")
+      - Phase description explains what phase means
+      - Gates satisfied listed with checkmarks
+      - Next gates listed with pending indicators
+      - Phase context specific to status (planning, in-progress, validating, etc.)
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 2
+        turn_id: REQ-001
+
+  - id: BL-013
+    title: Add next-step guidance to update-sprint-status tool
+    priority: P0
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-012]  # Requires phase context
+    blocked_reason: null
+    acceptance:
+      - Numbered next-step list provided for each status transition
+      - Next steps are specific and actionable (not generic)
+      - Next steps reference protocol gates when relevant
+      - At least 2-3 next steps provided per status
+      - Next steps distinguish required vs optional actions
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 2
+        turn_id: REQ-001
+
+  - id: BL-014
+    title: Add archive workflow context to complete-sprint tool
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Post-completion workflow section added
+      - Archive workflow explained (complete → active → archive)
+      - Archive timing guidance provided (after PR merge)
+      - Knowledge extraction mention included
+      - Worktree cleanup timing explained (after archive)
+      - Guidance distinguishes normal vs forced completion paths
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 2
+        turn_id: REQ-001
+
+  - id: BL-015
+    title: Add validation error remediation to regenerate-sprint-index tool
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Validation error section enhanced with remediation guidance
+      - Each error type has specific resolution steps
+      - Auto-fixable errors identified (run regenerate again)
+      - Manual-fix-required errors identified with guidance
+      - Recovery scenario section added (when/why to regenerate)
+      - Skipped directories explained
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 2
+        turn_id: REQ-001
+
+  - id: BL-016
+    title: Add actionable cleanup guidance to check-sprint-status
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - Orphaned worktree warning enhanced with actionable guidance
+      - Direct reference to cleanup-sprint tool included
+      - Expected disk space savings mentioned
+      - Guidance explains when cleanup is safe (after PR merge)
+      - Guidance is concise (2-3 sentences)
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 2
+        turn_id: REQ-001
+
+# =============================================================================
+# PHASE 3: ARCHITECTURAL FOUNDATION
+# =============================================================================
+
+  - id: BL-017
+    title: Create Response Composer utility
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - File created at src/common/response-composer.ts
+      - ProtocolCitation interface defined
+      - NextAction interface defined
+      - ProtocolPhase interface defined
+      - ToolResponse interface defined
+      - Function to format protocol citations
+      - Function to format next actions (numbered list)
+      - Function to format protocol phase context
+      - Function to compose full response from sections
+      - TypeScript types exported
+      - Unit tests created
+    evidence:
+      - src/common/response-composer.ts (326 lines, 8 exported functions)
+      - src/common/__tests__/response-composer.test.ts (388 lines, 36 test cases)
+      - Commit 91ed64b
+      - All acceptance criteria satisfied
+    updated_at: "2026-08-11T13:45:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 3
+        turn_id: REQ-001
+      - at: "2026-08-11T13:36:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting implementation - architectural foundation enables clean tool updates
+        turn_id: REQ-004
+      - at: "2026-08-11T13:45:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all formatting utilities created with comprehensive tests
+        turn_id: REQ-004
+
+  - id: BL-018
+    title: Create Protocol Phase mapping data structure
+    priority: P0
+    status: done
+    approval: not-required
+    owner: llm
+    dependencies: []
+    blocked_reason: null
+    acceptance:
+      - File created at src/common/protocol-phase-map.ts
+      - Phase definitions for all sprint statuses (planning, in-progress, validating, verifying, published, complete)
+      - Each phase includes section reference, name, gates, next phase
+      - Function to get phase context by status
+      - Function to get next gates for status
+      - Function to generate next actions based on phase
+      - TypeScript types defined for Phase, Gate, PhaseContext
+      - Unit tests created
+    evidence:
+      - src/common/protocol-phase-map.ts (751 lines, 6 phases, 16 gates)
+      - src/common/__tests__/protocol-phase-map.test.ts (42 test cases)
+      - Commit 44c3fe5
+      - All acceptance criteria satisfied
+    updated_at: "2026-08-11T13:40:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 3
+        turn_id: REQ-001
+      - at: "2026-08-11T13:36:00Z"
+        from: todo
+        to: in-progress
+        reason: Starting implementation - provides phase context for all status transitions
+        turn_id: REQ-004
+      - at: "2026-08-11T13:40:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all 6 phases mapped with gates and actions, 42 unit tests created
+        turn_id: REQ-004
+
+  - id: BL-019
+    title: Migrate 3 tools to use Response Composer
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-017, BL-018]  # Requires Response Composer and Phase Map
+    blocked_reason: null
+    acceptance:
+      - update-sprint-status migrated to Response Composer
+      - complete-sprint migrated to Response Composer
+      - check-sprint-status migrated to Response Composer
+      - All migrated tools use ProtocolCitation interface
+      - All migrated tools use NextAction interface
+      - All migrated tools use ProtocolPhase interface
+      - Response structure consistent across migrated tools
+      - No breaking changes to response content
+      - All integration tests pass after migration
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 3
+        turn_id: REQ-001
+
+# =============================================================================
+# PHASE 4: TESTING AND DOCUMENTATION
+# =============================================================================
+
+  - id: BL-020
+    title: Create response format validation tests
+    priority: P0
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-002, BL-003, BL-004, BL-005, BL-006, BL-007, BL-008, BL-009]  # All protocol citation items
+    blocked_reason: null
+    acceptance:
+      - Test file created at src/tools/__tests__/response-format.test.ts
+      - Test validates all 8 tools include protocol citations
+      - Test validates protocol citations use standard format
+      - Test validates next-step guidance presence where required
+      - Test validates hook failure message format
+      - Test validates required response sections presence
+      - All tests pass
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4
+        turn_id: REQ-001
+
+  - id: BL-021
+    title: Update integration tests for new response formats
+    priority: P0
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-002, BL-003, BL-004, BL-005, BL-006, BL-007, BL-008, BL-009]  # All tool updates
+    blocked_reason: null
+    acceptance:
+      - All existing integration tests updated
+      - Tests validate protocol citations in responses
+      - Tests validate next-step guidance in responses
+      - Tests validate backlog reminders where applicable
+      - All integration tests pass
+      - Test coverage maintained >= 80% lines
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4
+        turn_id: REQ-001
+
+  - id: BL-022
+    title: Create response snapshot tests
+    priority: P2
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-021]  # After integration tests updated
+    blocked_reason: null
+    acceptance:
+      - Test file created at src/tools/__tests__/response-snapshots.test.ts
+      - Snapshot tests for success responses (all 8 tools)
+      - Snapshot tests for error responses (all 8 tools)
+      - Snapshot tests for hook failure responses (6 tools with hooks)
+      - Snapshots committed to repository
+      - All snapshot tests pass
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4 (stretch goal)
+        turn_id: REQ-001
+
+  - id: BL-023
+    title: Create response format guide documentation
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-017, BL-018]  # After architectural foundation complete
+    blocked_reason: null
+    acceptance:
+      - File created at documentation/response-format-guide.md
+      - Standard response structure documented
+      - Protocol citation format explained with examples
+      - Next-action format explained with examples
+      - Hook failure message format explained with examples
+      - Token efficiency guidelines included
+      - Examples from actual tool responses
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4
+        turn_id: REQ-001
+
+  - id: BL-024
+    title: Create protocol phase reference documentation
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-018]  # After Protocol Phase Map created
+    blocked_reason: null
+    acceptance:
+      - File created at documentation/protocol-phase-reference.md
+      - Phase mapping table documented (status to phase to section)
+      - Gate definitions for each phase
+      - Transition rules documented
+      - Agent guidance per phase documented
+      - Examples of phase context in tool responses
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4
+        turn_id: REQ-001
+
+  - id: BL-025
+    title: Update CHANGELOG.md with response format improvements
+    priority: P1
+    status: todo
+    approval: not-required
+    owner: llm
+    dependencies: [BL-002, BL-003, BL-004, BL-005, BL-006, BL-007, BL-008, BL-009]  # After all tool updates
+    blocked_reason: null
+    acceptance:
+      - CHANGELOG.md updated with new "Unreleased" section
+      - Response format improvements documented under "Enhanced"
+      - Protocol citation addition documented
+      - Next-step guidance improvements documented
+      - Hook failure message standardization documented
+      - Backlog reminders documented
+      - Breaking changes section (none expected)
+      - Migration guidance for consumers (none required)
+    evidence: []
+    updated_at: "2026-08-11T13:30:00Z"
+    history:
+      - at: "2026-08-11T13:30:00Z"
+        from: null
+        to: todo
+        reason: Initial backlog item creation based on execution plan Phase 4
+        turn_id: REQ-001
+
+# =============================================================================
+# SUMMARY
+# =============================================================================
+# Total Items: 25
+# P0 (Critical): 11 items - Must complete for sprint success
+# P1 (High): 13 items - Should complete for full sprint value
+# P2 (Medium): 1 item - Stretch goal if time permits
+# P3 (Low): 0 items
+#
+# Dependencies:
+# - BL-012 depends on BL-018 (Phase context requires Phase Map)
+# - BL-013 depends on BL-012 (Next steps require phase context)
+# - BL-019 depends on BL-017, BL-018 (Migration requires utilities)
+# - BL-020 depends on all protocol citation items
+# - BL-021 depends on all tool updates
+# - BL-022 depends on BL-021
+# - BL-023 depends on BL-017, BL-018
+# - BL-024 depends on BL-018
+# - BL-025 depends on all tool updates
+#
+# Recommended Execution Order:
+# 1. BL-001 (Hook templates) - Foundation for all hook-related work
+# 2. BL-017, BL-018 (Architectural foundation) - Enables clean implementations
+# 3. BL-002 through BL-011 (Protocol citations and diagnostics) - Quick wins
+# 4. BL-012, BL-013 (Phase context and next-step guidance) - Requires Phase Map
+# 5. BL-014, BL-015, BL-016 (Enhanced guidance) - Independent improvements
+# 6. BL-019 (Migration to Response Composer) - Proves architectural value
+# 7. BL-020, BL-021 (Testing) - Validate all changes
+# 8. BL-023, BL-024, BL-025 (Documentation) - Capture learnings
+# 9. BL-022 (Snapshot tests) - Stretch goal for regression prevention

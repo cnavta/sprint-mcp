@@ -11,6 +11,10 @@ import { parse as parseYaml } from 'yaml';
 import { logger } from '../common/logger.js';
 import { ensureDir, writeFile, fileExists, readFile } from '../common/file-utils.js';
 import { getPlanningDir } from '../common/project-config.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { SprintIndexEntry } from '../types/sprint-index.js';
 import type { ArchiveConfig } from '../types/archive-config.js';
@@ -376,6 +380,25 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
     ? '⚠️  Post-worktree-create hook failed. Manual setup may be needed: `npm ci && npm run build`'
     : '📦 Manual setup needed: `npm ci && npm run build` (or create a post-worktree-create hook)';
 
+  // Build protocol citations
+  const citations: ProtocolCitation[] = [
+    {
+      ref: 'S1',
+      description: 'Sprint started on explicit user request',
+      satisfied: true,
+    },
+    {
+      ref: '§2.2',
+      description: 'Sprint start procedure followed (worktree created, manifest initialized, index updated)',
+      satisfied: true,
+    },
+    {
+      ref: 'S3',
+      description: 'Only one sprint may be active at a time (verified before start)',
+      satisfied: true,
+    },
+  ];
+
   // Return success message
   const resultText = `✅ Sprint ${sprintId} initialized successfully (unified worktree model)!
 
@@ -414,7 +437,9 @@ After PR merge, planning artifacts will be in main repo at: planning/${archiveEn
 ${validationStatus ? `\n${validationStatus}\n` : ''}
 **Index**: planning/sprint-index.yaml updated (manifestPath points to worktree for active sprint)
 
-Sprint Protocol rule S1 satisfied: Sprint started on explicit user request.
+---
+
+${formatProtocolCitationsSection(citations)}
 `;
 
   return {

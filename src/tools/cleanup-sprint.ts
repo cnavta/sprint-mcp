@@ -15,6 +15,10 @@ import {
 } from '../common/sprint-cleanup-utils.js';
 import { executeHook } from '../common/hook-manager.js';
 import { getWorktreePath } from '../common/git-utils.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import { join } from 'path';
 
 interface CleanupSprintArgs {
@@ -172,6 +176,18 @@ export async function cleanupSprintTool(
     confirmText += `**To proceed with cleanup**, call this tool again with a confirmation parameter,\n`;
     confirmText += `or use the npm script: \`npm run sprint:cleanup -- --yes\`\n`;
 
+    // Build protocol citations
+    const citations: ProtocolCitation[] = [
+      {
+        ref: '§2.9',
+        description: 'Post-completion cleanup - worktrees removed after sprint completion to free disk space',
+        satisfied: true,
+      },
+    ];
+
+    confirmText += `\n---\n\n`;
+    confirmText += formatProtocolCitationsSection(citations);
+
     return {
       content: [
         {
@@ -301,6 +317,36 @@ export async function executeCleanupSprintTool(
           summaryText += `  - ${msg}\n`;
         });
       });
+    }
+
+    // Build protocol citations
+    const citations: ProtocolCitation[] = [];
+
+    // §2.9: Post-completion cleanup
+    if (successCount > 0) {
+      citations.push({
+        ref: '§2.9',
+        description: `Post-completion cleanup - ${successCount} worktree(s) removed, ${formatBytes(totalFreed)} freed`,
+        satisfied: true,
+      });
+    }
+
+    // §2.2.2: Hook blocking (if any cleanup was blocked by hooks)
+    const hookBlockedCount = errors.filter(e =>
+      e.errors.some(msg => msg.includes('pre-worktree-remove hook failed'))
+    ).length;
+
+    if (hookBlockedCount > 0) {
+      citations.push({
+        ref: '§2.2.2',
+        description: `Lifecycle hooks - ${hookBlockedCount} cleanup(s) blocked by pre-worktree-remove hook (PRE-phase is BLOCKING)`,
+        satisfied: false,
+      });
+    }
+
+    if (citations.length > 0) {
+      summaryText += `\n---\n\n`;
+      summaryText += formatProtocolCitationsSection(citations);
     }
 
     return {
