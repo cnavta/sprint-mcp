@@ -132,3 +132,51 @@ happens in the worktree. After PR merge, planning artifacts will be in main repo
 
 **Gate Satisfied**: Planning Phase approval (§2.4)
 **Next Phase**: Execution Phase (§2.5)
+
+---
+
+## Request 5
+**Timestamp**: 2026-08-11T20:35:00Z
+**Prompt**: User requested architecture.yaml update to v2 schema format
+**Interpretation**: User identified architecture.yaml as outdated and requested update based on architecture.v2.json schema
+
+**User Statement**: "We are updating the architecture.yaml documentation for the project. The current architecture.yaml is out of date and not really very accurate for this project. Analyze the current project and the new architecture.yaml.v2 documentation, then create a new architecture.yaml for the project."
+
+**Actions**:
+- Read current architecture.yaml (outdated, showing only 7 tools vs actual 8+ tools)
+- Located architecture.v2.json schema at /Users/christophernavta/IdeaProjects/sprint-mcp/documentation/schema/architecture.v2.json
+- Analyzed v2 schema structure (name, project, platform, infrastructure, services required)
+- Analyzed current sprint-mcp project structure:
+  - 8 MCP tools in src/tools/ (start-sprint, check-sprint-status, update-sprint-status, complete-sprint, cleanup-sprint, archive-sprint, auto-archive-sprints, regenerate-sprint-index)
+  - 12 common utilities in src/common/
+  - 7 type definition files in src/types/
+  - TypeScript/Jest testing setup
+  - MCP stdio transport
+  - No complex infrastructure (no messaging, caching, persistence)
+- Created new architecture.yaml following v2 schema format
+
+**Artifacts Created/Modified**:
+- architecture.yaml (completely rewritten to v2 format)
+- documentation/schema/architecture.v2.json (copied from main repo)
+
+**Key Changes in New architecture.yaml**:
+- **project section**: name, version (0.1.0), status (alpha), owners
+- **llm_guidance section**: Sprint Protocol rules (S1-S5), precedence order, agent roles, immutable laws, definition of done
+- **platform section**: v2 schema with minimal infrastructure (none required)
+- **infrastructure section**: docker intent (not applicable for stdio MCP server)
+- **services section**: sprint-mcp-server with MCP profile and capabilities
+- **mcp_tools section**: Documented all 8 tools with protocol phase mappings, lifecycle hooks, and capabilities
+- **extension_points section**: How to add MCP tools, common utilities, and type definitions
+- **references section**: Points to architecture.v2.json schema
+- **stack, build, testing, deployment sections**: Accurate reflection of current setup
+- **constraints section**: Updated with Sprint Protocol requirements
+- **directory_structure section**: Documents current src/, planning/, documentation/ layout
+- **code_style, logging, error_handling sections**: Development standards
+
+**Commit**: fb4ad0f
+**Build Status**: ✅ Passed (npm run build)
+**Test Status**: ✅ 467 tests passed, 6 pre-existing failures in protocol-phase-map.test.ts (unrelated to architecture.yaml)
+
+**Scope Note**: User indicated "scope of this project is VERY limited", so architecture.yaml is intentionally minimal and focused on sprint-mcp's actual capabilities (MCP server, no complex infrastructure).
+
+**Validation**: architecture.yaml conforms to architecture.v2.json schema required fields (name, project, platform, infrastructure, services)
