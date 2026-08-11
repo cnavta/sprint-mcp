@@ -11,6 +11,10 @@ import { logger } from '../common/logger.js';
 import { listDirectories, fileExists, readFile } from '../common/file-utils.js';
 import { listWorktrees, getWorktreePath } from '../common/git-utils.js';
 import { getPlanningDir, getConfigSummary } from '../common/project-config.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type { SprintManifest } from '../types/sprint.js';
 import type { ArchiveConfig } from '../types/archive-config.js';
 
@@ -173,6 +177,7 @@ export async function checkSprintStatusTool(
   });
 
   let resultText = '';
+  const citations: ProtocolCitation[] = [];
 
   if (activeSprints.length > 0) {
     resultText += `⚠️  Found ${activeSprints.length} active sprint(s):\n\n`;
@@ -203,11 +208,29 @@ export async function checkSprintStatusTool(
 
     if (activeSprints.length > 1) {
       resultText += `\n⚠️  WARNING: Multiple active sprints detected. Sprint Protocol rule S3 states only one sprint may be active at a time.\n`;
+      // Protocol citation: S3 violated (multiple sprints)
+      citations.push({
+        ref: 'S3',
+        description: 'Only one sprint may be active at a time',
+        satisfied: false,
+      });
     } else {
       resultText += `\nℹ️  Cannot start a new sprint while sprint ${activeSprints[0].id} is active. Complete it first or force-complete it.\n`;
+      // Protocol citation: S3 blocks new sprint start
+      citations.push({
+        ref: 'S3',
+        description: `Only one sprint may be active at a time (blocks new sprint start until ${activeSprints[0].id} is complete)`,
+        satisfied: false,
+      });
     }
   } else {
     resultText += `✅ No active sprints. Ready to start a new sprint.\n\n`;
+    // Protocol citation: S3 satisfied (no active sprints)
+    citations.push({
+      ref: 'S3',
+      description: 'Only one sprint may be active at a time (currently satisfied - ready to start new sprint)',
+      satisfied: true,
+    });
   }
 
   if (completedSprints.length > 0) {
@@ -223,6 +246,12 @@ export async function checkSprintStatusTool(
       resultText += `  - ${wt.path} (sprint: ${sprintId}, branch: ${wt.branch})\n`;
     });
     resultText += `\nℹ️  These worktrees can be removed with: git worktree remove <path>\n`;
+  }
+
+  // Add protocol citations section
+  if (citations.length > 0) {
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(citations);
   }
 
   // Add SPRINT_ROOT configuration diagnostics
