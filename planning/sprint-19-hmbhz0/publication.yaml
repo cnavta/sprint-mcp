@@ -2,12 +2,14 @@
 
 sprintId: sprint-19-hmbhz0
 branch: feature/sprint-19-hmbhz0-protocol-phase-map-test-fixes
-branchPushed: false  # Will be updated after push
-prCreated: false  # Will be updated after PR creation
-prUrl: null  # Will be updated with PR URL
+branchPushed: true
+prCreated: true
+prUrl: https://github.com/cnavta/sprint-mcp/pull/19
 
 # Publication timeline
 preparationCompletedAt: 2026-08-11T22:44:00.000Z
+branchPushedAt: 2026-08-11T22:47:00.000Z
+prCreatedAt: 2026-08-11T22:48:00.000Z
 
 # Notes
 notes: |
