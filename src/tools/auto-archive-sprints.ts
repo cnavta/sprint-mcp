@@ -10,6 +10,10 @@ import { logger } from '../common/logger.js';
 import { getPlanningDir } from '../common/path-utils.js';
 import { fileExists, readFile } from '../common/file-utils.js';
 import { parse as parseYaml } from 'yaml';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type {
   AutoArchiveSprintsArgs,
   AutoArchiveSprintsResult,
@@ -402,6 +406,18 @@ export async function autoArchiveSprintsTool(
     resultText += `\n**To execute auto-archive**:\n`;
     resultText += `Run without dry-run flag: auto-archive-sprints\n`;
 
+    // Build protocol citations for dry-run
+    const dryRunCitations: ProtocolCitation[] = [
+      {
+        ref: '§2.9.1',
+        description: `Batch archival - ${eligible.length} sprint${eligible.length === 1 ? '' : 's'} eligible based on ${usedCriteria} criteria`,
+        satisfied: true,
+      },
+    ];
+
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(dryRunCitations);
+
     return {
       content: [
         {
@@ -480,6 +496,22 @@ export async function autoArchiveSprintsTool(
   resultText += `- Eligible: ${eligible.length}\n`;
   resultText += `- Archived: ${archived.length}\n`;
   resultText += `- Failed: ${failed.length}\n`;
+
+  // Build protocol citations
+  const citations: ProtocolCitation[] = [];
+
+  if (archived.length > 0) {
+    citations.push({
+      ref: '§2.9.1',
+      description: `Batch archival - ${archived.length} sprint${archived.length === 1 ? '' : 's'} archived using ${usedCriteria} criteria`,
+      satisfied: true,
+    });
+  }
+
+  if (citations.length > 0) {
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(citations);
+  }
 
   logger.info(
     `Auto-archive complete: ${archived.length} archived, ${failed.length} failed`
