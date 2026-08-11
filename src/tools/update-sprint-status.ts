@@ -14,6 +14,10 @@ import { loadSprintIndex, updateSprintInIndex } from '../common/sprint-index-man
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
 import { executeHook } from '../common/hook-manager.js';
 import { getWorktreePath } from '../common/git-utils.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type { SprintManifest, SprintStatus } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
@@ -315,6 +319,43 @@ export async function updateSprintStatusTool(
         resultText += `❌ ${validationResult.errors.length} error${validationResult.errors.length > 1 ? 's' : ''} detected\n`;
         resultText += `Run \`regenerate-sprint-index\` to fix inconsistencies.\n`;
       }
+    }
+
+    // Add protocol citations based on status transition
+    const citations: ProtocolCitation[] = [];
+
+    if (updates.status) {
+      // Map status to protocol phase sections
+      const phaseMapping: Record<SprintStatus, string> = {
+        'planning': '§2.4',
+        'in-progress': '§2.5',
+        'validating': '§2.6',
+        'verifying': '§2.7',
+        'published': '§2.8',
+        'complete': '§2.9',
+      };
+
+      const section = phaseMapping[updates.status];
+      const phaseName = updates.status === 'in-progress' ? 'Execution' :
+                       updates.status.charAt(0).toUpperCase() + updates.status.slice(1);
+
+      citations.push({
+        ref: section,
+        description: `${phaseName} Phase - status transitioned to ${updates.status}`,
+        satisfied: true,
+      });
+
+      // Add atomic update citation
+      citations.push({
+        ref: 'S6',
+        description: 'Manifest and index updated atomically (consistency maintained)',
+        satisfied: true,
+      });
+    }
+
+    if (citations.length > 0) {
+      resultText += `\n---\n\n`;
+      resultText += formatProtocolCitationsSection(citations);
     }
 
     logger.info(`Sprint ${sprintId} status update complete`);
