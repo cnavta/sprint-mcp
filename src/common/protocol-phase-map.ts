@@ -88,7 +88,7 @@ const PHASE_MAP: Record<string, ProtocolPhase> = {
         section: '§2.4',
       },
     ],
-    nextPhase: 'execution',
+    nextPhase: 'in-progress',
     nextStatus: 'in-progress',
   },
   'in-progress': {
@@ -114,7 +114,7 @@ const PHASE_MAP: Record<string, ProtocolPhase> = {
         section: '§3',
       },
     ],
-    nextPhase: 'validation',
+    nextPhase: 'validating',
     nextStatus: 'validating',
   },
   validating: {
@@ -135,7 +135,7 @@ const PHASE_MAP: Record<string, ProtocolPhase> = {
         section: '§2.6',
       },
     ],
-    nextPhase: 'verification',
+    nextPhase: 'verifying',
     nextStatus: 'verifying',
   },
   verifying: {
@@ -156,7 +156,7 @@ const PHASE_MAP: Record<string, ProtocolPhase> = {
         section: '§2.3.1',
       },
     ],
-    nextPhase: 'publication',
+    nextPhase: 'published',
     nextStatus: 'published',
   },
   published: {
@@ -177,7 +177,7 @@ const PHASE_MAP: Record<string, ProtocolPhase> = {
         section: 'S14',
       },
     ],
-    nextPhase: 'completion',
+    nextPhase: 'complete',
     nextStatus: 'complete',
   },
   complete: {
