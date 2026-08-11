@@ -12,6 +12,10 @@ import { fileExists, readFile } from '../common/file-utils.js';
 import { parse as parseYaml } from 'yaml';
 import { executeHook } from '../common/hook-manager.js';
 import { getWorktreePath } from '../common/git-utils.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 import type {
   ArchiveSprintArgs,
   ArchiveSprintResult,
@@ -392,6 +396,26 @@ export async function archiveSprintTool(
     resultText += `\n**To execute archival**:\n`;
     resultText += `Run without dry-run flag: archive-sprint ${sprintId}\n`;
 
+    // Build protocol citations for dry-run
+    const dryRunCitations: ProtocolCitation[] = [
+      {
+        ref: '§2.9.1',
+        description: 'Post-completion archival - completed sprints moved to archive/{year}/ for organization',
+        satisfied: true,
+      },
+    ];
+
+    if (wouldExtractKnowledge) {
+      dryRunCitations.push({
+        ref: '§2.9.1',
+        description: 'Knowledge extraction - lessons, patterns, and anti-patterns extracted during archival',
+        satisfied: true,
+      });
+    }
+
+    resultText += `\n---\n\n`;
+    resultText += formatProtocolCitationsSection(dryRunCitations);
+
     return {
       content: [
         {
@@ -421,13 +445,27 @@ export async function archiveSprintTool(
       exitCode: preHookResult.exitCode,
       stderr: preHookResult.stderr,
     });
+
+    // Build blocking hook citations
+    const blockingCitations: ProtocolCitation[] = [
+      {
+        ref: '§2.2.2',
+        description: 'Lifecycle hooks - pre-archive hook blocked archival (PRE-phase is BLOCKING)',
+        satisfied: false,
+      },
+    ];
+
+    let blockText = `❌ Archival blocked by pre-archive hook\n\n`;
+    blockText += `**Sprint**: ${sprintId}\n\n`;
+    blockText += `**Hook Error**:\n${preHookResult.stderr || preHookResult.error}\n\n`;
+    blockText += `Fix the issues reported by the hook and try again.\n\n`;
+    blockText += `---\n\n`;
+    blockText += formatProtocolCitationsSection(blockingCitations);
+
     return {
       content: [{
         type: 'text',
-        text: `❌ Archival blocked by pre-archive hook\n\n` +
-              `**Sprint**: ${sprintId}\n\n` +
-              `**Hook Error**:\n${preHookResult.stderr || preHookResult.error}\n\n` +
-              `Fix the issues reported by the hook and try again.`,
+        text: blockText,
       }],
       isError: true,
     };
@@ -576,6 +614,26 @@ export async function archiveSprintTool(
   resultText += `1. Review archived sprint: ${destination.destinationPath}\n`;
   resultText += `2. Optionally clean up worktree: \`git worktree remove .worktrees/${sprintId}\`\n`;
   resultText += `3. Archive older sprints as needed\n`;
+
+  // Build protocol citations
+  const citations: ProtocolCitation[] = [
+    {
+      ref: '§2.9.1',
+      description: `Post-completion archival - sprint moved to archive/${destination.year}/ for organization`,
+      satisfied: true,
+    },
+  ];
+
+  if (knowledgeExtracted) {
+    citations.push({
+      ref: '§2.9.1',
+      description: `Knowledge extraction - ${knowledgeStats.lessons} lessons, ${knowledgeStats.patterns} patterns, ${knowledgeStats.antiPatterns} anti-patterns extracted`,
+      satisfied: true,
+    });
+  }
+
+  resultText += `\n---\n\n`;
+  resultText += formatProtocolCitationsSection(citations);
 
   logger.info(`Sprint ${sprintId} archived successfully to ${destination.destinationPath}`);
 
