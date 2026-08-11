@@ -7,14 +7,14 @@
 #
 # To regenerate from scratch: Use the regenerate-sprint-index tool
 #
-# Generated: 2026-08-06T01:45:59.688Z
+# Generated: 2026-08-11T13:14:51.946Z
 #
 
 version: "1.0"
-generatedAt: 2026-08-07T14:54:17.622Z
-totalSprints: 13
-activeSprints: 0
-completedSprints: 13
+generatedAt: 2026-08-11T13:24:50.667Z
+totalSprints: 15
+activeSprints: 1
+completedSprints: 14
 sprints:
   - id: sprint-1-a9f3c2
     title: Human-LLM Sprint Protocol revision
@@ -140,15 +140,33 @@ sprints:
     worktreePath: .worktrees/sprint-15-dq6cg7
     completedAt: 2026-08-07T14:54:17.615Z
     completionMode: forced
+  - id: sprint-17-kpc4ki
+    title: Bug Fixes & Architecture.yaml Evolution
+    status: complete
+    owner: christophernavta
+    createdAt: 2026-08-11T00:00:37.076Z
+    manifestPath: .worktrees/sprint-17-kpc4ki/planning/sprint-17-kpc4ki/sprint-manifest.yaml
+    branch: feature/sprint-17-kpc4ki-bug-fixes-architecture-yaml-ev
+    worktreePath: .worktrees/sprint-17-kpc4ki
+    completedAt: 2026-08-11T13:24:41.576Z
+    completionMode: forced
+  - id: sprint-18-y4v2xi
+    title: MCP Tool Response Optimization Analysis
+    status: planning
+    owner: christophernavta
+    createdAt: 2026-08-11T13:24:50.661Z
+    manifestPath: .worktrees/sprint-18-y4v2xi/planning/sprint-18-y4v2xi/sprint-manifest.yaml
+    branch: feature/sprint-18-y4v2xi-mcp-tool-response-optimization
+    worktreePath: .worktrees/sprint-18-y4v2xi
 statistics:
   byStatus:
-    planning: 0
+    planning: 1
     in-progress: 0
     validating: 0
     verifying: 0
     published: 0
-    complete: 13
+    complete: 14
   byCompletionMode:
     normal: 11
-    forced: 2
+    forced: 3
   averageSprintDuration: PT7H

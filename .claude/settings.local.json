@@ -41,7 +41,10 @@
       "Bash(echo:*)",
       "mcp__sprint-mcp-local__complete-sprint",
       "Bash(git stash:*)",
-      "Bash(/tmp/sprint-15-changes.patch)"
+      "Bash(/tmp/sprint-15-changes.patch)",
+      "Bash(npm ci:*)",
+      "Bash(cp:*)",
+      "Bash(npx ts-node:*)"
     ],
     "deny": [],
     "ask": []
