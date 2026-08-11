@@ -3,7 +3,7 @@
 
 meta:
   backlog_id: sprint-18-y4v2xi-backlog
-  updated_at: "2026-08-11T13:36:00Z"
+  updated_at: "2026-08-11T13:45:00Z"
   status_values: [todo, in-progress, blocked, done, deferred, cancelled]
   approval_values: [not-required, pending, approved]
 
@@ -396,7 +396,7 @@ items:
   - id: BL-017
     title: Create Response Composer utility
     priority: P0
-    status: in-progress
+    status: done
     approval: not-required
     owner: llm
     dependencies: []
@@ -413,8 +413,12 @@ items:
       - Function to compose full response from sections
       - TypeScript types exported
       - Unit tests created
-    evidence: []
-    updated_at: "2026-08-11T13:36:00Z"
+    evidence:
+      - src/common/response-composer.ts (326 lines, 8 exported functions)
+      - src/common/__tests__/response-composer.test.ts (388 lines, 36 test cases)
+      - Commit 91ed64b
+      - All acceptance criteria satisfied
+    updated_at: "2026-08-11T13:45:00Z"
     history:
       - at: "2026-08-11T13:30:00Z"
         from: null
@@ -426,11 +430,16 @@ items:
         to: in-progress
         reason: Starting implementation - architectural foundation enables clean tool updates
         turn_id: REQ-004
+      - at: "2026-08-11T13:45:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all formatting utilities created with comprehensive tests
+        turn_id: REQ-004
 
   - id: BL-018
     title: Create Protocol Phase mapping data structure
     priority: P0
-    status: in-progress
+    status: done
     approval: not-required
     owner: llm
     dependencies: []
@@ -444,8 +453,12 @@ items:
       - Function to generate next actions based on phase
       - TypeScript types defined for Phase, Gate, PhaseContext
       - Unit tests created
-    evidence: []
-    updated_at: "2026-08-11T13:36:00Z"
+    evidence:
+      - src/common/protocol-phase-map.ts (751 lines, 6 phases, 16 gates)
+      - src/common/__tests__/protocol-phase-map.test.ts (42 test cases)
+      - Commit 44c3fe5
+      - All acceptance criteria satisfied
+    updated_at: "2026-08-11T13:40:00Z"
     history:
       - at: "2026-08-11T13:30:00Z"
         from: null
@@ -456,6 +469,11 @@ items:
         from: todo
         to: in-progress
         reason: Starting implementation - provides phase context for all status transitions
+        turn_id: REQ-004
+      - at: "2026-08-11T13:40:00Z"
+        from: in-progress
+        to: done
+        reason: Implementation complete - all 6 phases mapped with gates and actions, 42 unit tests created
         turn_id: REQ-004
 
   - id: BL-019
