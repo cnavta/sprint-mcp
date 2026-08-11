@@ -254,16 +254,34 @@ export async function checkSprintStatusTool(
     resultText += formatProtocolCitationsSection(citations);
   }
 
-  // Add SPRINT_ROOT configuration diagnostics
+  // Add SPRINT_ROOT configuration diagnostics (conditionally)
+  // Only show diagnostics when:
+  // 1. SPRINT_ROOT is not set (configuration issue), OR
+  // 2. Errors detected (multiple active sprints, orphaned worktrees, missing worktrees)
   const config = getConfigSummary();
-  resultText += `\n---\n\n**Configuration Diagnostics**:\n`;
-  resultText += `- SPRINT_ROOT environment variable: ${config.sprintRootSet ? '✅ SET' : '❌ NOT SET'}\n`;
-  if (config.sprintRootSet && config.sprintRoot) {
-    resultText += `- SPRINT_ROOT value: ${config.sprintRoot}\n`;
+  const hasConfigIssue = !config.sprintRootSet;
+  const hasErrors =
+    activeSprints.length > 1 ||  // Multiple active sprints (S3 violation)
+    orphanedWorktrees.length > 0 ||  // Orphaned worktrees
+    activeSprints.some(sprint => {  // Missing worktree for active sprint
+      const worktree = allWorktrees.find(wt => wt.path.includes(sprint.id));
+      return !worktree;
+    });
+
+  if (hasConfigIssue || hasErrors) {
+    resultText += `\n---\n\n**Configuration Diagnostics**:\n`;
+    resultText += `- SPRINT_ROOT environment variable: ${config.sprintRootSet ? '✅ SET' : '❌ NOT SET'}\n`;
+    if (!config.sprintRootSet) {
+      resultText += `  ⚠️  **RECOMMENDATION**: Set SPRINT_ROOT to avoid path resolution issues\n`;
+      resultText += `  Example: export SPRINT_ROOT=/path/to/sprint-mcp\n`;
+    }
+    if (config.sprintRootSet && config.sprintRoot) {
+      resultText += `- SPRINT_ROOT value: ${config.sprintRoot}\n`;
+    }
+    resultText += `- Resolved project root: ${config.projectRoot}\n`;
+    resultText += `- Planning directory: ${config.planningDir}\n`;
+    resultText += `- Sprint index path: ${config.indexPath}\n`;
   }
-  resultText += `- Resolved project root: ${config.projectRoot}\n`;
-  resultText += `- Planning directory: ${config.planningDir}\n`;
-  resultText += `- Sprint index path: ${config.indexPath}\n`;
 
   logger.info(`Sprint status check complete: ${activeSprints.length} active, ${completedSprints.length} completed, ${orphanedWorktrees.length} orphaned worktrees`);
 
