@@ -1,58 +1,257 @@
+name: Sprint MCP
+description: MCP server providing Sprint Protocol tooling for LLM-driven development workflows
+
 project:
   name: sprint-mcp
   version: 0.1.0
-  description: MCP server providing Sprint Protocol tooling for LLM-driven development workflows
+  status: alpha
+  description: Model Context Protocol server implementing sprint lifecycle management tools per AGENTS.md Sprint Protocol
+  owners:
+    - christophernavta
+
+llm_guidance:
+  protocol_source: AGENTS.md and AGENTS-uncompressed.md define the Sprint Protocol
+  precedence_order:
+    - architecture.yaml (this file) - canonical source of truth for system behavior
+    - AGENTS-uncompressed.md - operational and behavioral rules (SOURCE FILE)
+    - AGENTS.md - semantically compressed version (DO NOT MODIFY directly)
+  agent_roles:
+    - Lead Implementor - creates plans, executes tasks, codes, remediates issues
+    - Quality Lead - testing and quality oversight
+  sprint_control_rules:
+    S1: Sprint begins only when user explicitly says "Start sprint"
+    S2: Sprint ends when validation criteria satisfied OR exceptions accepted, and user says "Sprint complete" or "Force complete sprint"
+    S3: Only one sprint may be active at a time
+    S4: Prompts related to this repo are included in sprint scope unless specified otherwise
+    S5: If sprint state is unclear, ask once, then proceed with best judgment, but do not bypass explicit approval gates
+  immutable_laws:
+    - Never violate architecture.yaml - suggest changes only with justification
+    - All sprint planning and output artifacts live in ./planning
+    - Never use or depend on ./deprecated in deliverables
+    - Everything must be Traceable, Reproducible, Reversible
+  definition_of_done:
+    code_quality:
+      - No TODOs or placeholder logic in production paths
+      - Stubs allowed only in non-production paths or behind feature flags
+    testing:
+      - Tests for all new behavior
+      - Mocks for external dependencies
+      - Test suite must pass
+      - Test deferral requires explicit user approval
+    documentation:
+      - Rationale, trade-offs, and notes
+      - LLM hints (llm_prompt) where beneficial
+    traceability:
+      - All code changes trace back to a sprint
+      - All changes logged in request-log.md
+
+platform:
+  version: "2.0"
+  infrastructure:
+    messaging:
+      required: false
+      capabilities: []
+    caching:
+      required: false
+      capabilities: []
+    persistence:
+      required: false
+      capabilities: []
+
+infrastructure:
+  docker:
+    intent:
+      - Not applicable - sprint-mcp is a stdio MCP server, not a containerized service
+
+services:
+  sprint-mcp-server:
+    active: true
+    category: platform
+    profile: mcp-server
+    description: MCP server exposing sprint lifecycle management tools
+    mcp:
+      exposure: platform-only
+      protocol_version: "2024-11-05"
+      transport: stdio
+      capabilities:
+        tools: true
+        resources: false
+        prompts: false
+    stateful: false
+    dependencies:
+      infrastructure: []
+
+references:
+  architecture_schema: documentation/schema/architecture.v2.json
+  sprint_protocol: AGENTS-uncompressed.md
+  sprint_protocol_compressed: AGENTS.md
+  user_guide: CLAUDE.md
+  changelog: CHANGELOG.md
+
+extension_points:
+  add_mcp_tool:
+    description: How to add a new MCP tool to sprint-mcp
+    steps:
+      - Create new tool file in src/tools/{tool-name}.ts
+      - Export tool handler function matching MCP tool signature
+      - Add tool registration in src/index.ts
+      - Create tests in src/tools/__tests__/{tool-name}.test.ts
+      - Update .mcp.json capabilities if needed
+      - Document in CHANGELOG.md unreleased section
+    files_changed:
+      - src/tools/{tool-name}.ts (new)
+      - src/index.ts (modified - register tool)
+      - src/tools/__tests__/{tool-name}.test.ts (new)
+    protocol_mapping: Map tool to Sprint Protocol phase (§2.4-§2.9)
+    response_format: Use response-composer.ts for protocol citations
+
+  add_common_utility:
+    description: How to add shared utility modules
+    steps:
+      - Create new utility in src/common/{utility-name}.ts
+      - Export functions with clear contracts
+      - Add unit tests in src/common/__tests__/{utility-name}.test.ts
+      - Update src/common/index.ts if creating public API
+    files_changed:
+      - src/common/{utility-name}.ts (new)
+      - src/common/__tests__/{utility-name}.test.ts (new)
+
+  add_type_definitions:
+    description: How to add TypeScript type definitions
+    steps:
+      - Create type file in src/types/{domain}.ts
+      - Export types/interfaces
+      - Update src/types/index.ts to re-export
+    files_changed:
+      - src/types/{domain}.ts (new)
+      - src/types/index.ts (modified)
+
+defaults:
+  services:
+    language: typescript
+    runtime: node
+    testFramework: jest
+    buildTarget: ES2022
+    moduleSystem: ESNext
+
+mcp_tools:
+  start-sprint:
+    phase: "§2.4"
+    description: Initialize new sprint with manifest, directory structure, and feature branch
+    protocol_rules:
+      - S1 (sprint start gate)
+      - S3 (single active sprint)
+      - S11 (feature branch creation)
+    creates:
+      - planning/active/sprint-{id}/sprint-manifest.yaml
+      - planning/active/sprint-{id}/implementation-plan.md
+      - planning/active/sprint-{id}/request-log.md
+      - planning/active/sprint-{id}/backlog.yaml (if enabled)
+      - feature branch feature/sprint-{id}-{description}
+    worktree_model: Creates .worktrees/sprint-{id}/ worktree for isolation
+
+  check-sprint-status:
+    phase: "§2.3"
+    description: Verify current sprint state and check for active sprints
+    protocol_rules:
+      - S3 (single active sprint validation)
+    checks:
+      - Active sprints in planning/active/
+      - Worktree existence and consistency
+      - Orphaned worktrees detection
+      - Sprint index synchronization
+
+  update-sprint-status:
+    phase: "§2.4-§2.9"
+    description: Update sprint status atomically in manifest and index
+    protocol_rules:
+      - Status transitions (planning → in-progress → validating → verifying → published → complete)
+      - Lifecycle hooks (§2.2.2) - PRE phase blocks, POST phase non-blocking
+    lifecycle_hooks:
+      - pre-status-change (blocking)
+      - post-status-change (non-blocking)
+
+  complete-sprint:
+    phase: "§2.9"
+    description: Complete sprint with artifact validation and status update
+    protocol_rules:
+      - S2 (completion gate)
+      - S14 (PR handling)
+    completion_modes:
+      normal: Requires all artifacts validated
+      forced: Allows completion despite missing artifacts
+    validates:
+      - sprint-manifest.yaml exists
+      - implementation-plan.md exists
+      - request-log.md exists
+      - verification-report.md exists
+    lifecycle_hooks:
+      - pre-complete (blocking)
+      - post-complete (non-blocking)
+
+  cleanup-sprint:
+    phase: "§2.9"
+    description: Remove worktrees for completed sprints to free disk space
+    protocol_rules:
+      - Only removes worktrees for complete sprints
+      - Preserves planning artifacts in main repo
+    lifecycle_hooks:
+      - pre-worktree-remove (blocking)
+      - post-worktree-remove (non-blocking)
+
+  archive-sprint:
+    phase: "§2.9.1"
+    description: Move completed sprints to archive/{year}/ with knowledge extraction
+    protocol_rules:
+      - Only archives complete sprints
+      - Moves from planning/active/ to planning/archive/{year}/
+      - Extracts knowledge (lessons, patterns, anti-patterns)
+      - Updates sprint index
+    lifecycle_hooks:
+      - pre-archive (blocking)
+      - post-archive (non-blocking)
+    knowledge_extraction:
+      - Lessons from key-learnings.md and retro.md
+      - Patterns from "what went well" sections
+      - Anti-patterns from "what to improve" sections
+      - Metrics (duration, velocity)
+
+  auto-archive-sprints:
+    phase: "§2.9.1"
+    description: Batch archive completed sprints based on configurable criteria
+    criteria:
+      age: Archive sprints older than N days
+      count: Keep only N most recent sprints
+      hybrid: Must meet both age AND count criteria
+    configuration: planning/archive-config.yaml
+
+  regenerate-sprint-index:
+    phase: "§2.3.2"
+    description: Rebuild sprint index from all manifests (recovery mechanism)
+    protocol_rules:
+      - Index is derived cache, manifests are source of truth
+      - Scans planning/active/ and planning/archive/
+      - Validates regenerated index
+    repair_mode: Creates minimal manifests for directories missing them
 
 stack:
   runtime: node
   language: typescript
   target: ES2022
   module: ESNext
-
-mcp:
-  protocol_version: "2024-11-05"
-  transport: stdio
-  capabilities:
-    tools: true
-    resources: false
-    prompts: false
-
-tools:
-  - name: start-sprint
-    description: Initialize a new sprint with manifest and directory structure
-  - name: check-sprint-status
-    description: Verify current sprint state and validate no conflicting active sprints
-  - name: create-sprint-manifest
-    description: Generate sprint-manifest.yaml with required metadata
-  - name: log-request
-    description: Log user prompts and agent actions to request-log.md
-  - name: validate-deliverable
-    description: Execute validation script and report results
-  - name: verify-deliverable
-    description: Generate verification-report.md with completed/partial/deferred items
-  - name: create-pull-request
-    description: Publish sprint deliverables via GitHub PR
-  - name: complete-sprint
-    description: Generate retro.md and key-learnings.md, mark sprint complete
-
-dependencies:
-  runtime:
-    - "@modelcontextprotocol/sdk": "^1.0.0"
-  dev:
-    - typescript: "^5.3.0"
-    - jest: "^29.7.0"
-    - "@types/node": "^20.10.0"
-    - "@types/jest": "^29.5.0"
-    - ts-jest: "^29.1.0"
+  package_manager: npm
 
 build:
   outDir: dist
   clean: true
   sourceMaps: true
   declaration: true
+  declarationMap: true
 
 testing:
   framework: jest
+  preset: ts-jest
+  testEnvironment: node
   coverage: true
   threshold:
     lines: 80
@@ -61,17 +260,67 @@ testing:
 
 deployment:
   type: npm-package
-  registry: local
+  installation: Via .mcp.json in Claude Code settings
+  transport: stdio
+  environment_variables:
+    SPRINT_ROOT: Required - path to sprint-mcp repository
+    LOG_LEVEL: Optional - debug | info | warn | error (default: info)
+    NODE_ENV: Optional - development | production (default: production)
 
 constraints:
   - No TODOs in production paths
   - All external I/O must be logged
   - Strong error handling required
   - Validate environment on startup
-  - All tools must trace to sprint protocol phases
+  - All tools must trace to sprint protocol phases (§2.4-§2.9)
+  - Use response-composer.ts for protocol citations
+  - Maintain backlog.yaml accountability per §2.3.1
 
-llm_prompt: |
-  This is an MCP server that implements tooling for the Sprint Protocol defined in AGENTS.md.
-  When adding new tools, ensure they map to specific sprint phases (Plan, Implement, Validate, Verify, Publish, Retro).
-  All file operations should be atomic and traceable to request-log.md entries.
-  Follow the Definition of Done criteria from AGENTS.md.
+directory_structure:
+  src/:
+    tools/: MCP tool implementations (start-sprint, complete-sprint, etc.)
+    common/: Shared utilities (file-utils, git-utils, logger, etc.)
+    types/: TypeScript type definitions
+    index.ts: MCP server entry point and tool registration
+  planning/:
+    active/: Active and recent completed sprints
+    archive/: Archived sprints organized by year
+    knowledge/: Extracted knowledge base from archived sprints
+    sprint-index.yaml: Derived index of all sprints
+    archive-config.yaml: Archive system configuration
+  documentation/:
+    schema/: JSON schemas (architecture.v2.json)
+  AGENTS-uncompressed.md: Sprint Protocol definition (SOURCE FILE)
+  AGENTS.md: Compressed Sprint Protocol (generated, DO NOT MODIFY)
+  CLAUDE.md: LLM agent guidance and workflow instructions
+  architecture.yaml: This file - canonical source of truth
+
+code_style:
+  filenames: kebab-case
+  classes_interfaces: PascalCase
+  functions_variables: camelCase
+  constants: UPPER_SNAKE_CASE
+  imports: Explicit .js extensions for ESM compatibility
+
+logging:
+  facade: src/common/logger.ts
+  levels:
+    info: Useful information
+    error: Errors
+    debug: Detailed insight
+  requirements:
+    - Log all network operations with context
+    - Log all filesystem operations with context
+    - Log all git operations with context
+
+error_handling:
+  - Strong try/catch discipline
+  - Graceful degradation where possible
+  - Validate environment variables on startup
+  - Clear error messages with remediation guidance
+
+version_control:
+  sprint_branches: feature/sprint-{id}-{description}
+  main_branch: main
+  worktree_isolation: .worktrees/sprint-{id}/ for active sprints
+  planning_artifacts: Always committed to main repo planning/ directory
