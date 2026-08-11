@@ -10,6 +10,10 @@
 import { logger } from '../common/logger.js';
 import { regenerateSprintIndex } from '../common/sprint-index-manager.js';
 import { validateSprintIndex } from '../common/sprint-index-validator.js';
+import {
+  formatProtocolCitationsSection,
+  type ProtocolCitation,
+} from '../common/response-composer.js';
 
 interface RegenerateSprintIndexResult {
   content: Array<{
@@ -66,6 +70,18 @@ export async function regenerateSprintIndexTool(
           resultText += `${statusIcon} ${sprint.id}: ${sprint.title} (${sprint.status})\n`;
         });
       }
+
+      // Build protocol citations for concise output
+      const citations: ProtocolCitation[] = [
+        {
+          ref: '§2.3.2',
+          description: `Sprint index regenerated from ${index.totalSprints} manifest(s) - index is derived cache, manifests are source of truth`,
+          satisfied: true,
+        },
+      ];
+
+      resultText += `\n---\n\n`;
+      resultText += formatProtocolCitationsSection(citations);
     } else {
       // Detailed output for repair mode or when there are issues
       resultText = `✅ Sprint index regenerated successfully!\n\n`;
@@ -183,6 +199,26 @@ export async function regenerateSprintIndexTool(
       }
 
       resultText += `\n📄 Index file: planning/sprint-index.yaml\n`;
+
+      // Build protocol citations for detailed output
+      const citations: ProtocolCitation[] = [
+        {
+          ref: '§2.3.2',
+          description: `Sprint index regenerated from ${index.totalSprints} manifest(s) - index is derived cache, manifests are source of truth`,
+          satisfied: true,
+        },
+      ];
+
+      if (repair && repairedDirectories > 0) {
+        citations.push({
+          ref: '§2.3.2',
+          description: `Repair mode: ${repairedDirectories} manifest(s) auto-generated to restore index consistency`,
+          satisfied: true,
+        });
+      }
+
+      resultText += `\n---\n\n`;
+      resultText += formatProtocolCitationsSection(citations);
     }
 
     logger.info(
