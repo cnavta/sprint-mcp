@@ -411,7 +411,6 @@ The sprint directory lives WITHIN the worktree for unified workflow:
       request-log.md
       validate_deliverable.sh
       verification-report.md
-      publication.yaml
       retro.md
       key-learnings.md
   src/                               ← Code changes on feature branch
@@ -419,6 +418,8 @@ The sprint directory lives WITHIN the worktree for unified workflow:
     common/
     ...
 ```
+
+**Note**: `publication.yaml` was deprecated in Protocol v2.5 (Sprint 20). Publication metadata (PR URL, branch push timestamps, publication method) is now tracked in `sprint-manifest.yaml` under the optional `publication` field and `links.pr` field.
 
 After PR merge to main, the sprint directory structure appears in the main repository:
 
@@ -432,7 +433,6 @@ planning/
       request-log.md
       validate_deliverable.sh
       verification-report.md
-      publication.yaml
       retro.md
       key-learnings.md
 ```
@@ -895,23 +895,31 @@ If an authorized push or PR action fails, stop that action, record the material 
 | Rule | Description |
 |------|-------------|
 | **S11** | A new feature branch MUST be created and verified at sprint initialization and used for all sprint changes. |
-| **S12** | When sprint work is complete, the LLM MUST push the feature branch and record the result unless the human explicitly accepts a push exception. |
-| **S13** | A sprint cannot close until either (a) the completion branch was pushed, or (b) the failed or omitted push was recorded and explicitly accepted by the human. |
+| **S12** | When sprint work is complete, the LLM MUST push the feature branch and record the result in `sprint-manifest.yaml` unless the human explicitly accepts a push exception. |
+| **S13** | A sprint cannot close until either (a) the completion branch was pushed and recorded in `sprint-manifest.yaml`, or (b) the failed or omitted push was logged and explicitly accepted by the human. |
 | **S14** | PR and release decisions are human-defined and independent from the protocol's branch-push handoff. |
 
-`publication.yaml` should contain:
+**Publication Metadata** (as of Protocol v2.5):
+
+Publication information is now tracked directly in `sprint-manifest.yaml`:
 
 ```yaml
-branch: feature/sprint-X-Y-...
-headCommit: <commit-sha>
-pushStatus: "pending | succeeded | failed | waived"
-pr:
-  desired: false
-  owner: null # human | llm | automation | other
-  timing: null
-  status: "not-planned | planned | created | failed | waived"
-  url: null
+# sprint-manifest.yaml
+id: sprint-X-Y-...
+title: "Sprint Title"
+status: complete
+links:
+  branch: feature/sprint-X-Y-...
+  pr: https://github.com/owner/repo/pull/123  # Optional PR URL
+
+publication:  # Optional publication metadata
+  method: github-cli | github-api | manual
+  prCreatedAt: "2026-08-11T12:00:00Z"
+  branchPushedAt: "2026-08-11T11:55:00Z"
+  notes: "Additional publication notes"
 ```
+
+**Note**: `publication.yaml` was deprecated in Protocol v2.5 (Sprint 20). The manifest is now the single source of truth for all sprint metadata, including publication details.
 
 ### Human-Defined Release (optional and separate from sprint completion)
 
@@ -939,7 +947,7 @@ Before asking the human to complete the sprint, the LLM MUST present a completio
 A sprint officially completes only when:
 
 - `validate_deliverable.sh` is logically passable, or current failures are documented and explicitly accepted by the human
-- The branch was pushed and recorded in `publication.yaml`, or the failed or omitted push was logged and explicitly accepted by the human
+- The branch was pushed and recorded in `sprint-manifest.yaml`, or the failed or omitted push was logged and explicitly accepted by the human
 - `verification-report.md`, `retro.md`, and `key-learnings.md` exist
 - The human says `Sprint complete` or `Force complete sprint`
 
@@ -1061,7 +1069,7 @@ If the human says `Force complete sprint`, the LLM may close the sprint even if:
 
 1. All known failures and gaps are documented under **Partial** or **Deferred** in `verification-report.md`.
 2. The issues are recorded as atomic observations in `retro.md` and, when reusable, as learning records in `key-learnings.md`.
-3. Any failed or omitted push is recorded in `publication.yaml` and `request-log.md`.
+3. Any failed or omitted push is recorded in `sprint-manifest.yaml` (in links or publication fields) and `request-log.md`.
 
 Force completion never authorizes a release.
 

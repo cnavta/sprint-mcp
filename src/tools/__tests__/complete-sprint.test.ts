@@ -35,6 +35,10 @@ describe('complete-sprint - Integration Tests', () => {
 
   /**
    * Helper: Create sprint with artifacts
+   *
+   * Note: publication.yaml is deprecated as of Protocol v2.5 (Sprint 20).
+   * By default, this helper does NOT create publication.yaml. Set publication: true
+   * for backward compatibility testing with old sprints.
    */
   async function createSprint(
     sprintId: string,
@@ -76,7 +80,8 @@ describe('complete-sprint - Integration Tests', () => {
     if (artifacts.keyLearnings !== false) {
       await writeFile(join(sprintDir, 'key-learnings.md'), '# Key Learnings');
     }
-    if (artifacts.publication !== false) {
+    // publication.yaml is deprecated - only create if explicitly requested for backward compat tests
+    if (artifacts.publication === true) {
       await writeFile(join(sprintDir, 'publication.yaml'), 'pr: null');
     }
 
@@ -140,7 +145,7 @@ describe('complete-sprint - Integration Tests', () => {
         verification: false, // Missing
         retro: true,
         keyLearnings: true,
-        publication: true,
+        // Note: publication.yaml NOT required (deprecated in v2.5)
       });
 
       const result = await completeSprintTool({
@@ -157,6 +162,8 @@ describe('complete-sprint - Integration Tests', () => {
     // Tests for artifact validation (forced mode)
     it('should successfully complete sprint in normal mode with all artifacts', async () => {
       await createSprint('sprint-1-test', 'in-progress');
+      // Default creates: verification-report.md, retro.md, key-learnings.md
+      // publication.yaml is NOT created (deprecated in v2.5)
 
       const result = await completeSprintTool({
         sprintId: 'sprint-1-test',
@@ -175,7 +182,6 @@ describe('complete-sprint - Integration Tests', () => {
         verification: true,
         retro: false, // Missing
         keyLearnings: true,
-        publication: true,
       });
 
       const result = await completeSprintTool({
@@ -194,7 +200,6 @@ describe('complete-sprint - Integration Tests', () => {
         verification: false, // Missing
         retro: false, // Missing
         keyLearnings: true,
-        publication: true,
       });
 
       const result = await completeSprintTool({
@@ -207,6 +212,25 @@ describe('complete-sprint - Integration Tests', () => {
       const text = result.content[0].text;
       expect(text).toContain('completed successfully');
       expect(text).toContain('Completion Mode: forced');
+    });
+
+    // Backward compatibility test
+    it('should handle old sprints with publication.yaml (backward compat)', async () => {
+      // Create sprint with publication.yaml (old format, pre-v2.5)
+      await createSprint('sprint-old-test', 'in-progress', {
+        publication: true, // Old sprint has publication.yaml
+      });
+
+      const result = await completeSprintTool({
+        sprintId: 'sprint-old-test',
+        completionMode: 'normal',
+      });
+
+      // Should still complete successfully (publication.yaml is ignored)
+      expect(isValidMCPResponse(result)).toBe(true);
+      expect(isErrorResponse(result)).toBe(false);
+      const text = result.content[0].text;
+      expect(text).toContain('completed successfully');
     });
 
     it('should throw error when sprintId missing', async () => {

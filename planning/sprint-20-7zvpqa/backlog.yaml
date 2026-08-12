@@ -1,0 +1,572 @@
+# Sprint 20 Implementation Backlog
+# Publication.yaml Deprecation - Option 3 Implementation
+
+metadata:
+  sprint_id: sprint-20-7zvpqa
+  title: Publication.yaml Deprecation Implementation
+  created: 2026-08-11
+  last_updated: 2026-08-11
+  total_tasks: 18
+  estimated_effort_hours: 6
+
+# Task Status Values: pending | in-progress | completed | deferred | blocked
+# Priority Values: P0 (critical) | P1 (high) | P2 (medium) | P3 (low)
+
+tasks:
+  # ============================================================================
+  # PHASE 1: SCHEMA ENHANCEMENT
+  # ============================================================================
+
+  - id: BL-001
+    title: Extend SprintManifest TypeScript interface
+    description: |
+      Add optional publication metadata to SprintManifest interface in src/types/sprint.ts.
+
+      New fields:
+      - publication.method: 'github-cli' | 'github-api' | 'manual'
+      - publication.prCreatedAt: ISO 8601 timestamp
+      - publication.branchPushedAt: ISO 8601 timestamp
+      - publication.notes: string
+    priority: P0
+    status: completed
+    phase: schema-enhancement
+    dependencies: []
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - SprintManifest interface includes optional publication field
+      - Publication subtype properly defined with all fields
+      - TypeScript compiles without errors
+      - Backward compatible (existing manifests still valid)
+    files_to_modify:
+      - src/types/sprint.ts
+
+  - id: BL-002
+    title: Update sprint manifest schema documentation
+    description: |
+      Document the new publication metadata fields in comments and examples.
+      Add JSDoc comments explaining when to use publication metadata.
+    priority: P1
+    status: completed
+    phase: schema-enhancement
+    dependencies:
+      - BL-001
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - JSDoc comments added to publication field
+      - Usage examples in comments
+      - Schema documentation updated
+    files_to_modify:
+      - src/types/sprint.ts
+
+  - id: BL-003
+    title: Validate schema changes with existing manifests
+    description: |
+      Test that existing sprint manifests (without publication field) still parse correctly.
+      Ensure backward compatibility by loading 5-10 existing manifests.
+    priority: P0
+    status: completed
+    phase: schema-enhancement
+    dependencies:
+      - BL-001
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - All existing manifests parse successfully
+      - No TypeScript errors when loading old manifests
+      - Optional publication field doesn't break existing code
+    test_manifests:
+      - planning/sprint-19-hmbhz0/sprint-manifest.yaml
+      - planning/sprint-16-rgo90d/sprint-manifest.yaml
+      - planning/sprint-15-dq6cg7/sprint-manifest.yaml
+
+  # ============================================================================
+  # PHASE 2: TOOL UPDATES - COMPLETE SPRINT
+  # ============================================================================
+
+  - id: BL-004
+    title: Remove publication.yaml from required artifacts
+    description: |
+      Update checkRequiredArtifacts() in src/tools/complete-sprint.ts to remove
+      publication.yaml from the required artifacts list.
+
+      Before: ['verification-report.md', 'retro.md', 'key-learnings.md', 'publication.yaml']
+      After: ['verification-report.md', 'retro.md', 'key-learnings.md']
+    priority: P0
+    status: completed
+    phase: tool-updates
+    dependencies:
+      - BL-001
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - publication.yaml removed from requiredArtifacts array
+      - Validation passes without publication.yaml
+      - Error messages updated (don't mention publication.yaml)
+      - Tests updated to reflect new requirement
+    files_to_modify:
+      - src/tools/complete-sprint.ts
+      - src/tools/__tests__/complete-sprint.test.ts
+
+  - id: BL-005
+    title: Update complete-sprint tool documentation
+    description: |
+      Update JSDoc comments in complete-sprint.ts to reflect that publication.yaml
+      is no longer required. Update protocol references.
+    priority: P1
+    status: completed
+    phase: tool-updates
+    dependencies:
+      - BL-004
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - JSDoc updated in complete-sprint.ts
+      - Protocol §2.9 reference updated
+      - Comment listing required artifacts updated
+    files_to_modify:
+      - src/tools/complete-sprint.ts
+
+  - id: BL-006
+    title: Update complete-sprint tests for new requirements
+    description: |
+      Modify complete-sprint.test.ts to test sprints without publication.yaml.
+      Add test cases for:
+      - Sprint completion succeeds without publication.yaml
+      - Sprint completion with publication metadata in manifest
+      - Backward compatibility with old sprints that have publication.yaml
+    priority: P0
+    status: completed
+    phase: tool-updates
+    dependencies:
+      - BL-004
+    estimated_hours: 1
+    acceptance_criteria:
+      - New test: completion without publication.yaml succeeds
+      - New test: publication metadata in manifest works
+      - Old test: backward compat with publication.yaml still works
+      - All tests pass
+      - Test coverage maintained or improved
+    files_to_modify:
+      - src/tools/__tests__/complete-sprint.test.ts
+
+  # ============================================================================
+  # PHASE 2: TOOL UPDATES - UPDATE SPRINT STATUS
+  # ============================================================================
+
+  - id: BL-007
+    title: Add publication metadata support to update-sprint-status
+    description: |
+      Extend update-sprint-status.ts to optionally write publication metadata
+      to sprint-manifest.yaml when PR is created.
+
+      When pr parameter is provided:
+      - Set manifest.links.pr = pr
+      - Set manifest.publication.prCreatedAt = current timestamp
+      - Set manifest.publication.method = 'github-cli' (detect from context)
+    priority: P1
+    status: completed
+    phase: tool-updates
+    dependencies:
+      - BL-001
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - update-sprint-status accepts optional publication metadata
+      - PR URL updates both links.pr and publication.prCreatedAt
+      - Publication method auto-detected or specified
+      - Backward compatible (publication metadata is optional)
+    files_to_modify:
+      - src/tools/update-sprint-status.ts
+
+  - id: BL-008
+    title: Update update-sprint-status tests
+    description: |
+      Add test cases for publication metadata in update-sprint-status.test.ts.
+      Test that publication metadata is correctly written to manifest.
+    priority: P1
+    status: completed
+    phase: tool-updates
+    dependencies:
+      - BL-007
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - Test: PR update includes publication.prCreatedAt
+      - Test: Publication metadata is optional
+      - Test: Backward compat without publication metadata
+      - All tests pass
+    files_to_modify:
+      - src/tools/__tests__/update-sprint-status.test.ts
+
+  # ============================================================================
+  # PHASE 2: PROTOCOL DOCUMENTATION UPDATES
+  # ============================================================================
+
+  - id: BL-009
+    title: Update AGENTS-uncompressed.md protocol
+    description: |
+      Update AGENTS-uncompressed.md to remove publication.yaml requirement:
+
+      Changes:
+      - §2.9: Remove publication.yaml from required artifacts list
+      - §2.9: Update completion criteria to reference manifest.links.pr
+      - Rule S13: Change from "publication.yaml" to "manifest.links.pr"
+      - Directory structure diagram: Remove publication.yaml line
+      - Add deprecation notice explaining the change
+    priority: P0
+    status: completed
+    phase: protocol-docs
+    dependencies:
+      - BL-004
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - publication.yaml removed from all artifact lists
+      - Rule S13 updated to reference manifest
+      - Deprecation notice added with migration guidance
+      - All references to publication.yaml removed or marked deprecated
+    files_to_modify:
+      - AGENTS-uncompressed.md
+
+  - id: BL-010
+    title: Regenerate AGENTS.md compressed protocol
+    description: |
+      Regenerate AGENTS.md from AGENTS-uncompressed.md using semantic compression.
+      Ensure all publication.yaml references are removed or deprecated.
+
+      Note: This is a GENERATED file - modifications to AGENTS-uncompressed.md
+      should flow through to AGENTS.md.
+    priority: P0
+    status: completed
+    phase: protocol-docs
+    dependencies:
+      - BL-009
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - AGENTS.md regenerated from AGENTS-uncompressed.md
+      - publication.yaml references removed
+      - File size reduced or similar to current
+      - Semantic meaning preserved
+    files_to_modify:
+      - AGENTS.md
+    notes: |
+      May require manual semantic compression or use of compression tool.
+      Check if automated compression script exists in repo.
+
+  - id: BL-011
+    title: Update CLAUDE.md user guide
+    description: |
+      Update CLAUDE.md to remove publication.yaml from:
+      - Sprint Directory Structure section
+      - Key Workflow Gates section
+      - Git and Publication Rules section
+
+      Add note about deprecation and when it was removed.
+    priority: P1
+    status: completed
+    phase: protocol-docs
+    dependencies:
+      - BL-009
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - Sprint directory structure updated
+      - Workflow gates section updated
+      - Deprecation note added with effective date
+      - All examples updated
+    files_to_modify:
+      - CLAUDE.md
+
+  # ============================================================================
+  # PHASE 3: BACKWARD COMPATIBILITY & MIGRATION
+  # ============================================================================
+
+  - id: BL-012
+    title: Create migration guide document
+    description: |
+      Create a migration guide explaining the change for users with existing sprints.
+
+      Contents:
+      - Why publication.yaml was deprecated
+      - What changed and when
+      - What to do with existing publication.yaml files (keep them)
+      - How new sprints will work
+      - How to manually migrate if desired
+      - FAQ section
+    priority: P1
+    status: completed
+    phase: backward-compat
+    dependencies:
+      - BL-009
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - Migration guide created
+      - Clear explanation of changes
+      - Guidance for existing sprints
+      - Examples provided
+    files_to_create:
+      - planning/sprint-20-7zvpqa/MIGRATION-GUIDE.md
+
+  - id: BL-013
+    title: Verify backward compatibility with archived sprints
+    description: |
+      Test that archived sprints with publication.yaml still work correctly:
+      - Loading manifests doesn't break
+      - Archive system handles old sprints
+      - Knowledge extraction works
+      - Cleanup tool works
+
+      Test with 3-5 archived sprints that have publication.yaml.
+    priority: P0
+    status: completed
+    phase: backward-compat
+    dependencies:
+      - BL-004
+      - BL-007
+    estimated_hours: 0.5
+    acceptance_criteria:
+      - 5 archived sprints tested
+      - No errors loading old manifests
+      - Archive operations work
+      - Knowledge extraction works
+      - No regressions detected
+    test_sprints:
+      - planning/archive/2026/sprint-10-t5kiid
+      - planning/archive/2026/sprint-9-qpzk5e
+      - planning/archive/2026/sprint-7-f7cz9y
+      - planning/archive/2026/sprint-5-f38572
+      - planning/archive/2026/sprint-3-c8f2a9
+
+  - id: BL-014
+    title: Optional migration script (deferred)
+    description: |
+      Create optional migration script to extract publication.yaml data into
+      sprint-manifest.yaml for existing sprints.
+
+      This is LOW priority - only needed if users want to consolidate old data.
+      Most users can just leave old publication.yaml files in place.
+
+      Script would:
+      - Find all publication.yaml files
+      - Parse each one (handling multiple formats)
+      - Extract relevant data
+      - Update corresponding sprint-manifest.yaml
+      - Backup original files
+    priority: P3
+    status: deferred
+    phase: backward-compat
+    dependencies:
+      - BL-001
+      - BL-007
+    estimated_hours: 2
+    acceptance_criteria:
+      - Script handles all 4 publication.yaml formats
+      - Backs up files before modifying
+      - Dry-run mode available
+      - Error handling for edge cases
+    files_to_create:
+      - scripts/migrate-publication-yaml.ts
+    notes: |
+      DEFERRED - Not required for deprecation.
+      Only implement if user specifically requests migration of old files.
+
+  # ============================================================================
+  # PHASE 4: DOCUMENTATION & EXAMPLES
+  # ============================================================================
+
+  - id: BL-015
+    title: Update README.md
+    description: |
+      Update main README.md to remove publication.yaml from:
+      - Sprint artifacts list
+      - Examples
+      - Sprint completion checklist
+
+      Add brief note about deprecation.
+    priority: P1
+    status: completed
+    phase: documentation
+    dependencies:
+      - BL-009
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - publication.yaml removed from artifact lists
+      - Examples updated
+      - Deprecation note added
+    files_to_modify:
+      - README.md
+
+  - id: BL-016
+    title: Update README-development.md
+    description: |
+      Update developer README to remove publication.yaml from:
+      - Complete sprint tool documentation
+      - Artifact validation section
+      - Example sprint structures
+    priority: P1
+    status: completed
+    phase: documentation
+    dependencies:
+      - BL-009
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - Complete sprint tool docs updated
+      - Validation examples updated
+      - No references to publication.yaml as required
+    files_to_modify:
+      - README-development.md
+
+  - id: BL-017
+    title: Update example sprint directories
+    description: |
+      Update any example sprint directories in examples/ to not include
+      publication.yaml, or mark it as deprecated/optional.
+    priority: P2
+    status: deferred
+    phase: documentation
+    dependencies:
+      - BL-009
+    estimated_hours: 0.25
+    acceptance_criteria:
+      - Examples updated or marked deprecated
+      - No confusion about current requirements
+    files_to_check:
+      - examples/ (if any sprint examples exist)
+
+  # ============================================================================
+  # PHASE 5: INTEGRATION TESTING
+  # ============================================================================
+
+  - id: BL-018
+    title: End-to-end integration test
+    description: |
+      Perform full sprint lifecycle test without publication.yaml:
+
+      1. Start new sprint
+      2. Complete implementation
+      3. Run validation
+      4. Create completion artifacts (without publication.yaml)
+      5. Complete sprint (should succeed)
+      6. Verify sprint-manifest.yaml has all needed data
+      7. Verify sprint-index.yaml updated correctly
+      8. Create PR
+      9. Verify PR URL in manifest.links.pr
+      10. Archive sprint
+
+      This validates the entire workflow works without publication.yaml.
+    priority: P0
+    status: completed
+    phase: integration-testing
+    dependencies:
+      - BL-004
+      - BL-007
+      - BL-009
+    estimated_hours: 1
+    acceptance_criteria:
+      - Full sprint lifecycle completes without errors
+      - No publication.yaml created
+      - All data tracked in manifest and index
+      - PR creation works
+      - Archive works
+      - No regressions in existing functionality
+    notes: |
+      This is the final validation that everything works together.
+      Can be done as part of completing Sprint 20 or as a separate test sprint.
+
+# ============================================================================
+# SUMMARY
+# ============================================================================
+
+summary:
+  total_tasks: 18
+  by_priority:
+    P0: 8   # Critical path
+    P1: 7   # High priority
+    P2: 2   # Medium priority
+    P3: 1   # Low priority (deferred)
+
+  by_phase:
+    schema-enhancement: 3
+    tool-updates: 5
+    protocol-docs: 3
+    backward-compat: 3
+    documentation: 3
+    integration-testing: 1
+
+  estimated_hours:
+    schema-enhancement: 1.0
+    tool-updates: 2.5
+    protocol-docs: 1.0
+    backward-compat: 1.0
+    documentation: 0.75
+    integration-testing: 1.0
+    total: 7.25
+
+  critical_path:
+    - BL-001  # Extend schema
+    - BL-003  # Validate schema
+    - BL-004  # Remove from required artifacts
+    - BL-006  # Update tests
+    - BL-009  # Update protocol docs
+    - BL-013  # Verify backward compatibility
+    - BL-018  # End-to-end test
+
+  deferred:
+    - BL-014  # Migration script (P3, not required)
+
+# ============================================================================
+# DEPENDENCIES GRAPH
+# ============================================================================
+
+dependency_notes: |
+  Linear dependencies:
+  BL-001 → BL-002, BL-003, BL-004, BL-007
+  BL-004 → BL-005, BL-006, BL-009
+  BL-007 → BL-008
+  BL-009 → BL-010, BL-011, BL-012, BL-015, BL-016, BL-017
+
+  Parallel work possible:
+  - BL-002, BL-003 can run in parallel after BL-001
+  - BL-005, BL-006 can run in parallel after BL-004
+  - BL-010, BL-011, BL-012, BL-015, BL-016, BL-017 can run in parallel after BL-009
+
+  Final validation:
+  BL-018 requires BL-004, BL-007, BL-009 complete
+
+# ============================================================================
+# RISKS
+# ============================================================================
+
+risks:
+  - id: RISK-001
+    description: Existing tooling or scripts outside repo depend on publication.yaml
+    mitigation: Keep backward compatibility; old files remain valid
+    severity: low
+
+  - id: RISK-002
+    description: Agents confused by change, create publication.yaml anyway
+    mitigation: Clear protocol updates, deprecation notices, examples
+    severity: medium
+
+  - id: RISK-003
+    description: Data loss during migration
+    mitigation: Don't delete old files; migration is optional
+    severity: low
+
+  - id: RISK-004
+    description: Test coverage gaps with new approach
+    mitigation: Comprehensive test updates in BL-006, BL-008, BL-018
+    severity: medium
+
+# ============================================================================
+# NOTES
+# ============================================================================
+
+notes: |
+  This backlog implements Option 3 from the analysis report: complete deprecation
+  of publication.yaml with migration to sprint-manifest.yaml.
+
+  The implementation is designed to be:
+  - Backward compatible (old sprints keep working)
+  - Gradual (old publication.yaml files remain)
+  - Well-tested (multiple test tasks)
+  - Well-documented (migration guide, updated docs)
+
+  Total estimated effort: 7.25 hours
+  Critical path can be completed in one focused sprint.
+
+  Deferred task BL-014 (migration script) can be implemented later if needed,
+  but is not required for the deprecation to work.

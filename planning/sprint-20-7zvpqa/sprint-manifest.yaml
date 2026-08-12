@@ -1,0 +1,13 @@
+id: sprint-20-7zvpqa
+title: Publication.yaml Requirement Analysis
+goal: Analyze the current publication.yaml requirement in the sprint protocol to
+  determine if it should be removed, modified, or retained based on how the
+  process has evolved
+owner: christophernavta
+createdAt: 2026-08-11T23:40:26.858Z
+status: complete
+links:
+  branch: feature/sprint-20-7zvpqa-publication-yaml-requirement-a
+notes: Sprint initialized via MCP start-sprint tool
+completedAt: 2026-08-12T00:32:04.996Z
+completionMode: forced
