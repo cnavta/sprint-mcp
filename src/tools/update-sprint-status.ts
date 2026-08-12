@@ -18,7 +18,7 @@ import {
   formatProtocolCitationsSection,
   type ProtocolCitation,
 } from '../common/response-composer.js';
-import type { SprintManifest, SprintStatus } from '../types/sprint.js';
+import type { SprintManifest, SprintStatus, PublicationMethod } from '../types/sprint.js';
 import type { SprintCompletionMode } from '../types/sprint-index.js';
 
 interface UpdateSprintStatusArgs {
@@ -27,6 +27,11 @@ interface UpdateSprintStatusArgs {
   completedAt?: string;
   completionMode?: SprintCompletionMode;
   pr?: string;
+  // Publication metadata (optional, Protocol v2.5+)
+  publicationMethod?: PublicationMethod;
+  prCreatedAt?: string;
+  branchPushedAt?: string;
+  publicationNotes?: string;
 }
 
 interface UpdateSprintStatusResult {
@@ -94,6 +99,23 @@ export async function updateSprintStatusTool(
 
   if (args.pr) {
     updates.pr = args.pr as string;
+  }
+
+  // Parse optional publication metadata fields (Protocol v2.5+)
+  if (args.publicationMethod) {
+    updates.publicationMethod = args.publicationMethod as PublicationMethod;
+  }
+
+  if (args.prCreatedAt) {
+    updates.prCreatedAt = args.prCreatedAt as string;
+  }
+
+  if (args.branchPushedAt) {
+    updates.branchPushedAt = args.branchPushedAt as string;
+  }
+
+  if (args.publicationNotes) {
+    updates.publicationNotes = args.publicationNotes as string;
   }
 
   logger.info(`Updating sprint status for ${sprintId}`, updates);
@@ -206,6 +228,29 @@ export async function updateSprintStatusTool(
         manifest.links = { branch: '' };
       }
       manifest.links.pr = updates.pr;
+    }
+
+    // Update publication metadata (Protocol v2.5+)
+    if (updates.publicationMethod || updates.prCreatedAt || updates.branchPushedAt || updates.publicationNotes) {
+      if (!manifest.publication) {
+        manifest.publication = {};
+      }
+
+      if (updates.publicationMethod) {
+        manifest.publication.method = updates.publicationMethod;
+      }
+
+      if (updates.prCreatedAt) {
+        manifest.publication.prCreatedAt = updates.prCreatedAt;
+      }
+
+      if (updates.branchPushedAt) {
+        manifest.publication.branchPushedAt = updates.branchPushedAt;
+      }
+
+      if (updates.publicationNotes) {
+        manifest.publication.notes = updates.publicationNotes;
+      }
     }
 
     // Write updated manifest

@@ -248,9 +248,10 @@ Every sprint creates:
 - `request-log.md` - All prompts and changes
 - `validate_deliverable.sh` - Executable validation script
 - `verification-report.md` - Completed/partial/deferred items
-- `publication.yaml` - PR URL and branch info
 - `retro.md` - What worked, what didn't
 - `key-learnings.md` - Lessons for future sprints
+
+**Note**: `publication.yaml` was deprecated in Protocol v2.5. PR URL and publication metadata are now tracked in `sprint-manifest.yaml`.
 
 ### Git Worktrees
 

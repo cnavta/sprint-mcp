@@ -207,18 +207,19 @@ Complete a sprint by validating artifacts, updating status, and providing comple
 
 **Behavior**:
 - Validates sprint manifest exists
-- Checks for required completion artifacts:
+- Checks for required completion artifacts (as of Protocol v2.5):
   - `verification-report.md` (backlog reconciliation)
   - `retro.md` (sprint retrospective)
   - `key-learnings.md` (transferable insights)
-  - `publication.yaml` (PR and branch metadata)
 - Updates sprint status to 'complete'
 - Adds completion timestamp
-- Adds PR URL (if provided)
+- Adds PR URL to manifest (if provided)
 - Returns completion summary with next steps
 
+**Note**: `publication.yaml` was deprecated in Protocol v2.5. PR URL and publication metadata are now tracked in `sprint-manifest.yaml`.
+
 **Completion Modes**:
-- **normal**: Strict mode requiring all 4 completion artifacts. Fails if any are missing.
+- **normal**: Strict mode requiring all 3 completion artifacts. Fails if any are missing.
 - **forced**: Permissive mode allowing completion despite missing artifacts. Issues warnings but proceeds.
 
 **When to Use**:
@@ -236,11 +237,10 @@ Complete a sprint by validating artifacts, updating status, and providing comple
 - Completion mode: normal
 - PR: https://github.com/owner/repo/pull/5
 
-**Artifact Validation**:
+**Artifact Validation** (Protocol v2.5+):
 ✓ verification-report.md exists
 ✓ retro.md exists
 ✓ key-learnings.md exists
-✓ publication.yaml exists
 
 **Next Steps**:
 1. Review sprint artifacts

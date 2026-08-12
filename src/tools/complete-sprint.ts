@@ -63,11 +63,13 @@ function isValidCompletionMode(mode: string): mode is SprintCompletionMode {
 /**
  * Check if required completion artifacts exist
  *
- * Required artifacts per Sprint Protocol §2.9:
+ * Required artifacts per Sprint Protocol §2.9 (as of v2.5):
  * - verification-report.md
  * - retro.md
  * - key-learnings.md
- * - publication.yaml
+ *
+ * Note: publication.yaml was deprecated in Protocol v2.5 (Sprint 20).
+ * Publication metadata is now tracked in sprint-manifest.yaml.
  *
  * @param sprintDir - Full path to sprint directory (archive-aware)
  */
@@ -78,7 +80,6 @@ async function checkRequiredArtifacts(
     'verification-report.md',
     'retro.md',
     'key-learnings.md',
-    'publication.yaml',
   ];
 
   const checks: ArtifactCheck[] = [];

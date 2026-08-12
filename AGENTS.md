@@ -224,11 +224,12 @@ Worktree structure:
     request-log.md
     validate_deliverable.sh
     verification-report.md
-    publication.yaml
     retro.md
     key-learnings.md
   src/
 ```
+
+**Note**: `publication.yaml` deprecated in v2.5. Publication metadata now in `sprint-manifest.yaml` (`links.pr` and optional `publication` field).
 
 After PR merge to main:
 ```
@@ -582,22 +583,25 @@ If authorized push/PR fails, stop, record failure, ask human. Don't treat option
 | Rule | Description |
 |------|-------------|
 | **S11** | New feature branch MUST be created and verified at initialization, used for all changes |
-| **S12** | When work complete, LLM MUST push feature branch unless human accepts push exception |
-| **S13** | Sprint cannot close until (a) branch pushed, or (b) failed/omitted push recorded and accepted |
+| **S12** | When work complete, LLM MUST push feature branch and record in `sprint-manifest.yaml` unless human accepts exception |
+| **S13** | Sprint cannot close until (a) branch pushed and recorded in `sprint-manifest.yaml`, or (b) failed/omitted push logged and accepted |
 | **S14** | PR and release decisions human-defined, independent from protocol's branch-push handoff |
 
-`publication.yaml`:
+**Publication Metadata (v2.5+)**: Tracked in `sprint-manifest.yaml`:
 ```yaml
-branch: feature/sprint-X-Y-...
-headCommit: <sha>
-pushStatus: "pending | succeeded | failed | waived"
-pr:
-  desired: false
-  owner: null # human | llm | automation | other
-  timing: null
-  status: "not-planned | planned | created | failed | waived"
-  url: null
+# sprint-manifest.yaml
+links:
+  branch: feature/sprint-X-Y-...
+  pr: https://github.com/owner/repo/pull/123  # Optional
+
+publication:  # Optional metadata
+  method: github-cli | github-api | manual
+  prCreatedAt: "2026-08-11T12:00:00Z"
+  branchPushedAt: "2026-08-11T11:55:00Z"
+  notes: "Additional notes"
 ```
+
+**Note**: `publication.yaml` deprecated in v2.5. Manifest is single source of truth.
 
 **Human-Defined Release (optional, separate from completion):**
 - Human decides whether release occurs
@@ -625,7 +629,7 @@ Before asking human to complete, LLM MUST present completion packet:
 
 **Sprint officially completes when:**
 - `validate_deliverable.sh` logically passable, or failures documented and accepted
-- Branch pushed and recorded in `publication.yaml`, or failed/omitted push logged and accepted
+- Branch pushed and recorded in `sprint-manifest.yaml`, or failed/omitted push logged and accepted
 - `verification-report.md`, `retro.md`, `key-learnings.md` exist
 - Human says `Sprint complete` or `Force complete sprint`
 
@@ -740,7 +744,7 @@ If human says `Force complete sprint`, LLM may close even if:
 …as long as:
 1. All failures/gaps documented under **Partial**/**Deferred** in `verification-report.md`
 2. Issues recorded as atomic observations in `retro.md` and (when reusable) as learning records in `key-learnings.md`
-3. Failed/omitted push recorded in `publication.yaml` and `request-log.md`
+3. Failed/omitted push recorded in `sprint-manifest.yaml` (links/publication fields) and `request-log.md`
 
 Force completion never authorizes release.
 

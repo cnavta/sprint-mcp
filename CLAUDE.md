@@ -52,10 +52,11 @@ planning/
     request-log.md            # All prompts, commands, and file changes
     validate_deliverable.sh   # Real, executable validation script
     verification-report.md    # Completed/partial/deferred items
-    publication.yaml          # PR URL and branch info
     retro.md                  # What worked, what didn't
     key-learnings.md          # Lessons for future sprints
 ```
+
+**Note**: `publication.yaml` was deprecated in Protocol v2.5 (Sprint 20). PR URL and publication metadata are now tracked in `sprint-manifest.yaml` under `links.pr` and the optional `publication` field.
 
 ## Development Commands
 
@@ -170,7 +171,7 @@ All code changes trace back to:
 
 - **S11**: New feature branch MUST be created at sprint start and used for all sprint changes
 - **S12**: Agent MUST attempt to create GitHub Pull Request at sprint completion and log the result
-- **S13**: Sprint cannot close until either (a) PR successfully created with URL in `publication.yaml`, or (b) failed PR attempt logged with error and user explicitly accepts closure
+- **S13**: Sprint cannot close until either (a) PR successfully created with URL in `sprint-manifest.yaml` (links.pr field), or (b) failed PR attempt logged with error and user explicitly accepts closure
 
 ### Creating PRs
 

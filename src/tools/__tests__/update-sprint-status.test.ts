@@ -288,6 +288,115 @@ describe('update-sprint-status tool', () => {
     });
   });
 
+  describe('Publication metadata updates (Protocol v2.5+)', () => {
+    it('should set publication metadata', async () => {
+      const result = await updateSprintStatusTool({
+        sprintId,
+        publicationMethod: 'github-cli',
+        prCreatedAt: '2026-08-11T14:00:00Z',
+        branchPushedAt: '2026-08-11T13:58:00Z',
+        publicationNotes: 'PR created successfully via gh CLI',
+      });
+
+      expect(result.isError).toBeUndefined();
+
+      // Verify manifest has publication metadata
+      const manifestContent = await readFile(manifestPath, 'utf-8');
+      const manifest = parseYaml(manifestContent) as any;
+      expect(manifest.publication).toBeDefined();
+      expect(manifest.publication.method).toBe('github-cli');
+      expect(manifest.publication.prCreatedAt).toBe('2026-08-11T14:00:00Z');
+      expect(manifest.publication.branchPushedAt).toBe('2026-08-11T13:58:00Z');
+      expect(manifest.publication.notes).toBe('PR created successfully via gh CLI');
+    });
+
+    it('should set PR URL and publication metadata together', async () => {
+      const prUrl = 'https://github.com/test/repo/pull/999';
+
+      const result = await updateSprintStatusTool({
+        sprintId,
+        pr: prUrl,
+        publicationMethod: 'github-api',
+        prCreatedAt: '2026-08-11T15:00:00Z',
+      });
+
+      expect(result.isError).toBeUndefined();
+
+      // Verify manifest
+      const manifestContent = await readFile(manifestPath, 'utf-8');
+      const manifest = parseYaml(manifestContent) as any;
+      expect(manifest.links?.pr).toBe(prUrl);
+      expect(manifest.publication).toBeDefined();
+      expect(manifest.publication.method).toBe('github-api');
+      expect(manifest.publication.prCreatedAt).toBe('2026-08-11T15:00:00Z');
+    });
+
+    it('should update individual publication metadata fields', async () => {
+      // First, set some publication metadata
+      await updateSprintStatusTool({
+        sprintId,
+        publicationMethod: 'manual',
+        prCreatedAt: '2026-08-11T10:00:00Z',
+      });
+
+      // Then update just the notes
+      await updateSprintStatusTool({
+        sprintId,
+        publicationNotes: 'Updated notes after PR merge',
+      });
+
+      // Verify both old and new fields are present
+      const manifestContent = await readFile(manifestPath, 'utf-8');
+      const manifest = parseYaml(manifestContent) as any;
+      expect(manifest.publication.method).toBe('manual');
+      expect(manifest.publication.prCreatedAt).toBe('2026-08-11T10:00:00Z');
+      expect(manifest.publication.notes).toBe('Updated notes after PR merge');
+    });
+
+    it('should handle publication metadata with status update', async () => {
+      const result = await updateSprintStatusTool({
+        sprintId,
+        status: 'published',
+        pr: 'https://github.com/test/repo/pull/777',
+        publicationMethod: 'github-cli',
+        prCreatedAt: '2026-08-11T16:00:00Z',
+        branchPushedAt: '2026-08-11T15:58:00Z',
+      });
+
+      expect(result.isError).toBeUndefined();
+
+      const manifestContent = await readFile(manifestPath, 'utf-8');
+      const manifest = parseYaml(manifestContent) as any;
+      expect(manifest.status).toBe('published');
+      expect(manifest.links?.pr).toBe('https://github.com/test/repo/pull/777');
+      expect(manifest.publication.method).toBe('github-cli');
+      expect(manifest.publication.prCreatedAt).toBe('2026-08-11T16:00:00Z');
+      expect(manifest.publication.branchPushedAt).toBe('2026-08-11T15:58:00Z');
+    });
+
+    it('should preserve existing publication metadata when updating other fields', async () => {
+      // Set initial publication metadata
+      await updateSprintStatusTool({
+        sprintId,
+        publicationMethod: 'github-cli',
+        prCreatedAt: '2026-08-11T12:00:00Z',
+      });
+
+      // Update status without touching publication metadata
+      await updateSprintStatusTool({
+        sprintId,
+        status: 'complete',
+      });
+
+      // Verify publication metadata is still there
+      const manifestContent = await readFile(manifestPath, 'utf-8');
+      const manifest = parseYaml(manifestContent) as any;
+      expect(manifest.status).toBe('complete');
+      expect(manifest.publication.method).toBe('github-cli');
+      expect(manifest.publication.prCreatedAt).toBe('2026-08-11T12:00:00Z');
+    });
+  });
+
   describe('Atomic updates', () => {
     it('should update all fields atomically', async () => {
       const updates = {
