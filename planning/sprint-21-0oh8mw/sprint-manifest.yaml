@@ -11,7 +11,7 @@ status: complete
 completion_mode: forced
 links:
   branch: feature/sprint-21-0oh8mw-new-user-experience-analysis
-  pr: null
+  pr: https://github.com/cnavta/sprint-mcp/pull/21
 notes: |
   Sprint initialized via MCP start-sprint tool.
 
