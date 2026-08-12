@@ -1,0 +1,34 @@
+id: sprint-21-0oh8mw
+title: New User Experience Analysis
+goal: Evaluate the new user experience of the Sprint Protocol and MCP tooling,
+  identifying gaps and deficits in onboarding, documentation, and ease of setup.
+  Provide comprehensive recommendations for improvements to make the system
+  production-ready for npm library publication.
+owner: christophernavta
+createdAt: 2026-08-12T01:10:19.441Z
+completedAt: 2026-08-12T05:00:00.000Z
+status: complete
+completion_mode: forced
+links:
+  branch: feature/sprint-21-0oh8mw-new-user-experience-analysis
+  pr: null
+notes: |
+  Sprint initialized via MCP start-sprint tool.
+
+  STRATEGIC RESCOPING: Sprint stopped early after identifying tri-audience architecture
+  requirement (developers + non-developers + LLM agents). Rather than retrofit
+  non-developer support, decided to rescope comprehensively in next sprint.
+
+  Completed 4/17 Phase 1 tasks (5.5 hours actual vs 11-17 estimated).
+  Work 60-95% salvageable depending on artifact.
+
+  Key deliverables:
+  - Comprehensive NUX analysis (dual-audience, extensible to tri-audience)
+  - Critical LLM Usage Guide (95% complete)
+  - Developer QUICKSTART (100% salvageable)
+  - Comprehensive transition summary for next sprint
+
+  Decision rationale: Non-developers enabled by coding agents will outnumber developers.
+  Better to design for them from foundation than retrofit later.
+
+  Next sprint: Tri-audience NUX analysis and comprehensive documentation plan.

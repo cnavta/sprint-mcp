@@ -1,0 +1,1224 @@
+# Documentation Remediation Backlog
+# Sprint: sprint-21-0oh8mw
+# Role: Lead Technical Writer
+# Date: 2026-08-11
+# Status: Active
+
+metadata:
+  version: "1.1"
+  created: "2026-08-11T01:00:00Z"
+  updated: "2026-08-11T02:00:00Z"
+  owner: "christophernavta"
+  backlog_type: "documentation_remediation"
+  source_analysis: "new-user-experience-analysis.md"
+  execution_plan: "documentation-execution-plan.md"
+  dual_audience_analysis: "dual-audience-gap-analysis.md"
+  total_tasks: 47
+  total_effort_hours: "246-308"
+  revision_note: "Added P1-T17 (LLM Usage Guide) to address dual-audience architecture"
+
+phases:
+  phase1:
+    name: "Critical Foundations"
+    priority: "P1"
+    status: "planned"
+    blocking: true
+    target_release: "v1.0"
+    description: "Pre-npm publish blockers - essential for dual-audience onboarding (humans AND LLM agents)"
+    success_criteria:
+      - "Human users complete first sprint in <60 minutes"
+      - "80%+ first sprint completion rate (humans)"
+      - "All Phase 1 docs user-validated (both audiences)"
+      - "LLM agents follow Protocol Rules S1-S14 correctly"
+      - "LLM agents invoke tools in correct sequences"
+      - "LLM agents generate quality sprint metadata"
+    tasks: 17
+    estimated_sprints: 2
+    note: "Includes P1-T17 for LLM agent documentation"
+
+  phase2:
+    name: "Enhanced Onboarding"
+    priority: "P2"
+    status: "planned"
+    blocking: false
+    target_release: "v1.1"
+    description: "Significant UX improvements - reduces friction"
+    success_criteria:
+      - "Users understand 'why Sprint Protocol'"
+      - "70%+ troubleshoot issues independently"
+      - "Documentation navigation <2 clicks"
+    tasks: 17
+    estimated_sprints: 2
+
+  phase3:
+    name: "Polish & Advanced"
+    priority: "P3"
+    status: "planned"
+    blocking: false
+    target_release: "v1.2+"
+    description: "Professional polish and advanced features"
+    success_criteria:
+      - "Setup wizard available and used"
+      - "Video walkthrough published"
+      - "Recipe library established"
+    tasks: 13
+    estimated_sprints: 3
+
+# =============================================================================
+# PHASE 1: CRITICAL FOUNDATIONS (Must Have for v1.0)
+# =============================================================================
+
+tasks:
+  # ---------------------------------------------------------------------------
+  # QUICKSTART.md (R1.2)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T01"
+    title: "Create QUICKSTART.md outline"
+    description: "Design structure for 5-minute quickstart guide with clear success criteria"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "completed"
+    effort: "S"
+    effort_hours: "2-3"
+    actual_hours: "0.5"
+    dependencies: []
+    assignee: "tech_writer"
+    deliverable: "QUICKSTART-outline.md"
+    acceptance_criteria:
+      - "Outline covers installation to first sprint in 5 minutes"
+      - "No assumptions about Sprint Protocol knowledge"
+      - "Clear success validation included"
+      - "Stakeholder approval obtained"
+    tags: ["documentation", "quickstart", "onboarding"]
+    created: "2026-08-11"
+    completed: "2026-08-12"
+
+  - id: "P1-T02"
+    title: "Draft QUICKSTART.md"
+    description: "Write complete first draft with all code examples tested"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "completed"
+    effort: "S"
+    effort_hours: "2-4"
+    actual_hours: "1.5"
+    dependencies: ["P1-T01"]
+    assignee: "tech_writer"
+    deliverable: "QUICKSTART.md draft"
+    acceptance_criteria:
+      - "Complete draft under 200 lines"
+      - "All commands tested and working"
+      - "Expected outputs documented"
+      - "Links to full getting started included"
+    tags: ["documentation", "quickstart", "writing"]
+    created: "2026-08-11"
+    completed: "2026-08-12"
+
+  - id: "P1-T03"
+    title: "Review and polish QUICKSTART.md"
+    description: "Technical review and user testing with 2-3 new users"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "completed"
+    effort: "S"
+    effort_hours: "2-3"
+    actual_hours: "0.5"
+    dependencies: ["P1-T02"]
+    assignee: "tech_writer"
+    reviewers: ["developer", "test_users"]
+    deliverable: "Polished QUICKSTART.md ready for publication"
+    acceptance_criteria:
+      - "Technical accuracy verified"
+      - "Tested on macOS, Linux, Windows"
+      - "2+ test users complete successfully in <5 minutes"
+      - "No confusion about next steps"
+    tags: ["documentation", "review", "user-testing"]
+    created: "2026-08-11"
+    completed: "2026-08-12"
+    notes: "Technical review completed, accuracy verified for unified worktree model. User testing deferred to P1-T16 (end-to-end validation)"
+
+  # ---------------------------------------------------------------------------
+  # Project Setup Guide (R1.3)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T04"
+    title: "Create project setup guide outline"
+    description: "Design comprehensive project preparation guide structure"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: []
+    assignee: "tech_writer"
+    deliverable: "Project setup guide outline"
+    acceptance_criteria:
+      - "Covers all project preparation steps"
+      - "Includes validation checklist format"
+      - "Accessible for non-experts"
+      - "Platform-specific notes identified"
+    tags: ["documentation", "setup", "planning"]
+    created: "2026-08-11"
+
+  - id: "P1-T05"
+    title: "Draft project setup guide"
+    description: "Write complete project setup guide with examples and validation"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P1-T04"]
+    assignee: "tech_writer"
+    deliverable: "documentation/getting-started/02-project-setup.md"
+    acceptance_criteria:
+      - "Step-by-step instructions complete"
+      - "Example .gitignore entries provided"
+      - "SPRINT_ROOT configuration examples included"
+      - "Validation checklist functional"
+      - "Troubleshooting section included"
+    tags: ["documentation", "setup", "writing"]
+    created: "2026-08-11"
+
+  - id: "P1-T06"
+    title: "Review project setup guide"
+    description: "Technical review and testing on multiple project types"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P1-T05"]
+    assignee: "tech_writer"
+    reviewers: ["developer"]
+    deliverable: "Reviewed and tested project setup guide"
+    acceptance_criteria:
+      - "Tested on 3+ different project configurations"
+      - "Works with existing and new projects"
+      - "Git requirements validated"
+      - "Validation checklist effective"
+    tags: ["documentation", "review", "testing"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # First Sprint Tutorial (R1.1 - core component)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T07"
+    title: "Create first sprint tutorial outline"
+    description: "Design comprehensive first sprint walkthrough with phase-by-phase breakdown"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-5"
+    dependencies: []
+    assignee: "tech_writer"
+    deliverable: "First sprint tutorial detailed outline"
+    acceptance_criteria:
+      - "Complete sprint lifecycle covered"
+      - "Every phase has example prompts mapped"
+      - "Expected outputs identified"
+      - "Common mistakes cataloged"
+      - "Success criteria defined"
+    tags: ["documentation", "tutorial", "planning"]
+    created: "2026-08-11"
+
+  - id: "P1-T08"
+    title: "Draft first sprint tutorial"
+    description: "Write complete first sprint walkthrough with tested examples"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "L"
+    effort_hours: "8-12"
+    dependencies: ["P1-T07"]
+    assignee: "tech_writer"
+    deliverable: "documentation/getting-started/03-first-sprint.md"
+    acceptance_criteria:
+      - "Step-by-step walkthrough complete"
+      - "Exact prompts for each phase"
+      - "Expected outputs documented"
+      - "Explanations of what's happening"
+      - "Common mistakes highlighted"
+      - "Recovery procedures included"
+      - "Success validation clear"
+    tags: ["documentation", "tutorial", "writing"]
+    created: "2026-08-11"
+
+  - id: "P1-T09"
+    title: "Validate first sprint tutorial with users"
+    description: "Test tutorial with 3+ new users, document issues, iterate"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P1-T08"]
+    assignee: "tech_writer"
+    reviewers: ["test_users"]
+    deliverable: "Validated first sprint tutorial with test report"
+    acceptance_criteria:
+      - "3+ users tested"
+      - "80%+ completion success rate"
+      - "Average completion time <30 minutes"
+      - "Confusion points identified and fixed"
+      - "Validation report documented"
+    tags: ["documentation", "user-testing", "validation"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # First Sprint Example (R1.5)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T10"
+    title: "Create first sprint example"
+    description: "Build complete example sprint in examples/first-sprint/ with all artifacts"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: []
+    assignee: "tech_writer"
+    collaborators: ["developer"]
+    deliverable: "examples/first-sprint/ directory with complete sprint"
+    acceptance_criteria:
+      - "Simple, achievable task (e.g., 'Add greeting function')"
+      - "All sprint artifacts included"
+      - "sprint-manifest.yaml complete"
+      - "implementation-plan.md present"
+      - "request-log.md realistic"
+      - "validate_deliverable.sh functional"
+      - "verification-report.md complete"
+      - "retro.md and key-learnings.md included"
+      - "Beginner-friendly and realistic"
+    tags: ["examples", "sprint", "template"]
+    created: "2026-08-11"
+
+  - id: "P1-T11"
+    title: "Document first sprint example"
+    description: "Write README and annotations for example sprint"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P1-T10"]
+    assignee: "tech_writer"
+    deliverable: "examples/first-sprint/README.md with annotations"
+    acceptance_criteria:
+      - "Overview of what example demonstrates"
+      - "How to use this example"
+      - "Explanation of each file"
+      - "What to notice in this sprint"
+      - "How to adapt for own sprints"
+      - "Links to relevant documentation"
+    tags: ["documentation", "examples", "tutorial"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # README Restructure (R1.4)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T12"
+    title: "Design README restructure"
+    description: "Create new README outline with clear user paths"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: []
+    assignee: "tech_writer"
+    deliverable: "New README structure outline"
+    acceptance_criteria:
+      - "Clear value proposition section designed"
+      - "User paths mapped (curious, power user, team lead)"
+      - "Progressive disclosure structure"
+      - "Navigation hierarchy defined"
+      - "Stakeholder approval obtained"
+    tags: ["documentation", "readme", "planning"]
+    created: "2026-08-11"
+
+  - id: "P1-T13"
+    title: "Draft restructured README"
+    description: "Rewrite README with new structure and content"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P1-T12", "P1-T02"]
+    assignee: "tech_writer"
+    deliverable: "New README.md"
+    acceptance_criteria:
+      - "Compelling value proposition (30 seconds)"
+      - "Clear entry points for different users"
+      - "Quickstart inline or prominently linked"
+      - "Documentation organized by user task"
+      - "Concise feature descriptions"
+      - "Clear next steps for all user types"
+      - "All badges and links updated"
+    tags: ["documentation", "readme", "writing"]
+    created: "2026-08-11"
+
+  - id: "P1-T14"
+    title: "Review and polish README"
+    description: "Stakeholder review and final polish of new README"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P1-T13"]
+    assignee: "tech_writer"
+    reviewers: ["stakeholders", "test_users"]
+    deliverable: "Polished README.md ready for publication"
+    acceptance_criteria:
+      - "Compelling for new users"
+      - "Clear for evaluators"
+      - "Useful for regular users"
+      - "All links work"
+      - "Examples are current"
+      - "Tone is welcoming"
+      - "No unexplained jargon"
+      - "Stakeholder approval obtained"
+    tags: ["documentation", "readme", "review"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Phase 1 Integration
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T15"
+    title: "Phase 1 cross-linking and navigation"
+    description: "Ensure all Phase 1 docs are properly linked and navigable"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P1-T03", "P1-T06", "P1-T09", "P1-T11", "P1-T14"]
+    assignee: "tech_writer"
+    deliverable: "Fully cross-linked Phase 1 documentation set"
+    acceptance_criteria:
+      - "All cross-references added"
+      - "Next steps links on each document"
+      - "README links to all new docs"
+      - "Breadcrumb navigation where appropriate"
+      - "Consistent linking patterns"
+      - "No broken links"
+      - "No dead ends"
+    tags: ["documentation", "navigation", "integration"]
+    created: "2026-08-11"
+
+  - id: "P1-T16"
+    title: "Phase 1 end-to-end user validation"
+    description: "Complete validation with 5+ new users, fix critical issues"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "pending"
+    effort: "L"
+    effort_hours: "8-10"
+    dependencies: ["P1-T15"]
+    assignee: "tech_writer"
+    reviewers: ["test_users"]
+    deliverable: "Phase 1 validation report and sign-off"
+    acceptance_criteria:
+      - "5+ users tested end-to-end"
+      - "80%+ complete first sprint successfully"
+      - "Average time <60 minutes (discovery to first sprint)"
+      - "User confidence rating >7/10"
+      - "Critical issues identified and fixed"
+      - "Retest with 2+ users after fixes"
+      - "No blocking issues remain"
+      - "Phase 1 sign-off obtained"
+    tags: ["documentation", "user-testing", "validation", "milestone"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # LLM Usage Guide (CRITICAL ADDITION - Dual-Audience Architecture)
+  # ---------------------------------------------------------------------------
+
+  - id: "P1-T17"
+    title: "Create LLM Usage Guide"
+    description: "Create comprehensive usage guide for LLM agents using sprint-mcp MCP tools to address dual-audience architecture"
+    phase: "phase1"
+    priority: "P1-critical"
+    status: "completed"
+    effort: "M"
+    effort_hours: "6-8"
+    actual_hours: "3"
+    dependencies: []
+    assignee: "tech_writer"
+    collaborators: ["developer"]
+    deliverable: "LLM-USAGE-GUIDE.md"
+    note: "CRITICAL: Addresses dual-audience architecture gap identified during analysis review. LLM agents are the PRIMARY interface between human users and sprint-mcp functionality."
+    completed: "2026-08-12"
+    acceptance_criteria:
+      - "Tool overview complete (what each tool does, when to use)"
+      - "Tool selection guidance with decision trees"
+      - "Usage patterns and workflows documented"
+      - "Parameter best practices with examples"
+      - "Sprint Protocol integration (tool-to-phase mapping)"
+      - "Error handling procedures complete"
+      - "Response interpretation guidance"
+      - "At least 3 complete workflow examples"
+      - "Decision trees for 5+ common user requests"
+      - "All Protocol Rules (S1-S14) referenced"
+      - "LLM testing shows 80%+ correct tool usage"
+      - "Technical accuracy verified by developer"
+      - "No critical tool selection errors in testing"
+      - "Graceful error recovery demonstrated"
+    content_sections:
+      - "1. Tool Overview"
+      - "2. Tool Selection Guidance"
+      - "3. Usage Patterns & Workflows"
+      - "4. Parameter Best Practices"
+      - "5. Sprint Protocol Integration"
+      - "6. Error Handling"
+      - "7. Response Interpretation"
+      - "8. Examples"
+    testing_protocol:
+      - "Test with fresh LLM instance (no prior project knowledge)"
+      - "Provide various user prompts (start sprint, complete sprint, etc.)"
+      - "Observe tool selection and sequencing"
+      - "Check protocol compliance"
+      - "Verify error recovery"
+      - "Assess metadata quality"
+      - "Gather feedback and iterate"
+    tags: ["documentation", "llm-agents", "mcp-tools", "dual-audience", "critical"]
+    created: "2026-08-11"
+    source: "dual-audience-gap-analysis.md"
+
+# =============================================================================
+# PHASE 2: ENHANCED ONBOARDING (Should Have for v1.0)
+# =============================================================================
+
+  # ---------------------------------------------------------------------------
+  # Sprint Protocol Primer (R2.1)
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T01"
+    title: "Create Sprint Protocol Primer outline"
+    description: "Design gentle introduction to Sprint Protocol concepts"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P1-T16"]
+    assignee: "tech_writer"
+    deliverable: "Sprint Protocol Primer outline"
+    acceptance_criteria:
+      - "'Why Sprint Protocol' section designed"
+      - "5 core concepts identified"
+      - "Simplified workflow outlined"
+      - "Progressive disclosure structure"
+    tags: ["documentation", "primer", "planning"]
+    created: "2026-08-11"
+
+  - id: "P2-T02"
+    title: "Draft Sprint Protocol Primer"
+    description: "Write gentle introduction to Sprint Protocol"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T01"]
+    assignee: "tech_writer"
+    deliverable: "documentation/guides/sprint-protocol-primer.md"
+    acceptance_criteria:
+      - "Why Sprint Protocol (problem/solution)"
+      - "Core concepts (5 essential ideas)"
+      - "Basic workflow (simplified)"
+      - "Links to full protocol"
+      - "Examples inline"
+      - "Visual diagram included"
+    tags: ["documentation", "primer", "writing"]
+    created: "2026-08-11"
+
+  - id: "P2-T03"
+    title: "Review Sprint Protocol Primer"
+    description: "Technical review with protocol expert and test users"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P2-T02"]
+    assignee: "tech_writer"
+    reviewers: ["protocol_expert", "test_users"]
+    deliverable: "Reviewed and polished primer"
+    acceptance_criteria:
+      - "Technical accuracy verified"
+      - "Protocol expert approval"
+      - "Test users understand 'why'"
+      - "Complexity appropriate for beginners"
+    tags: ["documentation", "review", "validation"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Workflow Troubleshooting (R2.2)
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T04"
+    title: "Research workflow troubleshooting issues"
+    description: "Collect common issues from support, users, testing"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "3-4"
+    dependencies: ["P1-T16"]
+    assignee: "tech_writer"
+    collaborators: ["support_team", "test_users"]
+    deliverable: "Workflow issues catalog"
+    acceptance_criteria:
+      - "Common sprint issues cataloged"
+      - "Support questions analyzed"
+      - "User testing issues included"
+      - "Prioritization by frequency"
+      - "Solutions identified or researched"
+    tags: ["research", "troubleshooting", "support"]
+    created: "2026-08-11"
+
+  - id: "P2-T05"
+    title: "Draft workflow troubleshooting guide"
+    description: "Write comprehensive troubleshooting guide with solutions"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T04"]
+    assignee: "tech_writer"
+    deliverable: "documentation/guides/troubleshooting-workflows.md"
+    acceptance_criteria:
+      - "Sprint won't start (troubleshooting)"
+      - "Sprint won't complete (troubleshooting)"
+      - "Missing artifacts (resolution)"
+      - "Worktree issues (debugging)"
+      - "Recovery procedures documented"
+      - "Error message explanations"
+      - "Common mistakes highlighted"
+    tags: ["documentation", "troubleshooting", "writing"]
+    created: "2026-08-11"
+
+  - id: "P2-T06"
+    title: "Validate troubleshooting guide"
+    description: "Test with users experiencing issues"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P2-T05"]
+    assignee: "tech_writer"
+    reviewers: ["test_users"]
+    deliverable: "Validated troubleshooting guide"
+    acceptance_criteria:
+      - "Users can resolve issues independently"
+      - "70%+ success rate"
+      - "Solutions are clear and complete"
+      - "Covers most common issues"
+    tags: ["documentation", "validation", "user-testing"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Documentation Navigation Hub (R2.3)
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T07"
+    title: "Design documentation hub structure"
+    description: "Create navigation hub organized by user need"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P1-T16"]
+    assignee: "tech_writer"
+    deliverable: "Documentation hub structure design"
+    acceptance_criteria:
+      - "By user type (new, developer, contributor)"
+      - "By task (installing, first sprint, customizing)"
+      - "By format (tutorial, guide, reference)"
+      - "Clear entry points"
+      - "Search/discovery optimized"
+    tags: ["documentation", "navigation", "planning"]
+    created: "2026-08-11"
+
+  - id: "P2-T08"
+    title: "Implement documentation hub"
+    description: "Create documentation hub with all cross-links"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T07"]
+    assignee: "tech_writer"
+    deliverable: "documentation/README.md (documentation hub)"
+    acceptance_criteria:
+      - "All docs organized and linked"
+      - "Multiple navigation paths"
+      - "User type paths clear"
+      - "Task-based navigation works"
+      - "Quick links to common docs"
+      - "Search-friendly structure"
+    tags: ["documentation", "navigation", "implementation"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Visual Diagrams (R2.4)
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T09"
+    title: "Define visual diagram requirements"
+    description: "Identify which diagrams are needed and their specifications"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: []
+    assignee: "tech_writer"
+    deliverable: "Diagram requirements document"
+    acceptance_criteria:
+      - "Sprint workflow diagram spec"
+      - "Directory structure diagram spec"
+      - "Worktree model diagram spec"
+      - "Tool-to-phase mapping spec"
+      - "Format requirements (PNG, SVG, etc.)"
+      - "Accessibility requirements"
+    tags: ["diagrams", "planning", "visual"]
+    created: "2026-08-11"
+
+  - id: "P2-T10"
+    title: "Create sprint workflow diagram"
+    description: "Design and create sprint phase workflow diagram"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "3-5"
+    dependencies: ["P2-T09"]
+    assignee: "designer"
+    collaborators: ["tech_writer"]
+    deliverable: "documentation/diagrams/sprint-workflow.png"
+    acceptance_criteria:
+      - "All phases represented"
+      - "Flow is clear and intuitive"
+      - "Color-coded appropriately"
+      - "Accessible (alt text, descriptions)"
+      - "High resolution"
+      - "Matches documentation terminology"
+    tags: ["diagrams", "visual", "workflow"]
+    created: "2026-08-11"
+
+  - id: "P2-T11"
+    title: "Create directory structure diagram"
+    description: "Create visual representation of directory structure"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P2-T09"]
+    assignee: "designer"
+    collaborators: ["tech_writer"]
+    deliverable: "documentation/diagrams/directory-structure.png"
+    acceptance_criteria:
+      - "Clear tree structure"
+      - "Key directories highlighted"
+      - "Annotations for important files"
+      - "Accessible"
+    tags: ["diagrams", "visual", "structure"]
+    created: "2026-08-11"
+
+  - id: "P2-T12"
+    title: "Create additional diagrams"
+    description: "Create worktree model and tool-to-phase mapping diagrams"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T09"]
+    assignee: "designer"
+    collaborators: ["tech_writer"]
+    deliverable: "documentation/diagrams/ (worktree-model.png, tool-phase-mapping.png)"
+    acceptance_criteria:
+      - "Worktree model clearly explained visually"
+      - "Tool-to-phase mapping comprehensive"
+      - "Consistent style with other diagrams"
+      - "All diagrams accessible"
+    tags: ["diagrams", "visual", "technical"]
+    created: "2026-08-11"
+
+  - id: "P2-T13"
+    title: "Integrate diagrams into documentation"
+    description: "Embed diagrams in relevant docs with proper context"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P2-T10", "P2-T11", "P2-T12"]
+    assignee: "tech_writer"
+    deliverable: "Updated docs with embedded diagrams"
+    acceptance_criteria:
+      - "Diagrams embedded in appropriate docs"
+      - "Context provided for each diagram"
+      - "Alt text and descriptions added"
+      - "Links work correctly"
+      - "Diagrams enhance understanding"
+    tags: ["documentation", "integration", "visual"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Enhanced Tool Responses (R2.5)
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T14"
+    title: "Design enhanced tool responses"
+    description: "Plan contextual help additions to MCP tool responses"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: []
+    assignee: "tech_writer"
+    collaborators: ["developer"]
+    deliverable: "Tool response enhancement specification"
+    acceptance_criteria:
+      - "start-sprint next steps defined"
+      - "complete-sprint success message designed"
+      - "Doc links identified for each tool"
+      - "Contextual help messages drafted"
+      - "Developer approval obtained"
+    tags: ["tools", "ux", "planning"]
+    created: "2026-08-11"
+
+  - id: "P2-T15"
+    title: "Implement enhanced tool responses"
+    description: "Update tool response templates with contextual guidance"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T14"]
+    assignee: "developer"
+    collaborators: ["tech_writer"]
+    deliverable: "Updated tool response templates"
+    acceptance_criteria:
+      - "All tools have enhanced responses"
+      - "Next steps included where appropriate"
+      - "Links to docs embedded"
+      - "Helpful, not verbose"
+      - "Tested with users"
+    tags: ["tools", "implementation", "ux"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Phase 2 Integration
+  # ---------------------------------------------------------------------------
+
+  - id: "P2-T16"
+    title: "Phase 2 cross-linking and integration"
+    description: "Integrate Phase 2 docs with Phase 1 and ensure navigation"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T03", "P2-T06", "P2-T08", "P2-T13", "P2-T15"]
+    assignee: "tech_writer"
+    deliverable: "Fully integrated Phase 1 + Phase 2 documentation"
+    acceptance_criteria:
+      - "All cross-references updated"
+      - "Navigation paths work"
+      - "No broken links"
+      - "Consistent terminology"
+      - "Documentation hub current"
+    tags: ["documentation", "integration", "navigation"]
+    created: "2026-08-11"
+
+  - id: "P2-T17"
+    title: "Phase 2 user validation"
+    description: "Validate enhanced onboarding with test users"
+    phase: "phase2"
+    priority: "P2-high"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T16"]
+    assignee: "tech_writer"
+    reviewers: ["test_users"]
+    deliverable: "Phase 2 validation report and sign-off"
+    acceptance_criteria:
+      - "Users understand 'why Sprint Protocol'"
+      - "70%+ resolve issues independently"
+      - "Documentation navigation <2 clicks"
+      - "Diagrams referenced and helpful"
+      - "Phase 2 sign-off obtained"
+    tags: ["documentation", "validation", "user-testing", "milestone"]
+    created: "2026-08-11"
+
+# =============================================================================
+# PHASE 3: POLISH & ADVANCED (Nice to Have, Post v1.0)
+# =============================================================================
+
+  # ---------------------------------------------------------------------------
+  # Interactive Setup Wizard (R3.1)
+  # ---------------------------------------------------------------------------
+
+  - id: "P3-T01"
+    title: "Define setup wizard requirements"
+    description: "Specify requirements for interactive project setup CLI"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "3-4"
+    dependencies: ["P2-T17"]
+    assignee: "tech_writer"
+    collaborators: ["developer"]
+    deliverable: "Setup wizard specification document"
+    acceptance_criteria:
+      - "Prerequisites check defined"
+      - "Directory creation logic specified"
+      - ".gitignore configuration planned"
+      - "Git validation requirements"
+      - "MCP connection test designed"
+      - "User prompts and flow documented"
+    tags: ["wizard", "planning", "cli"]
+    created: "2026-08-11"
+
+  - id: "P3-T02"
+    title: "Implement setup wizard"
+    description: "Build interactive CLI wizard for project setup"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "L"
+    effort_hours: "12-16"
+    dependencies: ["P3-T01"]
+    assignee: "developer"
+    collaborators: ["tech_writer"]
+    deliverable: "npm run sprint:setup command"
+    acceptance_criteria:
+      - "Checks prerequisites"
+      - "Creates directory structure"
+      - "Configures .gitignore"
+      - "Validates git repository"
+      - "Tests MCP connection"
+      - "Error handling robust"
+      - "Works on macOS, Linux, Windows"
+    tags: ["wizard", "implementation", "cli"]
+    created: "2026-08-11"
+
+  - id: "P3-T03"
+    title: "Document setup wizard"
+    description: "Write documentation for setup wizard usage"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "S"
+    effort_hours: "2-3"
+    dependencies: ["P3-T02"]
+    assignee: "tech_writer"
+    deliverable: "Setup wizard documentation"
+    acceptance_criteria:
+      - "How to run wizard"
+      - "What wizard does"
+      - "Options and flags"
+      - "Troubleshooting"
+      - "Integrated into getting started guide"
+    tags: ["documentation", "wizard", "cli"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Video Walkthrough (R3.2)
+  # ---------------------------------------------------------------------------
+
+  - id: "P3-T04"
+    title: "Create video script outline"
+    description: "Design script for video walkthrough of first sprint"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "3-4"
+    dependencies: ["P1-T16", "P2-T17"]
+    assignee: "tech_writer"
+    deliverable: "Video script outline"
+    acceptance_criteria:
+      - "Covers installation to first sprint"
+      - "Duration ~10-15 minutes"
+      - "Key points identified"
+      - "Visual elements planned"
+      - "Narration style defined"
+    tags: ["video", "planning", "script"]
+    created: "2026-08-11"
+
+  - id: "P3-T05"
+    title: "Write video script"
+    description: "Write complete script with narration and visual notes"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P3-T04"]
+    assignee: "tech_writer"
+    deliverable: "Complete video script"
+    acceptance_criteria:
+      - "Full narration written"
+      - "Visual cues marked"
+      - "Timing estimated"
+      - "Review by stakeholders"
+    tags: ["video", "script", "writing"]
+    created: "2026-08-11"
+
+  - id: "P3-T06"
+    title: "Produce video walkthrough"
+    description: "Record, edit, and finalize video"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "L"
+    effort_hours: "12-16"
+    dependencies: ["P3-T05"]
+    assignee: "video_producer"
+    collaborators: ["tech_writer"]
+    deliverable: "Completed video file"
+    acceptance_criteria:
+      - "Professional quality recording"
+      - "Clear audio"
+      - "Screen captures high resolution"
+      - "Captions/subtitles included"
+      - "Accessible"
+      - "Duration 10-15 minutes"
+    tags: ["video", "production", "media"]
+    created: "2026-08-11"
+
+  - id: "P3-T07"
+    title: "Host and integrate video"
+    description: "Upload video and integrate links into documentation"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "S"
+    effort_hours: "1-2"
+    dependencies: ["P3-T06"]
+    assignee: "tech_writer"
+    deliverable: "Video hosted and linked"
+    acceptance_criteria:
+      - "Hosted on YouTube or appropriate platform"
+      - "Embedded in relevant docs"
+      - "Link from README"
+      - "Thumbnail attractive"
+      - "Description and tags optimized"
+    tags: ["video", "integration", "media"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Cookbook/Recipes (R3.3)
+  # ---------------------------------------------------------------------------
+
+  - id: "P3-T08"
+    title: "Research sprint recipes"
+    description: "Collect common sprint patterns from users and usage"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P2-T17"]
+    assignee: "tech_writer"
+    collaborators: ["users", "support_team"]
+    deliverable: "Sprint recipes catalog"
+    acceptance_criteria:
+      - "Common patterns identified"
+      - "User workflows documented"
+      - "Recipes prioritized"
+      - "At least 8-10 recipes cataloged"
+    tags: ["cookbook", "research", "patterns"]
+    created: "2026-08-11"
+
+  - id: "P3-T09"
+    title: "Write sprint cookbook"
+    description: "Write comprehensive cookbook with sprint recipes"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "L"
+    effort_hours: "10-14"
+    dependencies: ["P3-T08"]
+    assignee: "tech_writer"
+    deliverable: "documentation/cookbook.md"
+    acceptance_criteria:
+      - "Add a new feature recipe"
+      - "Fix a bug recipe"
+      - "Refactor code recipe"
+      - "Add tests recipe"
+      - "Documentation update recipe"
+      - "Integrate with CI/CD recipe"
+      - "Multi-service sprint recipe"
+      - "Emergency hotfix recipe"
+      - "Each recipe complete and tested"
+    tags: ["cookbook", "documentation", "patterns"]
+    created: "2026-08-11"
+
+  - id: "P3-T10"
+    title: "Validate sprint cookbook"
+    description: "Test recipes with users, refine based on feedback"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P3-T09"]
+    assignee: "tech_writer"
+    reviewers: ["test_users"]
+    deliverable: "Validated cookbook"
+    acceptance_criteria:
+      - "Recipes tested by multiple users"
+      - "Clear and actionable"
+      - "Cover common use cases"
+      - "User feedback incorporated"
+    tags: ["cookbook", "validation", "user-testing"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Case Studies (R3.4)
+  # ---------------------------------------------------------------------------
+
+  - id: "P3-T11"
+    title: "Collect case studies"
+    description: "Interview teams/users, document real-world usage"
+    phase: "phase3"
+    priority: "P3-low"
+    status: "pending"
+    effort: "L"
+    effort_hours: "8-12"
+    dependencies: ["P2-T17"]
+    assignee: "tech_writer"
+    deliverable: "Case study raw materials"
+    acceptance_criteria:
+      - "3+ teams/users interviewed"
+      - "Usage patterns documented"
+      - "Benefits quantified"
+      - "Challenges captured"
+      - "Lessons learned collected"
+      - "Permission to publish obtained"
+    tags: ["case-studies", "research", "marketing"]
+    created: "2026-08-11"
+
+  - id: "P3-T12"
+    title: "Write case studies"
+    description: "Write polished case studies from collected materials"
+    phase: "phase3"
+    priority: "P3-low"
+    status: "pending"
+    effort: "M"
+    effort_hours: "6-8"
+    dependencies: ["P3-T11"]
+    assignee: "tech_writer"
+    deliverable: "documentation/case-studies.md"
+    acceptance_criteria:
+      - "3+ case studies written"
+      - "Professional and compelling"
+      - "Benefits highlighted"
+      - "Realistic about challenges"
+      - "Quotes from users"
+      - "Anonymized if requested"
+    tags: ["case-studies", "documentation", "marketing"]
+    created: "2026-08-11"
+
+  # ---------------------------------------------------------------------------
+  # Phase 3 Integration
+  # ---------------------------------------------------------------------------
+
+  - id: "P3-T13"
+    title: "Phase 3 integration and final polish"
+    description: "Integrate all Phase 3 deliverables and final documentation polish"
+    phase: "phase3"
+    priority: "P3-medium"
+    status: "pending"
+    effort: "M"
+    effort_hours: "4-6"
+    dependencies: ["P3-T03", "P3-T07", "P3-T10", "P3-T12"]
+    assignee: "tech_writer"
+    deliverable: "Complete documentation set v1.2"
+    acceptance_criteria:
+      - "All docs integrated"
+      - "Navigation complete"
+      - "No broken links"
+      - "Style consistency"
+      - "Final review complete"
+      - "v1.2 ready for release"
+    tags: ["documentation", "integration", "milestone"]
+    created: "2026-08-11"
+
+# =============================================================================
+# TRACKING & REPORTING
+# =============================================================================
+
+metrics:
+  completion:
+    phase1: "4/17"
+    phase2: "0/17"
+    phase3: "0/13"
+    total: "4/47"
+
+  effort:
+    phase1_hours: "5.5/88-116"
+    phase2_hours: "0/58-81"
+    phase3_hours: "0/100-111"
+    total_hours: "5.5/246-308"
+
+  milestones:
+    - name: "Phase 1 Complete"
+      target_date: "TBD"
+      status: "pending"
+      tasks: ["P1-T16", "P1-T17"]
+      note: "Includes both human AND LLM agent documentation"
+    - name: "Phase 2 Complete"
+      target_date: "TBD"
+      status: "pending"
+      tasks: ["P2-T17"]
+    - name: "Phase 3 Complete"
+      target_date: "TBD"
+      status: "pending"
+      tasks: ["P3-T13"]
+    - name: "v1.0 Release Ready"
+      target_date: "TBD"
+      status: "pending"
+      tasks: ["P1-T16", "P2-T17"]
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+notes:
+  - "This backlog represents ~6-7 sprints of work (2+2+3)"
+  - "CRITICAL: Addresses dual-audience architecture (human users AND LLM agents)"
+  - "Phase 1 is critical blocker for npm v1.0 publication"
+  - "P1-T17 (LLM Usage Guide) added to address LLM agent experience gap"
+  - "Phase 2 significantly improves UX and should ship with v1.1"
+  - "Phase 3 is polish and can be spread across v1.2+"
+  - "Test user availability is critical dependency across all phases"
+  - "LLM agent testing (fresh instances) required for P1-T17 validation"
+  - "Effort estimates assume focused technical writing work"
+  - "Actual sprint allocation will consolidate tasks"
+  - "Review cycles may extend timeline"
+  - "User feedback may necessitate iterations"
+  - "See dual-audience-gap-analysis.md for complete LLM agent analysis"
