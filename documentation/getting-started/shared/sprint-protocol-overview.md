@@ -39,7 +39,7 @@ A **sprint** is a self-contained unit of work with:
 
 **Duration**: Typically 1-14 hours. Keep sprints focused on one thing.
 
-**Rule**: Only one sprint can be active at a time (prevents chaos, maintains focus).
+**Flexibility**: Work on multiple sprints in parallel if needed—each has its own isolated workspace.
 
 ---
 
@@ -53,7 +53,7 @@ A **sprint** is a self-contained unit of work with:
 - Main code always clean and deployable
 - No "stash and switch" dance
 - Can experiment fearlessly (delete worktree = gone)
-- Multiple sprints can exist (only one active) without conflicts
+- Multiple sprints can run in parallel without conflicts
 
 **You don't need to understand git worktrees to use sprint-mcp**—Claude handles it for you. Just know: your sprint work is isolated and safe.
 
@@ -226,10 +226,9 @@ From the Sprint Protocol specification (AGENTS.md):
 
 1. **S1**: A sprint begins when you say "Start sprint"
 2. **S2**: A sprint ends when you say "Sprint complete" (or "Force complete sprint")
-3. **S3**: Only one sprint can be active at a time
-4. **S6**: All planning artifacts live in `planning/sprint-*/` directory
-5. **S11**: Each sprint gets its own git worktree and feature branch
-6. **S12**: Claude attempts to create a PR at sprint completion
+3. **S6**: All planning artifacts live in `planning/sprint-*/` directory
+4. **S11**: Each sprint gets its own git worktree and feature branch
+5. **S12**: Claude attempts to create a PR at sprint completion
 
 **You don't need to memorize these**—Claude enforces them automatically. Just know: the protocol keeps things organized and safe.
 

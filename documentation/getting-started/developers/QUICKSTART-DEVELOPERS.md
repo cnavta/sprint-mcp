@@ -196,7 +196,7 @@ In 5 minutes, you:
 ## Common Questions
 
 **Q: Can I have multiple sprints active?**
-A: No. One sprint at a time (Sprint Protocol Rule S3). Complete current sprint before starting a new one.
+A: Yes! Each sprint runs in its own isolated git worktree, so you can work on multiple features in parallel without conflicts. Great for multi-agent workflows or exploring different approaches simultaneously.
 
 **Q: What if I want to abandon a sprint?**
 A: Say "Force complete sprint" - Claude will document what was done and close it.
