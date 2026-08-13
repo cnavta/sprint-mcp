@@ -1,11 +1,11 @@
 id: sprint-23-0fv2i4
 title: NUX Implementation - Documentation Foundation (Phase 1, Sprint 1)
 goal: Implement Phase 1 foundation tasks from Sprint 22's tri-audience NUX plan.
-  Create use case spectrum landing page, developer quickstart, and sprint protocol
-  primer to support developers, creators, and LLM agents.
+  Create use case spectrum landing page, developer quickstart, and sprint
+  protocol primer to support developers, creators, and LLM agents.
 owner: christophernavta
 createdAt: 2026-08-13T00:55:01.307Z
-status: planning
+status: in-progress
 links:
   branch: feature/sprint-23-0fv2i4-nux-implementation-documentati
 notes: |

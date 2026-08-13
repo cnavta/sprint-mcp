@@ -1,8 +1,24 @@
 # Documentation Index
 
-**Last Updated**: 2026-08-01
+**Last Updated**: 2026-08-13
 
-This directory contains architecture and operational documentation for sprint-mcp.
+This directory contains documentation for sprint-mcp—a structured workflow tool for organizing creative and technical work with Claude.
+
+---
+
+## 🚀 Getting Started
+
+**New to sprint-mcp?** Choose your path:
+
+### For Developers
+You're comfortable with git, CLI, and development tools.
+→ **[Developer Quickstart](./getting-started/developers/QUICKSTART-DEVELOPERS.md)**
+
+### For Content Creators, Makers, Hobbyists, Freelancers, Writers
+You're using Claude for creative work, product development, or projects.
+→ **[Choose Your Path](./getting-started/use-cases/choosing-your-path.md)** - Find the right starting point
+
+**Not sure?** → [Choose Your Path](./getting-started/use-cases/choosing-your-path.md) explains all options
 
 ---
 
