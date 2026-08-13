@@ -1,0 +1,20 @@
+id: sprint-23-0fv2i4
+title: NUX Implementation - Documentation Foundation (Phase 1, Sprint 1)
+goal: Implement Phase 1 foundation tasks from Sprint 22's tri-audience NUX plan.
+  Create use case spectrum landing page, developer quickstart, and sprint
+  protocol primer to support developers, creators, and LLM agents.
+owner: christophernavta
+createdAt: 2026-08-13T00:55:01.307Z
+status: complete
+links:
+  branch: feature/sprint-23-0fv2i4-nux-implementation-documentati
+  pr: https://github.com/cnavta/sprint-mcp/pull/23
+notes: |
+  Sprint initialized via MCP start-sprint tool.
+  Implements Sprint 22's execution roadmap Phase 1, Sprint 23 tasks:
+  - P1-T01: Use Case Spectrum Landing Page (3-4 hours)
+  - P1-T02: QUICKSTART-DEVELOPERS.md (4-6 hours)
+  - P1-T03: Sprint Protocol Primer (3-4 hours)
+  Total effort: 10-14 hours
+completedAt: 2026-08-13T01:44:47.406Z
+completionMode: normal
