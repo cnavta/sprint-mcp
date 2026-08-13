@@ -5,12 +5,12 @@
 # Supersedes: Sprint 21 documentation-backlog.yaml
 
 metadata:
-  total_tasks: 24
-  total_effort_min: 229
-  total_effort_max: 314
+  total_tasks: 25
+  total_effort_min: 233
+  total_effort_max: 320
   phases:
     - phase_1_critical: 13 tasks, 67-90 hours
-    - phase_2_high: 7 tasks, 38-52 hours
+    - phase_2_high: 8 tasks, 42-58 hours
     - phase_3_nice_to_have: 4 tasks, 124-172+ hours
 
 # =============================================================================
@@ -553,6 +553,49 @@ phase_2_high:
     notes: |
       For when LLM guide Section 9 is mastered.
 
+  # ---------------------------------------------------------------------------
+  # Protocol Refinements
+  # ---------------------------------------------------------------------------
+
+  - id: P2-T08
+    title: Protocol Refinement - Multi-Sprint Parallelization
+    description: |
+      Revise Sprint Protocol Rule S3 ("Only one sprint may be active at a time")
+      to support concurrent sprints. With git worktrees providing isolated workspaces,
+      this constraint is artificial and prevents multi-agent workflows.
+    audience: [developers, llm-agents]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 4-6
+    dependencies: []
+    deliverables:
+      - AGENTS-uncompressed.md (Rule S3 revised)
+      - AGENTS.md (recompressed)
+      - documentation/guides/advanced/parallel-sprints.md
+      - Test cases for concurrent sprint scenarios
+    acceptance_criteria:
+      - Rule S3 revised to allow concurrent sprints when using worktrees
+      - Documentation explains when/how to use parallel sprints safely
+      - Multi-agent collaboration patterns documented
+      - Conflict resolution strategies defined
+      - MCP tools updated to handle concurrent sprints
+      - Test coverage for parallel sprint operations
+      - Migration guide for existing users
+    salvage: null
+    notes: |
+      Sprint 23 insight: Worktree model makes this constraint unnecessary.
+      Enables advanced workflows like:
+      - Multiple agents working on different features simultaneously
+      - Parallel exploration in vibe mode
+      - Feature development while bug fixing
+      - A/B testing different approaches
+
+      Must address:
+      - Sprint index locking/concurrency
+      - Clear worktree isolation guarantees
+      - User communication about active sprints
+      - Archive/cleanup with multiple active sprints
+
 # =============================================================================
 # PHASE 3: NICE-TO-HAVE (v1.2+)
 # Goal: Video tutorials, interactive onboarding, community features
@@ -675,11 +718,11 @@ summary:
     goal: All audiences + all use cases supported for v1.0
 
   phase_2_high:
-    tasks: 7
-    effort_hours: 38-52
+    tasks: 8
+    effort_hours: 42-58
     timeline_sprints: 3-4
     timeline_weeks: 1.5-2
-    goal: Polished experience with success stories and templates
+    goal: Polished experience with success stories, templates, and protocol refinements
 
   phase_3_nice_to_have:
     tasks: 4
@@ -689,8 +732,8 @@ summary:
     goal: Advanced features and community
 
   total:
-    tasks: 24
-    effort_hours: 229-314
+    tasks: 25
+    effort_hours: 233-320
     to_v1_0: 5-6 sprints (~3 weeks)
     to_v1_1: 8-10 sprints (~5 weeks total)
     to_v1_2: Ongoing
@@ -715,6 +758,12 @@ notes: |
   - Non-coding first sprint guide (6 examples)
   - Software transition guide
   - Enhanced LLM Section 9
+
+  Sprint 23 updates (2026-08-13):
+  - Added P2-T08: Protocol Refinement - Multi-Sprint Parallelization
+  - Insight: Rule S3 "one sprint at a time" is artificial with worktree model
+  - Enables multi-agent workflows and parallel sprint exploration
+  - Phase 2 now 8 tasks (was 7), 42-58 hours (was 38-52)
 
   Market opportunity justifies investment:
   - Developer-only: 5-10M users
