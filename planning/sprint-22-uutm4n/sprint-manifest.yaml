@@ -10,6 +10,7 @@ createdAt: 2026-08-12T17:54:49.401Z
 status: complete
 links:
   branch: feature/sprint-22-uutm4n-tri-audience-nux-analysis-docu
+  pr: https://github.com/cnavta/sprint-mcp/pull/22
 notes: Sprint initialized via MCP start-sprint tool
 completedAt: 2026-08-13T00:26:39.688Z
 completionMode: normal
