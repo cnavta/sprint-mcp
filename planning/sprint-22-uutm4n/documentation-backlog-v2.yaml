@@ -1,0 +1,728 @@
+# Documentation Backlog v2.0
+# Sprint: sprint-22-uutm4n
+# Date: 2026-08-12
+# Version: 2.0 (Tri-Audience, Multi-Use-Case)
+# Supersedes: Sprint 21 documentation-backlog.yaml
+
+metadata:
+  total_tasks: 24
+  total_effort_min: 229
+  total_effort_max: 314
+  phases:
+    - phase_1_critical: 13 tasks, 67-90 hours
+    - phase_2_high: 7 tasks, 38-52 hours
+    - phase_3_nice_to_have: 4 tasks, 124-172+ hours
+
+# =============================================================================
+# PHASE 1: CRITICAL FOUNDATIONS (Pre-npm v1.0)
+# Goal: All audiences + all use cases supported for v1.0 launch
+# Timeline: 5-6 sprints (2.5-3 weeks at 2 sprints/week)
+# =============================================================================
+
+phase_1_critical:
+
+  # ---------------------------------------------------------------------------
+  # Multi-Audience Foundation
+  # ---------------------------------------------------------------------------
+
+  - id: P1-T01
+    title: Use Case Spectrum Landing Page
+    description: |
+      Create entry point routing page that helps users choose their path based
+      on audience type and use case. "What's your vibe?" selector.
+    audience: [all]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 3-4
+    dependencies: []
+    deliverables:
+      - documentation/README.md (updated with routing)
+      - documentation/getting-started/use-cases/choosing-your-path.md
+    acceptance_criteria:
+      - Clear routing for 6 personas (dev, creator, maker, hobbyist, freelancer, writer)
+      - Planned vs Vibe mode explained
+      - Non-coding vs Software paths explained
+      - Visual/interactive if possible
+      - Mobile-friendly
+    salvage: null
+    notes: |
+      This is the critical first impression. Needs to be welcoming, not intimidating.
+      Show diversity of use cases immediately.
+
+  # ---------------------------------------------------------------------------
+  # Developer Path
+  # ---------------------------------------------------------------------------
+
+  - id: P1-T02
+    title: QUICKSTART-DEVELOPERS.md
+    description: |
+      5-minute quick start guide for developers. Includes both planned and vibe
+      mode options. Gets developer from installation to first sprint fast.
+    audience: [developers]
+    use_case: [planned, vibe, software]
+    priority: P1-Critical
+    effort_hours: 4-6
+    dependencies: [P1-T01]
+    deliverables:
+      - documentation/getting-started/developers/QUICKSTART-DEVELOPERS.md
+    acceptance_criteria:
+      - Time-boxed to 5 minutes
+      - Copy-paste ready commands
+      - Includes vibe mode option
+      - Verification steps at each stage
+      - Links to deeper guides
+      - Technical language appropriate for developers
+    salvage: Sprint 21 QUICKSTART.md (100% reusable as base)
+    notes: |
+      Salvage Sprint 21 work, add vibe mode section.
+
+  - id: P1-T03
+    title: Sprint Protocol Primer
+    description: |
+      5-minute overview of Sprint Protocol for developers. Explains what it is,
+      why it matters, core concepts. Includes use case spectrum explanation.
+    audience: [developers]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 3-4
+    dependencies: []
+    deliverables:
+      - documentation/getting-started/developers/05-understanding-protocol.md
+      - documentation/getting-started/shared/sprint-protocol-overview.md
+    acceptance_criteria:
+      - 5-minute read time
+      - Explains planned vs vibe modes
+      - Core concepts (worktree, manifest, phases)
+      - Links to full AGENTS.md for reference
+      - Use case spectrum explained
+    salvage: null
+    notes: |
+      This bridges the gap between QUICKSTART and full AGENTS.md.
+      Progressive disclosure approach.
+
+  - id: P1-T04
+    title: Structure the Vibe Guide
+    description: |
+      Complete guide to vibe mode for developers. Philosophy, examples, vibe→production
+      pipeline. Shows value of exploratory sprints.
+    audience: [developers]
+    use_case: [vibe]
+    priority: P1-Critical
+    effort_hours: 4-6
+    dependencies: [P1-T03]
+    deliverables:
+      - documentation/guides/vibe-mode/what-is-vibe-mode.md
+      - documentation/guides/vibe-mode/vibe-examples.md (3 dev examples)
+      - documentation/guides/vibe-mode/vibe-to-production-pipeline.md
+      - documentation/getting-started/shared/vibe-mode-philosophy.md
+    acceptance_criteria:
+      - 3 complete developer vibe examples (WebGL, API exploration, prototyping)
+      - Vibe→production transition explained
+      - Value proposition clear
+      - Not intimidating, sounds fun
+      - Examples show real evolution
+    salvage: null
+    notes: |
+      Critical differentiator. Must feel liberating, not chaotic.
+
+  - id: P1-T05
+    title: Project Setup Guide
+    description: |
+      Step-by-step guide for adding sprint-mcp to existing project.
+      Covers both planned and vibe setup.
+    audience: [developers]
+    use_case: [planned, vibe]
+    priority: P1-Critical
+    effort_hours: 4-6
+    dependencies: [P1-T02]
+    deliverables:
+      - documentation/getting-started/developers/02-project-setup.md
+    acceptance_criteria:
+      - Git repository requirements explained
+      - Sprint directory structure setup
+      - Configuration walkthrough
+      - Both planned and vibe setup covered
+      - Common issues documented
+    salvage: null
+    notes: |
+      Addresses critical gap from Sprint 21 analysis.
+
+  - id: P1-T06
+    title: First Sprint Tutorial (Planned)
+    description: |
+      Complete walkthrough of first planned sprint for developers.
+      "Add OAuth2 authentication" example from start to finish.
+    audience: [developers]
+    use_case: [planned, software]
+    priority: P1-Critical
+    effort_hours: 6-8
+    dependencies: [P1-T05]
+    deliverables:
+      - documentation/getting-started/developers/03-first-sprint-planned.md
+      - documentation/examples/developers/planned-sprints/oauth2-auth.md
+    acceptance_criteria:
+      - Complete worked example
+      - Every phase documented
+      - Common pitfalls called out
+      - Verification at each step
+      - Ready to follow step-by-step
+    salvage: null
+    notes: |
+      Traditional sprint example, high quality.
+
+  - id: P1-T07
+    title: First Sprint Tutorial (Vibe)
+    description: |
+      Complete walkthrough of first vibe sprint for developers.
+      "Explore WebGL shaders" example showing exploratory workflow.
+    audience: [developers]
+    use_case: [vibe, software]
+    priority: P1-Critical
+    effort_hours: 6-8
+    dependencies: [P1-T04, P1-T05]
+    deliverables:
+      - documentation/getting-started/developers/04-first-sprint-vibe.md
+      - documentation/examples/developers/vibe-sprints/webgl-shaders.md
+    acceptance_criteria:
+      - Shows exploratory workflow
+      - No pressure for specific deliverables
+      - Demonstrates capture of experiments
+      - Shows vibe→production transition
+      - Feels liberating, not chaotic
+    salvage: null
+    notes: |
+      Critical for developers who don't like rigid planning.
+
+  # ---------------------------------------------------------------------------
+  # Non-Developer Path
+  # ---------------------------------------------------------------------------
+
+  - id: P1-T08
+    title: Non-Developers Welcome Page
+    description: |
+      Welcoming landing page for non-developers. Modern creators, not corporate.
+      Diverse persona representation. "Yes, this is for you!"
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 3-4
+    dependencies: [P1-T01]
+    deliverables:
+      - documentation/getting-started/non-developers-welcome.md
+    acceptance_criteria:
+      - Welcoming, not intimidating
+      - Shows 6 diverse personas
+      - No technical jargon
+      - Success stories preview
+      - "You don't need to code" messaging
+      - Links to persona-specific paths
+    salvage: null
+    notes: |
+      Critical first impression for non-developers. Make or break.
+
+  - id: P1-T09
+    title: Beginner's Concept Guide
+    description: |
+      Plain-language explanation of concepts. What is git, MCP, sprint, worktree.
+      Uses analogies, not technical definitions.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 4-6
+    dependencies: []
+    deliverables:
+      - documentation/getting-started/shared/concepts-explained.md
+      - documentation/getting-started/shared/glossary.md
+    acceptance_criteria:
+      - No technical jargon without explanation
+      - Analogies for all concepts
+      - "You don't need to know git" messaging
+      - Visual diagrams if possible
+      - Confidence-building tone
+    salvage: null
+    notes: |
+      Bridge between intimidation and understanding.
+
+  - id: P1-T10
+    title: QUICKSTART-NON-DEVELOPERS.md
+    description: |
+      Visual, LLM-guided quick start for non-developers. Emphasizes non-coding entry.
+      Multiple persona paths.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 6-8
+    dependencies: [P1-T08, P1-T09]
+    deliverables:
+      - documentation/getting-started/non-developers/QUICKSTART-NON-DEVELOPERS.md
+    acceptance_criteria:
+      - Visual/screenshot heavy
+      - LLM-guided workflow
+      - Emphasizes non-coding entry
+      - Links to persona-specific guides
+      - No command-line required for setup
+      - Builds confidence
+    salvage: null
+    notes: |
+      Different approach than developer quickstart. More visual, more supportive.
+
+  - id: P1-T11
+    title: Non-Coding First Sprint Guide (6 Examples)
+    description: |
+      Complete guide with 6 diverse non-coding sprint examples. One per persona.
+      Full walkthroughs. Vibe mode available for all.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [planned, vibe, non-coding]
+    priority: P1-Critical
+    effort_hours: 8-10
+    dependencies: [P1-T10]
+    deliverables:
+      - documentation/getting-started/creators/non-coding-projects/youtube-series.md
+      - documentation/getting-started/makers/non-coding-projects/product-launch.md
+      - documentation/getting-started/hobbyists/non-coding-projects/novel-outline.md
+      - documentation/getting-started/community-builders/non-coding-projects/event-organizing.md
+      - documentation/getting-started/freelancers/non-coding-projects/client-project.md
+      - documentation/getting-started/writers/non-coding-projects/newsletter-launch.md
+    acceptance_criteria:
+      - 6 complete examples (one per persona)
+      - Each shows full sprint lifecycle
+      - Relatable to target audience
+      - Both planned and vibe modes shown
+      - Builds confidence in process
+      - No coding required
+    salvage: null
+    notes: |
+      CRITICAL - this is the primary entry path for non-developers.
+      Must be excellent quality, relatable, confidence-building.
+
+  - id: P1-T12
+    title: Software Transition Tutorial
+    description: |
+      Guide for transitioning from non-coding to software sprints.
+      Leverages familiar process, reduces anxiety.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [software]
+    priority: P1-Critical
+    effort_hours: 6-8
+    dependencies: [P1-T11]
+    deliverables:
+      - documentation/getting-started/shared/transition-non-coding-to-software.md
+      - documentation/getting-started/creators/software-projects/first-software-sprint.md
+      - documentation/getting-started/makers/software-projects/build-your-tool.md
+    acceptance_criteria:
+      - Emphasizes familiar process
+      - "Same workflow, LLM does coding" messaging
+      - Simple first software project for each persona
+      - Builds on non-coding sprint confidence
+      - Reduces anxiety about coding
+      - Celebrates progress
+    salvage: null
+    notes: |
+      Critical transition moment. Must feel natural, not intimidating.
+
+  # ---------------------------------------------------------------------------
+  # LLM Agent Enhancement
+  # ---------------------------------------------------------------------------
+
+  - id: P1-T13
+    title: LLM-USAGE-GUIDE.md Section 9 (Enhanced)
+    description: |
+      Add Section 9 to LLM Usage Guide covering adaptive communication for
+      tri-audience, multi-use-case system.
+    audience: [llm-agents]
+    use_case: [all]
+    priority: P1-Critical
+    effort_hours: 4-6
+    dependencies: []
+    deliverables:
+      - documentation/reference/LLM-USAGE-GUIDE.md (Section 9 added)
+    sections:
+      - 9.1: Detecting User Context (tech level, project type, intent)
+      - 9.2: Adaptive Communication Patterns
+      - 9.3: Supporting Non-Coding Projects
+      - 9.4: Supporting Vibe Mode
+      - 9.5: Non-Developer Error Recovery
+      - 9.6: Transition Support (non-coding → software)
+      - 9.7: Complete Examples (all scenarios)
+    acceptance_criteria:
+      - Detection matrix complete (user × project × intent)
+      - Adaptive patterns for all combinations
+      - Non-coding project support clear
+      - Vibe mode support welcoming
+      - Examples cover all scenarios
+      - Plain-language error translations
+      - Transition support encouraging
+    salvage: Sprint 21 LLM-USAGE-GUIDE.md Sections 1-8 (95% complete)
+    notes: |
+      Salvage excellent Sprint 21 work, add critical Section 9.
+      This makes or breaks the non-developer experience.
+
+# =============================================================================
+# PHASE 2: ENHANCED EXPERIENCE (v1.1)
+# Goal: Polished onboarding, success stories, templates
+# Timeline: 3-4 sprints (1.5-2 weeks)
+# =============================================================================
+
+phase_2_high:
+
+  # ---------------------------------------------------------------------------
+  # Universal Improvements
+  # ---------------------------------------------------------------------------
+
+  - id: P2-T01
+    title: Troubleshooting Guide (by Audience + Use Case)
+    description: |
+      Comprehensive troubleshooting organized by audience and use case.
+      Common issues and solutions.
+    audience: [all]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 6-8
+    dependencies: [P1-T13]
+    deliverables:
+      - documentation/guides/troubleshooting/developers.md
+      - documentation/guides/troubleshooting/creators.md
+      - documentation/guides/troubleshooting/makers.md
+      - documentation/guides/troubleshooting/hobbyists.md
+      - documentation/guides/troubleshooting/freelancers.md
+      - documentation/guides/troubleshooting/common-issues.md
+    acceptance_criteria:
+      - Organized by audience
+      - Common issues identified
+      - Solutions clear and actionable
+      - Language appropriate for audience
+      - Both technical and plain-language versions
+    salvage: null
+    notes: |
+      Critical for reducing abandonment when users hit issues.
+
+  - id: P2-T02
+    title: Visual Sprint Workflow Diagrams
+    description: |
+      Visual diagrams showing sprint workflow for different use cases.
+      Planned vs vibe, coding vs non-coding.
+    audience: [all]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 4-6
+    dependencies: []
+    deliverables:
+      - documentation/getting-started/shared/workflow-diagrams/planned-sprint.svg
+      - documentation/getting-started/shared/workflow-diagrams/vibe-sprint.svg
+      - documentation/getting-started/shared/workflow-diagrams/non-coding-sprint.svg
+      - documentation/getting-started/shared/workflow-diagrams/software-sprint.svg
+    acceptance_criteria:
+      - Visual, not text-heavy
+      - Shows all phases
+      - Differentiates planned vs vibe
+      - Universal accessibility (color-blind safe)
+      - Works in both light and dark modes
+    salvage: null
+    notes: |
+      Visual learners need this. Also good for social media sharing.
+
+  - id: P2-T03
+    title: FAQ by Audience
+    description: |
+      Frequently asked questions organized by audience type.
+    audience: [all]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 4-6
+    dependencies: []
+    deliverables:
+      - documentation/FAQ-DEVELOPERS.md
+      - documentation/FAQ-CREATORS.md
+      - documentation/FAQ-MAKERS.md
+      - documentation/FAQ-HOBBYISTS.md
+      - documentation/FAQ-FREELANCERS.md
+    acceptance_criteria:
+      - Audience-specific questions
+      - Clear, concise answers
+      - Language appropriate for audience
+      - Links to relevant guides
+      - Regularly updated based on user feedback
+    salvage: null
+    notes: |
+      Collect questions during Phase 1 validation.
+
+  # ---------------------------------------------------------------------------
+  # Creator/Maker Specific
+  # ---------------------------------------------------------------------------
+
+  - id: P2-T04
+    title: Success Stories
+    description: |
+      Real examples from each persona showing successful sprints.
+      Both non-coding and software examples.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 6-8
+    dependencies: [P1-T11, P1-T12]
+    deliverables:
+      - documentation/success-stories/by-audience/creators.md
+      - documentation/success-stories/by-audience/makers.md
+      - documentation/success-stories/by-audience/hobbyists.md
+      - documentation/success-stories/by-use-case/non-coding-to-software.md
+      - documentation/success-stories/by-use-case/vibe-to-production.md
+    acceptance_criteria:
+      - Real user examples (recruit beta users)
+      - Shows journey from start to finish
+      - Both non-coding and software examples
+      - Includes challenges and how overcome
+      - Authentic voices
+      - Diverse representation
+    salvage: null
+    notes: |
+      Social proof for non-developers. Critical for adoption.
+
+  - id: P2-T05
+    title: Templates Library
+    description: |
+      Sprint templates for common projects. Content calendar, product launch,
+      event planning, etc.
+    audience: [creators, makers, hobbyists, freelancers, writers]
+    use_case: [non-coding, planned]
+    priority: P2-High
+    effort_hours: 8-10
+    dependencies: [P1-T11]
+    deliverables:
+      - templates/content-calendar-sprint.yaml
+      - templates/product-launch-sprint.yaml
+      - templates/event-planning-sprint.yaml
+      - templates/client-project-sprint.yaml
+      - templates/newsletter-series-sprint.yaml
+      - documentation/guides/using-templates.md
+    acceptance_criteria:
+      - Ready-to-use templates
+      - Covers common use cases
+      - Easy to customize
+      - Documentation on how to use
+      - Community contribution guide
+    salvage: null
+    notes: |
+      Lowers barrier even further. Copy, customize, go.
+
+  # ---------------------------------------------------------------------------
+  # LLM Agent Enhancements
+  # ---------------------------------------------------------------------------
+
+  - id: P2-T06
+    title: Enhanced Tool Responses
+    description: |
+      Update tool responses with context-aware next steps and audience-adaptive
+      language.
+    audience: [llm-agents]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 6-8
+    dependencies: [P1-T13]
+    deliverables:
+      - src/tools/*.ts (updated response templates)
+      - src/common/response-composer.ts (enhanced)
+    acceptance_criteria:
+      - Responses detect user context
+      - Next steps provided
+      - Language adapts to audience
+      - Vibe mode support
+      - Non-coding project support
+    salvage: null
+    notes: |
+      Implementation work, not just documentation.
+
+  - id: P2-T07
+    title: Advanced LLM Patterns
+    description: |
+      Document advanced patterns for cross-audience optimization and vibe mode
+      subtleties.
+    audience: [llm-agents]
+    use_case: [all]
+    priority: P2-High
+    effort_hours: 4-6
+    dependencies: [P1-T13, P2-T06]
+    deliverables:
+      - documentation/reference/LLM-USAGE-GUIDE.md (Section 10: Advanced Patterns)
+    acceptance_criteria:
+      - Cross-audience optimization patterns
+      - Vibe mode subtleties documented
+      - Edge case handling
+      - Performance optimization
+      - Testing strategies
+    salvage: null
+    notes: |
+      For when LLM guide Section 9 is mastered.
+
+# =============================================================================
+# PHASE 3: NICE-TO-HAVE (v1.2+)
+# Goal: Video tutorials, interactive onboarding, community features
+# Timeline: Ongoing (8-12+ sprints)
+# =============================================================================
+
+phase_3_nice_to_have:
+
+  - id: P3-T01
+    title: Video Tutorials (by Persona)
+    description: |
+      Video tutorials for each persona showing complete sprint from start to finish.
+    audience: [all]
+    use_case: [all]
+    priority: P3-Nice-to-Have
+    effort_hours: 24-32
+    dependencies: [P1-T11, P1-T12]
+    deliverables:
+      - videos/developers/first-planned-sprint.mp4
+      - videos/developers/first-vibe-sprint.mp4
+      - videos/creators/youtube-series-sprint.mp4
+      - videos/makers/product-launch-sprint.mp4
+      - videos/hobbyists/novel-outline-sprint.mp4
+      - videos/transition-to-software.mp4
+    acceptance_criteria:
+      - Professional quality
+      - Clear narration
+      - Screen recordings
+      - 10-15 minutes each
+      - Hosted on YouTube
+      - Captions for accessibility
+    salvage: null
+    notes: |
+      High effort but high value for visual learners.
+
+  - id: P3-T02
+    title: Interactive Onboarding
+    description: |
+      Web-based interactive tutorial with choose-your-own-path.
+    audience: [all]
+    use_case: [all]
+    priority: P3-Nice-to-Have
+    effort_hours: 40-60
+    dependencies: [P1-T11, P1-T12]
+    deliverables:
+      - Web app at onboarding.sprint-mcp.dev
+      - Interactive tutorial engine
+      - Persona selector
+      - Simulated sprint experience
+    acceptance_criteria:
+      - Works in browser
+      - No installation required
+      - Saves progress
+      - All personas supported
+      - Smooth UX
+      - Mobile-friendly
+    salvage: null
+    notes: |
+      Significant development effort. Consider v2.0 feature.
+
+  - id: P3-T03
+    title: Sprint Dashboard
+    description: |
+      Visual dashboard showing sprint progress, artifacts, timeline.
+    audience: [all]
+    use_case: [all]
+    priority: P3-Nice-to-Have
+    effort_hours: 60-80
+    dependencies: []
+    deliverables:
+      - Web/desktop app
+      - Sprint visualization
+      - Progress tracking
+      - Artifact browser
+      - Timeline view
+    acceptance_criteria:
+      - Real-time updates
+      - Works for all use cases
+      - Beautiful design
+      - Export capabilities
+      - Integration with MCP tools
+    salvage: null
+    notes: |
+      Major feature. Separate product consideration.
+
+  - id: P3-T04
+    title: Community Examples Gallery
+    description: |
+      User-submitted sprint examples. Searchable by audience and use case.
+    audience: [all]
+    use_case: [all]
+    priority: P3-Nice-to-Have
+    effort_hours: Ongoing
+    dependencies: [P2-T04]
+    deliverables:
+      - Community gallery at examples.sprint-mcp.dev
+      - Submission system
+      - Moderation workflow
+      - Search and filter
+    acceptance_criteria:
+      - Easy submission
+      - Quality moderation
+      - Searchable/filterable
+      - Voting/rating system
+      - Categories by persona/use case
+    salvage: null
+    notes: |
+      Community-driven. Ongoing maintenance.
+
+# =============================================================================
+# Summary
+# =============================================================================
+
+summary:
+  phase_1_critical:
+    tasks: 13
+    effort_hours: 67-90
+    timeline_sprints: 5-6
+    timeline_weeks: 2.5-3
+    goal: All audiences + all use cases supported for v1.0
+
+  phase_2_high:
+    tasks: 7
+    effort_hours: 38-52
+    timeline_sprints: 3-4
+    timeline_weeks: 1.5-2
+    goal: Polished experience with success stories and templates
+
+  phase_3_nice_to_have:
+    tasks: 4
+    effort_hours: 124-172+
+    timeline_sprints: 8-12+
+    timeline_weeks: Ongoing
+    goal: Advanced features and community
+
+  total:
+    tasks: 24
+    effort_hours: 229-314
+    to_v1_0: 5-6 sprints (~3 weeks)
+    to_v1_1: 8-10 sprints (~5 weeks total)
+    to_v1_2: Ongoing
+
+# =============================================================================
+# Notes
+# =============================================================================
+
+notes: |
+  This backlog replaces Sprint 21's 47-task backlog with tri-audience,
+  multi-use-case approach.
+
+  Key differences from Sprint 21:
+  - Added vibe mode to all developer docs (+2 tasks)
+  - Added non-coding entry path for non-developers (+1 major task)
+  - Expanded to 6 diverse personas (vs generic "non-developer")
+  - Added use case spectrum framework
+  - Enhanced LLM guide for all combinations
+
+  Effort increased from 41-58 hours (P1) to 67-90 hours due to:
+  - Vibe mode guides and examples
+  - Non-coding first sprint guide (6 examples)
+  - Software transition guide
+  - Enhanced LLM Section 9
+
+  Market opportunity justifies investment:
+  - Developer-only: 5-10M users
+  - Tri-audience, multi-use-case: 130M+ users
+
+  Critical success factors:
+  1. Non-coding entry must be seamless
+  2. Vibe mode must feel welcoming
+  3. Diverse examples must resonate
+  4. LLM adaptation must be excellent
+  5. Transitions must be natural
